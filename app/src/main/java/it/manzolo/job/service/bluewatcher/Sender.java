@@ -59,15 +59,10 @@ public class Sender {
 
     public void send() {
         // perform HTTP POST request
-        //if(checkNetworkConnection())
-        //http://voltwatcher.manzolo.it/api/sendvolt
-        //new HTTPAsyncTask().execute("http://192.168.1.28:8088/api/sendvolt");
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
         String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt"); //"" is the default String to return if the preference isn't found
         Log.i(TAG, url);
         new HTTPAsyncTask().execute(url);
-        /*else
-            Toast.makeText(this, "Not Connected!", Toast.LENGTH_SHORT).show();*/
 
     }
 
