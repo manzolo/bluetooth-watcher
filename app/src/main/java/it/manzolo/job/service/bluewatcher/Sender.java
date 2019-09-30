@@ -1,6 +1,9 @@
 package it.manzolo.job.service.bluewatcher;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -14,14 +17,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-public class Manzolosender {
+public class Sender {
 
+    public static final String TAG = "Sender";
+
+    Context ctx;
     private String device;
     private String data;
     private String volt;
     private String temp;
 
-    public Manzolosender(String device, String data, String volt, String temp) {
+    public Sender(Context ctx, String device, String data, String volt, String temp) {
+        this.ctx = ctx;
         this.device = device;
         this.data = data;
         this.volt = volt;
@@ -29,8 +36,6 @@ public class Manzolosender {
     }
 
     private String httpPost(String myUrl) throws IOException, JSONException {
-        String result = "";
-
         URL url = new URL(myUrl);
 
         // 1. create HttpURLConnection
@@ -46,19 +51,21 @@ public class Manzolosender {
 
         // 4. make POST request to the given URL
         conn.connect();
-        Log.i("Manzolo", conn.getResponseMessage());
+        Log.i(TAG, conn.getResponseMessage());
         // 5. return response message
         return conn.getResponseMessage() + "";
 
     }
 
     public void send() {
-        //Toast.makeText(this, "Clicked", Toast.LENGTH_SHORT).show();
         // perform HTTP POST request
         //if(checkNetworkConnection())
         //http://voltwatcher.manzolo.it/api/sendvolt
         //new HTTPAsyncTask().execute("http://192.168.1.28:8088/api/sendvolt");
-        new HTTPAsyncTask().execute("http://voltwatcher.manzolo.it/api/sendvolt");
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
+        String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt"); //"" is the default String to return if the preference isn't found
+        Log.i(TAG, url);
+        new HTTPAsyncTask().execute(url);
         /*else
             Toast.makeText(this, "Not Connected!", Toast.LENGTH_SHORT).show();*/
 
@@ -107,7 +114,6 @@ public class Manzolosender {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            //tvResult.setText(result);
         }
     }
 

@@ -5,12 +5,9 @@ import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
+import android.preference.PreferenceManager
 import java.util.concurrent.TimeUnit
 
-/**
- * @author Andrea Manzi manzolo@libero.it
- * @since Sep, Sun 29 2019 23.48
- **/
 class App : Application() {
 
     companion object {
@@ -19,11 +16,16 @@ class App : Application() {
 
             val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
 
-            val componentName = ComponentName(context, MainJobService::class.java)
+            val componentName = ComponentName(context, MainService::class.java)
+
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val seconds = preferences.getString("seconds", "15") //"" is the default String to return if the preference isn't found
+
+            //Log.i("Manzolo",seconds);
 
             val jobInfo = JobInfo.Builder(1, componentName)
                     .setMinimumLatency(TimeUnit.SECONDS.toMillis(60))
-                    .setOverrideDeadline(TimeUnit.SECONDS.toMillis(3600)) //30
+                    .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                     .setPersisted(true)
                     .build()

@@ -4,14 +4,10 @@ import android.app.job.JobParameters
 import android.app.job.JobService
 import android.util.Log
 
-/**
- * @author Andrea Manzi manzolo@libero.it
- * @since Jul, Mon 09 2018 13.53
- **/
-class MainJobService : JobService() {
+class MainService : JobService() {
 
     companion object {
-        val TAG: String = MainJobService::class.java.simpleName
+        val TAG: String = MainService::class.java.simpleName
     }
 
     override fun onCreate() {
@@ -47,7 +43,8 @@ class MainJobService : JobService() {
     private fun startWatcherTask() {
         //Log.d(TAG, "startWatcherTask")
         try {
-            val btclient1 = Btclient("44:44:09:04:01:CC")
+
+            val btclient1 = Btclient(this.applicationContext, "44:44:09:04:01:CC")
             if (btclient1.openBT()) {
                 btclient1.getData()
                 Thread.sleep(2000)
@@ -56,7 +53,7 @@ class MainJobService : JobService() {
 
             Thread.sleep(3000)
 
-            val btclient2 = Btclient("34:43:0B:07:0F:58")
+            val btclient2 = Btclient(this.applicationContext, "34:43:0B:07:0F:58")
             if (btclient2.openBT()) {
                 btclient2.getData()
                 Thread.sleep(2000)

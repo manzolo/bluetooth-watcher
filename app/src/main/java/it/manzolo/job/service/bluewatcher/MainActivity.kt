@@ -1,10 +1,12 @@
 package it.manzolo.job.service.bluewatcher
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,7 +28,11 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                val intent1 = Intent(this, SettingsActivity::class.java)
+                this.startActivity(intent1)
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

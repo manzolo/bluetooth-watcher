@@ -9,9 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_main.*
 
-/**
- * A placeholder fragment containing a simple view.
- */
 class MainActivityFragment : Fragment() {
 
     companion object {
@@ -20,24 +17,19 @@ class MainActivityFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(it.manzolo.job.service.bluewatcher.R.layout.fragment_main, container, false)
+        return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         button.setOnClickListener {
-
-            startJobService(1)
+            startJobService()
         }
-
     }
 
-    private fun startJobService(i: Int) {
-
-        Log.d(it.manzolo.job.service.bluewatcher.MainActivityFragment.Companion.TAG, "startJobService")
-
+    private fun startJobService() {
+        Log.d(TAG, "startJobService")
         it.manzolo.job.service.bluewatcher.App.Companion.scheduleJobService(activity as Context)
-
     }
 }

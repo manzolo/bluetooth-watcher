@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android2="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android2:dialogTitle="Enter a valid url"
+        android2:key="webserviceurl"
+        android2:summary="Click to show a text entry dialog"
+        android2:title="Webserver url" />
+    <EditTextPreference
+        android2:dialogTitle="Select duration"
+        android2:key="seconds"
+        android2:summary="Set every seconds service start"
+        android2:title="Every seconds" />
+    <SwitchPreference
+        android2:defaultValue="true"
+        android2:key="switch"
+        android2:summary="Click to switch on or off"
+        android2:title="Service enabled" />
+</PreferenceScreen>

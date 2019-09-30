@@ -3,6 +3,7 @@ package it.manzolo.job.service.bluewatcher;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
@@ -17,6 +18,8 @@ import java.util.Date;
 import java.util.UUID;
 
 public class Btclient {
+    public static final String TAG = "Btclient";
+    static Context ctx;
     BluetoothAdapter mBluetoothAdapter;
     BluetoothSocket mmSocket;
     BluetoothDevice mmDevice;
@@ -28,8 +31,9 @@ public class Btclient {
     volatile boolean stopWorker;
     private String addr;
 
-    public Btclient(String addr) {
+    public Btclient(Context ctx, String addr) {
         this.addr = addr;
+        Btclient.ctx = ctx;
         this.findBT();
     }
 
@@ -37,42 +41,39 @@ public class Btclient {
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         try {
             mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-            Log.i("Manzolo", "Connecting to " + uuid);
+            Log.i(TAG, "Connecting to " + uuid);
             mmSocket.connect();
-            Log.i("Manzolo", "Connected to " + uuid);
+            Log.i(TAG, "Connected to " + uuid);
             mmOutputStream = mmSocket.getOutputStream();
             mmInputStream = mmSocket.getInputStream();
 
         } catch (IOException e) {
-            Log.e("Manzolo", "unable to connect to " + this.addr);
+            Log.e(TAG, "Unable to connect to " + this.addr);
             return false;
         }
         return true;
-
-
     }
 
     private boolean findBT() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
-            Log.e("Manzolo", "No bluetooth adapter available");
+            Log.e(TAG, "No bluetooth adapter available");
             return false;
-
         }
 
         if (!mBluetoothAdapter.isEnabled()) {
-            Log.e("Manzolo", "Bluetooth not enabled");
+            Log.e(TAG, "Bluetooth not enabled");
             return false;
         }
 
         mmDevice = mBluetoothAdapter.getRemoteDevice(this.addr);
-        Log.i("Manzolo", "Bluetooth Device Found");
+        Log.i(TAG, "Bluetooth Device Found");
         return true;
     }
 
     void beginListenForData() {
         final Handler handler = new Handler();
-        Log.i("Manzolo", "Listen");
+        Log.i(TAG, "Listen...");
 
         stopWorker = false;
         readBufferPosition = 0;
@@ -83,7 +84,6 @@ public class Btclient {
                 while (!Thread.currentThread().isInterrupted() && !stopWorker) {
                     try {
                         int bytesAvailable = mmInputStream.available();
-                        //Log.i("Manzolo", new StringBuilder().append(bytesAvailable).toString());
                         if (bytesAvailable > 0) {
 
                             int bytereaded = -1;
@@ -111,9 +111,9 @@ public class Btclient {
                                     final String tempstr = new StringBuilder().append(temp[0]).toString();
 
 
-                                    Log.i("Manzolo", "Device: " + device);
-                                    Log.i("Manzolo", voltstr + " Volt");
-                                    Log.i("Manzolo", new StringBuilder().append(tempstr) + "°");
+                                    Log.i(TAG, "Device: " + device);
+                                    Log.i(TAG, voltstr + " Volt");
+                                    Log.i(TAG, new StringBuilder().append(tempstr) + "°");
 
                                     readBufferPosition = 0;
                                     bytereaded = -1;
@@ -124,14 +124,13 @@ public class Btclient {
                                             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                             String now = dateFormat.format(date);
 
-                                            Log.i("Manzolo", "Post finish -> " + now);
+                                            Log.i(TAG, "Send data to webserver");
                                             try {
-                                                Manzolosender sender = new Manzolosender(device, now, voltstr, tempstr);
+                                                Sender sender = new Sender(Btclient.ctx, device, now, voltstr, tempstr);
                                                 sender.send();
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
-                                            //myLabel.setText(voltstr);
                                         }
                                     });
                                 } else {
@@ -140,10 +139,7 @@ public class Btclient {
 
                                 }
                             }
-
-
                         }
-
                     } catch (IOException ex) {
                         stopWorker = true;
                     } catch (Exception e) {
@@ -164,7 +160,6 @@ public class Btclient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //closeBT();
     }
 
     void closeBT() throws IOException {
@@ -172,6 +167,6 @@ public class Btclient {
         mmOutputStream.close();
         mmInputStream.close();
         mmSocket.close();
-        Log.i("Manzolo", "Bluetooth Closed");
+        Log.i(TAG, "Bluetooth Closed");
     }
 }
