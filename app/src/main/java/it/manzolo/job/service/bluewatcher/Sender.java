@@ -61,8 +61,8 @@ public class Sender {
         // perform HTTP POST request
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
         String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt"); //"" is the default String to return if the preference isn't found
-        Log.i(TAG, url);
-        new HTTPAsyncTask().execute(url);
+        Log.i(TAG, "/api/sendvolt");
+        new HTTPAsyncTask().execute(url + "/api/sendvolt");
 
     }
 

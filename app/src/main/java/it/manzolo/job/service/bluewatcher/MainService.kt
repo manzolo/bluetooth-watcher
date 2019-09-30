@@ -38,6 +38,9 @@ class MainService : JobService() {
         //Log.d(TAG, "startWatcherTask")
         try {
             val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
+            val url = preferences.getString("webserviceurl", "")
+            val appsettings = AppReceiveSettings(this.applicationContext, url + "/api/appgetsettings")
+            appsettings.receive()
             val address = preferences.getString("devices", "")
             val items = address.split(",")
             for (i in 0 until items.size) {

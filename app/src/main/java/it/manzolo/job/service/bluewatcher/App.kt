@@ -31,8 +31,8 @@ class App : Application() {
                 if (enabled) {
                     Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
                     val jobInfo = JobInfo.Builder(1, componentName)
-                            .setMinimumLatency(TimeUnit.SECONDS.toMillis(60))
-                            .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong() * 1000))
+                            .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+                            .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                             .setPersisted(true)
                             .build()
