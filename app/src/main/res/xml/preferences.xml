@@ -10,9 +10,14 @@
         android2:key="seconds"
         android2:summary="Set every seconds service start"
         android2:title="Every seconds" />
+    <EditTextPreference
+        android2:dialogTitle="Select devices address"
+        android2:key="devices"
+        android2:summary="Select device to watch, comma separated values"
+        android2:title="Devices address" />
     <SwitchPreference
         android2:defaultValue="true"
-        android2:key="switch"
+        android2:key="enabled"
         android2:summary="Click to switch on or off"
         android2:title="Service enabled" />
 </PreferenceScreen>
