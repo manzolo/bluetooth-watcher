@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright 2018 The app Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Service">
+
+        <EditTextPreference
+            app:dialogTitle="Enter a valid url"
+            app:key="webserviceurl"
+            app:summary="Click to show a text entry dialog"
+            app:title="Webserver url" />
+        <EditTextPreference
+            app:dialogTitle="Select duration"
+            app:key="seconds"
+            app:summary="Set every seconds service start"
+            app:title="Every seconds" />
+        <EditTextPreference
+            app:dialogTitle="Select devices address"
+            app:key="devices"
+            app:summary="Select device to watch, comma separated values"
+            app:title="Devices address" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="State">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="enabled"
+            app:summary="Click to switch on or off"
+            app:title="Service enabled" />
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="autoupdate"
+            app:summary="Click to switch on or off"
+            app:title="Auto settings update from webservice" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

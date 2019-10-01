@@ -2,11 +2,11 @@ package it.manzolo.job.service.bluewatcher
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_main.*
 
 class MainActivityFragment : Fragment() {
@@ -30,6 +30,6 @@ class MainActivityFragment : Fragment() {
 
     private fun startJobService() {
         Log.d(TAG, "startJobService")
-        it.manzolo.job.service.bluewatcher.App.Companion.scheduleJobService(activity as Context)
+        App.scheduleJobService(activity as Context)
     }
 }
