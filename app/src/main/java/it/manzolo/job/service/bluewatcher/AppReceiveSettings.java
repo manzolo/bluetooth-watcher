@@ -17,13 +17,13 @@ import java.net.URL;
 
 public class AppReceiveSettings {
 
-    public static final String TAG = "AppReceiveSettings";
+    private static final String TAG = "AppReceiveSettings";
 
-    Context ctx;
-    String url;
+    private Context context;
+    private String url;
 
-    public AppReceiveSettings(Context ctx, String url) {
-        this.ctx = ctx;
+    public AppReceiveSettings(Context context, String url) {
+        this.context = context;
         this.url = url;
     }
 
@@ -45,7 +45,7 @@ public class AppReceiveSettings {
 
         JSONObject jsonObject = new JSONObject(sb.toString());
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.context);
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.putString("seconds", jsonObject.get("seconds").toString());
@@ -67,7 +67,7 @@ public class AppReceiveSettings {
 
     public void receive() {
         // perform HTTP POST request
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.context);
         String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt"); //"" is the default String to return if the preference isn't found
         Log.d(TAG, url);
         new HTTPAsyncTask().execute(url + "/api/appgetsettings");
