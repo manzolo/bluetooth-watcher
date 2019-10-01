@@ -36,27 +36,42 @@ class MainService : JobService() {
 
     private fun startWatcherTask() {
         //Log.d(TAG, "startWatcherTask")
-        try {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
-            val url = preferences.getString("webserviceurl", "")
+
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
+        val url = preferences.getString("webserviceurl", "")
+        val autoupdate = preferences.getBoolean("autoupdate", true)
+        if (autoupdate) {
             val appsettings = AppReceiveSettings(this.applicationContext, url + "/api/appgetsettings")
             appsettings.receive()
-            val address = preferences.getString("devices", "")
-            val items = address.split(",")
-            for (i in 0 until items.size) {
-                val addr = items[i].replace("\\s".toRegex(), "")
-                val btclient = Btclient(this.applicationContext, addr)
-                if (btclient.openBT()) {
-                    Thread.sleep(1500)
-                    btclient.getData()
-                    Thread.sleep(1500)
-                    btclient.closeBT()
+            Log.d(TAG, "Settings updated")
+        }
+        val enabled = preferences.getBoolean("enabled", true)
+        val address = preferences.getString("devices", "")
+
+        if (address.replace("\\s".toRegex(), "").length === 0) {
+            Log.e(TAG, "No devices in preferences")
+        } else {
+            if (enabled) {
+                try {
+                    val address = preferences.getString("devices", "")
+                    val items = address.split(",")
+                    for (i in 0 until items.size) {
+                        val addr = items[i].replace("\\s".toRegex(), "")
+                        val btclient = Btclient(this.applicationContext, addr)
+                        if (btclient.openBT()) {
+                            Thread.sleep(1500)
+                            btclient.getData()
+                            Thread.sleep(1500)
+                            btclient.closeBT()
+                        }
+                        Thread.sleep(2000)
+                    }
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
                 }
-                Thread.sleep(2000)
+            } else {
+                Log.w(TAG, "Service disabled in settings")
             }
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
         }
     }
-
 }

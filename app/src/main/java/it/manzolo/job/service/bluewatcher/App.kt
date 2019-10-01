@@ -19,16 +19,9 @@ class App : Application() {
             val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
 
             val componentName = ComponentName(context, MainService::class.java)
-
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val seconds = preferences.getString("seconds", "15") //"" is the default String to return if the preference isn't found
-            val enabled = preferences.getBoolean("enabled", true) //"" is the default String to return if the preference isn't found
-            val address = preferences.getString("devices", "")
-            if (address.replace("\\s".toRegex(), "").length === 0) {
-                Toast.makeText(context, "No devices in preferences", Toast.LENGTH_LONG).show()
-            } else {
+            val seconds = preferences.getString("seconds", "15")
                 //Log.i("Manzolo",seconds);
-                if (enabled) {
                     Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
                     val jobInfo = JobInfo.Builder(1, componentName)
                             .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
@@ -38,10 +31,6 @@ class App : Application() {
                             .build()
 
                     jobScheduler.schedule(jobInfo)
-                } else {
-                    Toast.makeText(context, "Service disabled in preferences", Toast.LENGTH_LONG).show()
-                }
-            }
 
         }
     }

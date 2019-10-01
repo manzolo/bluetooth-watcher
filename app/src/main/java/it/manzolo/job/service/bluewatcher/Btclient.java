@@ -41,9 +41,9 @@ public class Btclient {
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         try {
             mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-            Log.i(TAG, "Connecting to " + uuid);
+            Log.d(TAG, "Connecting to " + uuid);
             mmSocket.connect();
-            Log.i(TAG, "Connected to " + uuid);
+            Log.d(TAG, "Connected to " + uuid);
             mmOutputStream = mmSocket.getOutputStream();
             mmInputStream = mmSocket.getInputStream();
 
@@ -67,13 +67,13 @@ public class Btclient {
         }
 
         mmDevice = mBluetoothAdapter.getRemoteDevice(this.addr);
-        Log.i(TAG, "Bluetooth Device Found");
+        Log.d(TAG, "Bluetooth Device Found");
         return true;
     }
 
     void beginListenForData() {
         final Handler handler = new Handler();
-        Log.i(TAG, "Listen...");
+        Log.d(TAG, "Listen...");
 
         stopWorker = false;
         readBufferPosition = 0;
@@ -111,9 +111,9 @@ public class Btclient {
                                     final String tempstr = new StringBuilder().append(temp[0]).toString();
 
 
-                                    Log.i(TAG, "Device: " + device);
-                                    Log.i(TAG, voltstr + " Volt");
-                                    Log.i(TAG, new StringBuilder().append(tempstr) + "°");
+                                    Log.d(TAG, "Device: " + device);
+                                    Log.d(TAG, voltstr + " Volt");
+                                    Log.d(TAG, new StringBuilder().append(tempstr) + "°");
 
                                     readBufferPosition = 0;
                                     bytereaded = -1;
@@ -124,7 +124,7 @@ public class Btclient {
                                             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                             String now = dateFormat.format(date);
 
-                                            Log.i(TAG, "Send data to webserver");
+                                            Log.d(TAG, "Send data to webserver");
                                             try {
                                                 Sender sender = new Sender(Btclient.ctx, device, now, voltstr, tempstr);
                                                 sender.send();
@@ -167,6 +167,6 @@ public class Btclient {
         mmOutputStream.close();
         mmInputStream.close();
         mmSocket.close();
-        Log.i(TAG, "Bluetooth Closed");
+        Log.d(TAG, "Bluetooth Closed");
     }
 }

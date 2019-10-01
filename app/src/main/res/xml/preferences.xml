@@ -20,4 +20,9 @@
         android2:key="enabled"
         android2:summary="Click to switch on or off"
         android2:title="Service enabled" />
+    <SwitchPreference
+        android2:defaultValue="true"
+        android2:key="autoupdate"
+        android2:summary="Click to switch on or off"
+        android2:title="Auto settings update from webservice" />
 </PreferenceScreen>

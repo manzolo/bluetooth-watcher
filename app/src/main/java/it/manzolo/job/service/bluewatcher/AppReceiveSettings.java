@@ -43,15 +43,24 @@ public class AppReceiveSettings {
         }
         br.close();
 
-        //Log.i(TAG, sb.toString());
-
         JSONObject jsonObject = new JSONObject(sb.toString());
-        //Log.i(TAG, jsonObject.get("seconds").toString());
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
         SharedPreferences.Editor editor = preferences.edit();
+
         editor.putString("seconds", jsonObject.get("seconds").toString());
+
+        editor.putString("devices", jsonObject.get("devices").toString());
+
+        Log.d(TAG, jsonObject.get("enabled").toString());
+        if (jsonObject.get("enabled").toString().equals("1")) {
+            editor.putBoolean("enabled", true);
+        } else {
+            editor.putBoolean("enabled", false);
+        }
+
         editor.commit();
+
         return conn.getResponseMessage() + "";
 
     }
@@ -60,7 +69,7 @@ public class AppReceiveSettings {
         // perform HTTP POST request
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
         String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt"); //"" is the default String to return if the preference isn't found
-        Log.i(TAG, url);
+        Log.d(TAG, url);
         new HTTPAsyncTask().execute(url + "/api/appgetsettings");
 
     }
