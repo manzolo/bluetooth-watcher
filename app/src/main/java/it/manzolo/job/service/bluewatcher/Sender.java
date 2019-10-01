@@ -51,7 +51,7 @@ public class Sender {
 
         // 4. make POST request to the given URL
         conn.connect();
-        Log.d(TAG, conn.getResponseMessage());
+        //Log.d(TAG, conn.getResponseMessage());
         // 5. return response message
         return conn.getResponseMessage() + "";
 
@@ -61,7 +61,7 @@ public class Sender {
         // perform HTTP POST request
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
         String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt"); //"" is the default String to return if the preference isn't found
-        Log.d(TAG, "/api/sendvolt");
+        //Log.d(TAG, "/api/sendvolt");
         new HTTPAsyncTask().execute(url + "/api/sendvolt");
 
     }
@@ -79,15 +79,14 @@ public class Sender {
     }
 
     private void setPostRequestContent(HttpURLConnection conn, JSONObject jsonObject) throws IOException {
-
-
         OutputStream os = conn.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
+        Log.d(TAG, "Sending data=" + jsonObject.toString());
         writer.write(jsonObject.toString());
-        Log.d(MainActivity.class.toString(), "data=" + jsonObject.toString());
         writer.flush();
         writer.close();
         os.close();
+        Log.d(TAG, "Data sent");
     }
 
     private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
@@ -98,10 +97,12 @@ public class Sender {
                 try {
                     return httpPost(urls[0]);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, e.getMessage());
+                    //e.printStackTrace();
                     return "Error!";
                 }
             } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
                 return "Unable to retrieve web page. URL may be invalid.";
             }
         }

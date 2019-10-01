@@ -34,10 +34,24 @@ public class Btclient {
     public Btclient(Context ctx, String addr) {
         this.addr = addr;
         Btclient.ctx = ctx;
-        this.findBT();
     }
 
-    boolean openBT() {
+    private void findBT() throws Exception {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            throw new Exception("No bluetooth adapter available");
+        }
+
+        if (!mBluetoothAdapter.isEnabled()) {
+            throw new Exception("Bluetooth not enabled");
+        }
+
+        mmDevice = mBluetoothAdapter.getRemoteDevice(this.addr);
+        Log.d(TAG, "Bluetooth Device Found");
+    }
+
+    boolean openBT() throws Exception {
+        this.findBT();
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         try {
             mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
@@ -48,26 +62,9 @@ public class Btclient {
             mmInputStream = mmSocket.getInputStream();
 
         } catch (IOException e) {
-            Log.e(TAG, "Unable to connect to " + this.addr);
-            return false;
+            //Log.e(TAG, "Unable to connect to " + this.addr);
+            throw new Exception("Unable to connect to " + this.addr);
         }
-        return true;
-    }
-
-    private boolean findBT() {
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null) {
-            Log.e(TAG, "No bluetooth adapter available");
-            return false;
-        }
-
-        if (!mBluetoothAdapter.isEnabled()) {
-            Log.e(TAG, "Bluetooth not enabled");
-            return false;
-        }
-
-        mmDevice = mBluetoothAdapter.getRemoteDevice(this.addr);
-        Log.d(TAG, "Bluetooth Device Found");
         return true;
     }
 

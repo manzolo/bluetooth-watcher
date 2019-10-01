@@ -20,7 +20,7 @@ class App : Application() {
 
             val componentName = ComponentName(context, MainService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val seconds = preferences.getString("seconds", "15")
+            val seconds = preferences.getString("seconds", "30")
                 //Log.i("Manzolo",seconds);
                     Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
                     val jobInfo = JobInfo.Builder(1, componentName)
