@@ -1,9 +1,6 @@
 package it.manzolo.job.service.bluewatcher;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -21,14 +18,14 @@ public class Sender {
 
     public static final String TAG = "Sender";
 
-    Context ctx;
+    private String url;
     private String device;
     private String data;
     private String volt;
     private String temp;
 
-    public Sender(Context ctx, String device, String data, String volt, String temp) {
-        this.ctx = ctx;
+    public Sender(String url, String device, String data, String volt, String temp) {
+        this.url = url;
         this.device = device;
         this.data = data;
         this.volt = volt;
@@ -59,10 +56,9 @@ public class Sender {
 
     public void send() {
         // perform HTTP POST request
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.ctx);
-        String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt"); //"" is the default String to return if the preference isn't found
         //Log.d(TAG, "/api/sendvolt");
-        new HTTPAsyncTask().execute(url + "/api/sendvolt");
+
+        new HTTPAsyncTask().execute(this.url + "/api/sendvolt");
 
     }
 

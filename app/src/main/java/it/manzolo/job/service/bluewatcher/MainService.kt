@@ -64,12 +64,9 @@ class MainService : JobService() {
                         for (i in 0 until items.size) {
                             val addr = items[i].replace("\\s".toRegex(), "")
                             val btclient = Btclient(this.applicationContext, addr)
-                            if (btclient.openBT()) {
-                                Thread.sleep(1500)
-                                btclient.getData()
-                                Thread.sleep(1500)
-                                btclient.closeBT()
-                            }
+
+                            btclient.retrieveData()
+
                             Thread.sleep(2000)
                         }
                     } catch (e: InterruptedException) {

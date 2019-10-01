@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit
 
 
 class App : Application() {
-
     companion object {
 
         fun scheduleJobService(context: Context) {

@@ -4,8 +4,11 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,21 +22,29 @@ import java.util.UUID;
 
 public class Btclient {
     public static final String TAG = "Btclient";
-    static Context ctx;
-    BluetoothAdapter mBluetoothAdapter;
-    BluetoothSocket mmSocket;
-    BluetoothDevice mmDevice;
-    OutputStream mmOutputStream;
-    InputStream mmInputStream;
-    Thread workerThread;
-    byte[] readBuffer;
-    int readBufferPosition;
+    static Context context;
+    private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothSocket mmSocket;
+    private BluetoothDevice mmDevice;
+    private OutputStream mmOutputStream;
+    private InputStream mmInputStream;
+    private Thread workerThread;
+    private byte[] readBuffer;
+    private int readBufferPosition;
     volatile boolean stopWorker;
     private String addr;
 
-    public Btclient(Context ctx, String addr) {
+    public Btclient(Context context, String addr) {
         this.addr = addr;
-        Btclient.ctx = ctx;
+        Btclient.context = context;
+
+    }
+
+    public void retrieveData() throws Exception {
+        this.openBT();
+        this.getData();
+        Thread.sleep(1000);
+        this.closeBT();
     }
 
     private void findBT() throws Exception {
@@ -50,7 +61,7 @@ public class Btclient {
         Log.d(TAG, "Bluetooth Device Found");
     }
 
-    boolean openBT() throws Exception {
+    private boolean openBT() throws Exception {
         this.findBT();
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         try {
@@ -68,7 +79,7 @@ public class Btclient {
         return true;
     }
 
-    void beginListenForData() {
+    private void beginListenForData() {
         final Handler handler = new Handler();
         Log.d(TAG, "Listen...");
 
@@ -115,18 +126,24 @@ public class Btclient {
                                     readBufferPosition = 0;
                                     bytereaded = -1;
                                     readBuffer = new byte[130];
+
                                     handler.post(new Runnable() {
                                         public void run() {
+                                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                                            String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt");
                                             Date date = Calendar.getInstance().getTime();
                                             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                             String now = dateFormat.format(date);
 
                                             Log.d(TAG, "Send data to webserver");
                                             try {
-                                                Sender sender = new Sender(Btclient.ctx, device, now, voltstr, tempstr);
+                                                Sender sender = new Sender(url, device, now, voltstr, tempstr);
                                                 sender.send();
+                                                Toast.makeText(context, "Data sent", Toast.LENGTH_SHORT).show();
                                             } catch (Exception e) {
-                                                e.printStackTrace();
+                                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+                                                Log.e(TAG, e.getMessage());
+                                                //e.printStackTrace();
                                             }
                                         }
                                     });
@@ -149,7 +166,7 @@ public class Btclient {
         workerThread.start();
     }
 
-    void getData() {
+    private void getData() {
         try {
             byte data = (byte) 0xf0;
             mmOutputStream.write(data);
@@ -159,7 +176,7 @@ public class Btclient {
         }
     }
 
-    void closeBT() throws IOException {
+    private void closeBT() throws IOException {
         stopWorker = true;
         mmOutputStream.close();
         mmInputStream.close();
