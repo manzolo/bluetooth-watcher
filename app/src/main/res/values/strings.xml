@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">manzolo-bluetooth-service</string>
+    <string name="app_name">Bluetooth volt watcher</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
