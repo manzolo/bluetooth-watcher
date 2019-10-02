@@ -1,7 +1,11 @@
 package it.manzolo.job.service.bluewatcher;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,17 +18,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import it.manzolo.job.service.enums.BluetoothEvents;
+
 public class Sender {
 
     public static final String TAG = "Sender";
 
+    private Context context;
     private String url;
     private String device;
     private String data;
     private String volt;
     private String temp;
 
-    public Sender(String url, String device, String data, String volt, String temp) {
+    public Sender(Context context, String url, String device, String data, String volt, String temp) {
+        this.context = context;
         this.url = url;
         this.device = device;
         this.data = data;
@@ -32,9 +40,14 @@ public class Sender {
         this.temp = temp;
     }
 
+    public void send() {
+        new HTTPAsyncTask().execute(this.url + "/api/sendvolt");
+    }
+
     private String httpPost(String myUrl) throws IOException, JSONException {
         URL url = new URL(myUrl);
 
+        Log.d(TAG, "Try connecting to " + myUrl);
         // 1. create HttpURLConnection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -43,46 +56,29 @@ public class Sender {
         // 2. build JSON object
         JSONObject jsonObject = buidJsonObject();
 
+        Log.d(TAG, "Sending data=" + jsonObject.toString());
+
         // 3. add JSON content to POST request body
         setPostRequestContent(conn, jsonObject);
 
         // 4. make POST request to the given URL
         conn.connect();
+
+        String responseText = conn.getResponseMessage() + "";
+
         //Log.d(TAG, conn.getResponseMessage());
         // 5. return response message
-        return conn.getResponseMessage() + "";
+        return responseText;
 
-    }
-
-    public void send() {
-        // perform HTTP POST request
-        //Log.d(TAG, "/api/sendvolt");
-
-        new HTTPAsyncTask().execute(this.url + "/api/sendvolt");
-
-    }
-
-    private JSONObject buidJsonObject() throws JSONException {
-
-        JSONObject jsonObject = new JSONObject();
-
-        jsonObject.put("device", this.device);
-        jsonObject.put("data", this.data);
-        jsonObject.put("volt", this.volt);
-        jsonObject.put("temp", this.temp);
-
-        return jsonObject;
     }
 
     private void setPostRequestContent(HttpURLConnection conn, JSONObject jsonObject) throws IOException {
         OutputStream os = conn.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-        Log.d(TAG, "Sending data=" + jsonObject.toString());
         writer.write(jsonObject.toString());
         writer.flush();
         writer.close();
         os.close();
-        Log.d(TAG, "Data sent");
     }
 
     private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
@@ -95,18 +91,34 @@ public class Sender {
                 } catch (JSONException e) {
                     Log.e(TAG, e.getMessage());
                     //e.printStackTrace();
-                    return "Error!";
+                    return "Error: " + e.getMessage();
                 }
             } catch (IOException e) {
                 Log.e(TAG, e.getMessage());
-                return "Unable to retrieve web page. URL may be invalid.";
+                Intent intent = new Intent(BluetoothEvents.ERROR);
+                // You can also include some extra data.
+                intent.putExtra("message", e.getMessage());
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                return "Unable to retrieve web page: " + e.getMessage();
             }
         }
 
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
+            Log.d(TAG, "Webserver response: " + result);
         }
+    }
+    private JSONObject buidJsonObject() throws JSONException {
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("device", this.device);
+        jsonObject.put("data", this.data);
+        jsonObject.put("volt", this.volt);
+        jsonObject.put("temp", this.temp);
+
+        return jsonObject;
     }
 
 

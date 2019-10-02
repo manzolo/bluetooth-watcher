@@ -52,7 +52,6 @@ public class AppReceiveSettings {
 
         editor.putString("devices", jsonObject.get("devices").toString());
 
-        Log.d(TAG, jsonObject.get("enabled").toString());
         if (jsonObject.get("enabled").toString().equals("1")) {
             editor.putBoolean("enabled", true);
         } else {
@@ -61,6 +60,7 @@ public class AppReceiveSettings {
 
         editor.commit();
 
+        Log.d(TAG, "Settings updated");
         return conn.getResponseMessage() + "";
 
     }

@@ -48,6 +48,11 @@
             app:key="autoupdate"
             app:summary="Click to switch on or off"
             app:title="Auto settings update from webservice" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="debug"
+            app:summary="Click to switch on or off"
+            app:title="Debug" />
 
     </PreferenceCategory>
 

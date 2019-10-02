@@ -2,12 +2,18 @@ package it.manzolo.job.service.bluewatcher
 
 import android.app.job.JobParameters
 import android.app.job.JobService
+import android.content.Context
+import android.content.Intent
+import android.os.AsyncTask
 import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import it.manzolo.job.service.enums.BluetoothEvents
 
 
 class MainService : JobService() {
+    private var workerThread: Thread? = null
 
     companion object {
         val TAG: String = MainService::class.java.simpleName
@@ -40,8 +46,11 @@ class MainService : JobService() {
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
         val url = preferences.getString("webserviceurl", "")
+        val debug = preferences.getBoolean("debug", false)
         if (url.replace("\\s".toRegex(), "").length === 0) {
-            Toast.makeText(this, "Web server in setting not set", Toast.LENGTH_LONG).show()
+            if (debug) {
+                Toast.makeText(this, "Web server in setting not set", Toast.LENGTH_LONG).show()
+            }
             Log.e(TAG, "Web server in setting not set")
         } else {
             val autoupdate = preferences.getBoolean("autoupdate", true)
@@ -55,34 +64,64 @@ class MainService : JobService() {
 
             if (address.replace("\\s".toRegex(), "").length === 0) {
                 Log.e(TAG, "No devices in settings")
-                Toast.makeText(this, "No devices in settings", Toast.LENGTH_LONG).show()
+                if (debug) {
+                    Toast.makeText(this, "No devices in settings", Toast.LENGTH_LONG).show()
+                }
             } else {
                 if (enabled) {
                     try {
-                        val address = preferences.getString("devices", "")
-                        val items = address.split(",")
-                        for (i in 0 until items.size) {
-                            val addr = items[i].replace("\\s".toRegex(), "")
-                            val btclient = Btclient(this.applicationContext, addr)
-
-                            btclient.retrieveData()
-
-                            Thread.sleep(2000)
-                        }
+                        btTask().execute(this.applicationContext)
                     } catch (e: InterruptedException) {
                         //e.printStackTrace()
                         Log.e(TAG, e.message)
-                        Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-                    } catch (e: Exception) {
-                        //e.printStackTrace()
-                        Log.e(TAG, e.message)
-                        Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+                        //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
                     }
                 } else {
                     Log.w(TAG, "Service disabled in settings")
-                    Toast.makeText(this, "Service disabled in settings", Toast.LENGTH_LONG).show()
+                    if (debug) {
+                        Toast.makeText(this, "Service disabled in settings", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
+    }
+}
+
+private class btTask : AsyncTask<Context, Void, String>() {
+    override fun doInBackground(vararg args: Context): String {
+        val context = args[0]
+
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val address = preferences.getString("devices", "")
+        val items = address.split(",")
+        for (i in 0 until items.size) {
+            val addr = items[i].replace("\\s".toRegex(), "")
+            try {
+                val btclient = Btclient(addr, context)
+                btclient.retrieveData()
+                //Thread.sleep(1000)
+
+            } catch (e: Exception) {
+                //e.printStackTrace()
+                Log.e(MainService.TAG, e.message)
+                val intent = Intent(BluetoothEvents.ERROR)
+                // You can also include some extra data.
+                intent.putExtra("message", e.message)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+            }
+        }
+        return "OK"
+    }
+
+    @Override
+    override fun onPreExecute() {
+        super.onPreExecute()
+
+    }
+
+    @Override
+    override fun onPostExecute(result: String) {
+        super.onPostExecute(result)
+        //Log.d(MainService.TAG, result)
     }
 }

@@ -20,8 +20,11 @@ class App : Application() {
             val componentName = ComponentName(context, MainService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("seconds", "30")
+            val debug = preferences.getBoolean("debug", false)
                 //Log.i("Manzolo",seconds);
-                    Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
+            if (debug) {
+                Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
+            }
                     val jobInfo = JobInfo.Builder(1, componentName)
                             .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                             .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))

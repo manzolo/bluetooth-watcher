@@ -4,23 +4,48 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.job.service.enums.BluetoothEvents
+import it.manzolo.job.service.enums.WebserverEvents
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_main.*
 
 class MainActivity : AppCompatActivity() {
     val TAG = "MainActivity"
 
     private val mLocalBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val debug = preferences.getBoolean("debug", false)
             when (intent?.action) {
-                BluetoothEvents.ERROR_CONNECTION -> {
-                    Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                BluetoothEvents.ERROR -> {
+                    window.decorView.setBackgroundColor(Color.rgb(150, 0, 0))
+                    context.run { textView.text = intent.getStringExtra("message") }
+                    if (debug) {
+                        Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                    }
+                }
+                WebserverEvents.ERROR -> {
+                    window.decorView.setBackgroundColor(Color.rgb(150, 0, 0))
+                    context.run { textView.text = intent.getStringExtra("message") }
+                    if (debug) {
+                        Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                    }
+                }
+                BluetoothEvents.DATA_RETRIEVED -> {
+                    context.run { textView.text = intent.getStringExtra("message") }
+                    window.decorView.setBackgroundColor(Color.rgb(1, 126, 0))
+                }
+                WebserverEvents.DATA_SENT -> {
+                    context.run { textView.text = intent.getStringExtra("message") }
+                    window.decorView.setBackgroundColor(Color.rgb(1, 126, 0))
                 }
             }
         }
@@ -28,25 +53,37 @@ class MainActivity : AppCompatActivity() {
 
     private fun getConnectionErrorLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(BluetoothEvents.ERROR_CONNECTION)
+        iFilter.addAction(BluetoothEvents.ERROR)
+        return iFilter
+    }
+
+    private fun getConnectionOkLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(BluetoothEvents.DATA_RETRIEVED)
+        return iFilter
+    }
+
+    private fun getWebserverErrorDataSentLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserverEvents.ERROR)
         return iFilter
     }
 
     private fun getWebserverDataSentLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(BluetoothEvents.WEBSERVER_SEND_DATA)
+        iFilter.addAction(WebserverEvents.DATA_SENT)
         return iFilter
     }
-
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getConnectionOkLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getConnectionErrorLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
 
     }
 

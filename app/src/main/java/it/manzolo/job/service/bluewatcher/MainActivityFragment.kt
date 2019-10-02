@@ -24,6 +24,8 @@ class MainActivityFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         button.setOnClickListener {
+            button.isEnabled = false
+
             startJobService()
         }
     }
@@ -31,5 +33,8 @@ class MainActivityFragment : Fragment() {
     private fun startJobService() {
         Log.d(TAG, "startJobService")
         App.scheduleJobService(activity as Context)
+        activity.run { textView.text = "Service started" }
+
+
     }
 }
