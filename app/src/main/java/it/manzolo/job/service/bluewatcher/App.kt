@@ -21,7 +21,6 @@ class App : Application() {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("seconds", "30")
             val debug = preferences.getBoolean("debug", false)
-                //Log.i("Manzolo",seconds);
             if (debug) {
                 Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
             }

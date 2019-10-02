@@ -16,6 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ public class Btclient {
     public static final String TAG = "Btclient";
     private Context context;
     private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothSocketWrapper bluetoothSocket;
     private BluetoothSocket mmSocket;
     private BluetoothDevice mmDevice;
     private OutputStream mmOutputStream;
@@ -54,6 +56,9 @@ public class Btclient {
 
     private void findBT() throws Exception {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        mBluetoothAdapter.cancelDiscovery();
+
         if (mBluetoothAdapter == null) {
             throw new Exception("No bluetooth adapter available");
         }
@@ -77,9 +82,18 @@ public class Btclient {
             mmOutputStream = mmSocket.getOutputStream();
             mmInputStream = mmSocket.getInputStream();
 
-        } catch (IOException e) {
-            //Log.e(TAG, "Unable to connect to " + this.addr);
-            throw new Exception("Unable to connect to " + this.addr);
+        } catch (IOException normal_e) {
+            //e.printStackTrace();
+            //throw new Exception("Unable to connect to " + this.addr);
+            try {
+                bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
+                Thread.sleep(500);
+                bluetoothSocket.connect();
+                mmOutputStream = bluetoothSocket.getOutputStream();
+                mmInputStream = bluetoothSocket.getInputStream();
+            } catch (Exception fallback_e) {
+                throw new Exception("Unable to connect to " + this.addr);
+            }
         }
         return true;
     }
@@ -202,5 +216,124 @@ public class Btclient {
         mmInputStream.close();
         mmSocket.close();
         Log.d(TAG, "Bluetooth Closed");
+    }
+
+
+    private interface BluetoothSocketWrapper {
+
+        InputStream getInputStream() throws IOException;
+
+        OutputStream getOutputStream() throws IOException;
+
+        String getRemoteDeviceName();
+
+        void connect() throws IOException;
+
+        String getRemoteDeviceAddress();
+
+        void close() throws IOException;
+
+        BluetoothSocket getUnderlyingSocket();
+
+    }
+
+
+    private static class NativeBluetoothSocket implements BluetoothSocketWrapper {
+
+        private BluetoothSocket socket;
+
+        public NativeBluetoothSocket(BluetoothSocket tmp) {
+            this.socket = tmp;
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return socket.getInputStream();
+        }
+
+        @Override
+        public OutputStream getOutputStream() throws IOException {
+            return socket.getOutputStream();
+        }
+
+        @Override
+        public String getRemoteDeviceName() {
+            return socket.getRemoteDevice().getName();
+        }
+
+        @Override
+        public void connect() throws IOException {
+            socket.connect();
+        }
+
+        @Override
+        public String getRemoteDeviceAddress() {
+            return socket.getRemoteDevice().getAddress();
+        }
+
+        @Override
+        public void close() throws IOException {
+            socket.close();
+        }
+
+        @Override
+        public BluetoothSocket getUnderlyingSocket() {
+            return socket;
+        }
+
+    }
+
+    private static class FallbackException extends Exception {
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = 1L;
+
+        public FallbackException(Exception e) {
+            super(e);
+        }
+
+    }
+
+    private class FallbackBluetoothSocket extends NativeBluetoothSocket {
+
+        private BluetoothSocket fallbackSocket;
+
+        public FallbackBluetoothSocket(BluetoothSocket tmp) throws FallbackException {
+            super(tmp);
+            try {
+                Class<?> clazz = tmp.getRemoteDevice().getClass();
+                Class<?>[] paramTypes = new Class<?>[]{Integer.TYPE};
+                Method m = clazz.getMethod("createRfcommSocket", paramTypes);
+                Object[] params = new Object[]{Integer.valueOf(1)};
+                fallbackSocket = (BluetoothSocket) m.invoke(tmp.getRemoteDevice(), params);
+            } catch (Exception e) {
+                throw new FallbackException(e);
+            }
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return fallbackSocket.getInputStream();
+        }
+
+        @Override
+        public OutputStream getOutputStream() throws IOException {
+            return fallbackSocket.getOutputStream();
+        }
+
+
+        @Override
+        public void connect() throws IOException {
+            fallbackSocket.connect();
+        }
+
+
+        @Override
+        public void close() throws IOException {
+            fallbackSocket.close();
+        }
+
     }
 }

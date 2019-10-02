@@ -99,7 +99,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
             try {
                 val btclient = Btclient(addr, context)
                 btclient.retrieveData()
-                //Thread.sleep(1000)
+                Thread.sleep(2500)
 
             } catch (e: Exception) {
                 //e.printStackTrace()

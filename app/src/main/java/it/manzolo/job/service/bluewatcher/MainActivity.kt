@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Color
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.Menu
@@ -26,26 +25,30 @@ class MainActivity : AppCompatActivity() {
             val debug = preferences.getBoolean("debug", false)
             when (intent?.action) {
                 BluetoothEvents.ERROR -> {
-                    window.decorView.setBackgroundColor(Color.rgb(150, 0, 0))
+                    context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
                     context.run { textView.text = intent.getStringExtra("message") }
+                    context.run { editText.append(intent.getStringExtra("message") + "\n") }
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.ERROR -> {
-                    window.decorView.setBackgroundColor(Color.rgb(150, 0, 0))
+                    context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
                     context.run { textView.text = intent.getStringExtra("message") }
+                    context.run { editText.append(intent.getStringExtra("message") + "\n") }
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 BluetoothEvents.DATA_RETRIEVED -> {
+                    context.run { imageView.setImageResource(android.R.drawable.presence_online) }
                     context.run { textView.text = intent.getStringExtra("message") }
-                    window.decorView.setBackgroundColor(Color.rgb(1, 126, 0))
+                    context.run { editText.append(intent.getStringExtra("message") + "\n") }
                 }
                 WebserverEvents.DATA_SENT -> {
+                    context.run { imageView.setImageResource(android.R.drawable.presence_online) }
                     context.run { textView.text = intent.getStringExtra("message") }
-                    window.decorView.setBackgroundColor(Color.rgb(1, 126, 0))
+                    context.run { editText.append(intent.getStringExtra("message") + "\n") }
                 }
             }
         }
