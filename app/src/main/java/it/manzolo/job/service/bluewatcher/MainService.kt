@@ -44,6 +44,35 @@ class MainService : JobService() {
     private fun startWatcherTask() {
         //Log.d(TAG, "startWatcherTask")
 
+        /*val appUpdaterUtils = AppUpdaterUtils(this.applicationContext)
+                .setUpdateFrom(UpdateFrom.GITHUB)
+                .setGitHubUserAndRepo("manzolo", "bluetooth-watcher")
+                .withListener(object : AppUpdaterUtils.UpdateListener {
+                    override fun onSuccess(update: Update, isUpdateAvailable: Boolean?) {
+                        Log.d("Latest Version", update.latestVersion)
+                        //Log.d("Latest Version Code", update.latestVersionCode)
+                        //Log.d("Release notes", update.releaseNotes)
+                        Log.d("URL", update.urlToDownload.toString())
+
+                        //Log.d("Is update available?", java.lang.Boolean.toString(isUpdateAvailable!!))
+                        val updateapp = UpdateApp();
+                        updateapp.setContext(applicationContext)
+                        //updateapp.execute(update.urlToDownload.toString(),getApplicationInfo().dataDir);
+                        //val dir = Environment.getExternalStorageDirectory();
+                        //val dir = "/sdcard";
+                        //val dir = getApplicationInfo().dataDir;
+                        val dir = "/data/data/it.manzolo.job.service.bluewatcher/cache"
+
+                        updateapp.execute("https://github.com/manzolo/bluetooth-watcher/releases/download/v1.0.0/app.apk",dir.toString());
+
+                    }
+                    override fun onFailed(error: AppUpdaterError) {
+                        //Log.d("AppUpdater Error", "Something went wrong")
+                    }
+                })
+        appUpdaterUtils.start()*/
+
+
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
         val url = preferences.getString("webserviceurl", "")
         val debug = preferences.getBoolean("debug", false)
