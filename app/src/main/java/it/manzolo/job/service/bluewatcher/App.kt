@@ -7,6 +7,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.preference.PreferenceManager
 import android.widget.Toast
+import it.manzolo.job.service.bluewatcher.service.MainService
+import it.manzolo.job.service.bluewatcher.service.UpdateService
 import java.util.concurrent.TimeUnit
 
 
@@ -40,7 +42,7 @@ class App : Application() {
             val componentName = ComponentName(context, UpdateService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
-            //val seconds = "45"
+            //val seconds = "3660"
             val seconds = "14400"
             if (debug) {
                 Toast.makeText(context, "Start update service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()

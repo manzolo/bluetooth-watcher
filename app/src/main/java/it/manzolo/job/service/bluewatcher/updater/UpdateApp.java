@@ -1,4 +1,4 @@
-package it.manzolo.job.service.bluewatcher;
+package it.manzolo.job.service.bluewatcher.updater;
 
 import android.content.Context;
 import android.content.Intent;

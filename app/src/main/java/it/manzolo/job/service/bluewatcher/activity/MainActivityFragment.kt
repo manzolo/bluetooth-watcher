@@ -1,8 +1,6 @@
-package it.manzolo.job.service.bluewatcher
+package it.manzolo.job.service.bluewatcher.activity
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import it.manzolo.job.service.bluewatcher.App
+import it.manzolo.job.service.bluewatcher.R
+import it.manzolo.job.service.bluewatcher.updater.UpdateApp
+import it.manzolo.job.service.bluewatcher.utils.GithubUpdater
 import kotlinx.android.synthetic.main.fragment_main.*
 import java.io.File
 
@@ -30,7 +32,7 @@ class MainActivityFragment : Fragment() {
         val fileupdate = File(context?.cacheDir, "app.ava")
         fileupdate.delete()
 
-        buttonUpdate.isEnabled = false
+        //buttonUpdate.isEnabled = false
         startUpdateService()
         startJobService()
 
@@ -43,9 +45,16 @@ class MainActivityFragment : Fragment() {
 
             val updateapp = UpdateApp()
             updateapp.setContext(activity)
-            Log.i("manzolo", file.toString())
+            //Log.i("manzolo", file.toString())
             var outputDir = photoURI.toString()
-            updateapp.execute(buttonUpdate.tag.toString(), outputDir)
+            if (buttonUpdate.tag == null) {
+                val githubup = GithubUpdater()
+                githubup.checkUpdate(activity.applicationContext)
+            } else {
+                updateapp.execute(buttonUpdate.tag.toString(), outputDir)
+            }
+            buttonUpdate.isEnabled = true
+
 
         }
     }
@@ -61,42 +70,4 @@ class MainActivityFragment : Fragment() {
         App.scheduleUpdateService(activity as Context)
         activity.run { textView.text = "Service update started" }
     }
-
-    fun installApk(uri: Uri) {
-
-        val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-            setDataAndType(uri, "application/vnd.android.package-archive")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-            putExtra(Intent.EXTRA_RETURN_RESULT, true)
-
-        }
-        activity?.startActivity(intent)
-    }
-
-    /*fun install(context: Context, packageName: String, apkPath: String) {
-
-        // PackageManager provides an instance of PackageInstaller
-        val packageInstaller = context.packageManager.packageInstaller
-
-        // Prepare params for installing one APK file with MODE_FULL_INSTALL
-        // We could use MODE_INHERIT_EXISTING to install multiple split APKs
-        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-        params.setAppPackageName(packageName)
-
-        // Get a PackageInstaller.Session for performing the actual update
-        val sessionId = packageInstaller.createSession(params)
-        val session = packageInstaller.openSession(sessionId)
-
-        // Copy APK file bytes into OutputStream provided by install Session
-        val out = session.openWrite(packageName, 0, -1)
-        val fis = File(apkPath).inputStream()
-        fis.copyTo(out)
-        session.fsync(out)
-        out.close()
-
-        // The app gets killed after installation session commit
-        session.commit(PendingIntent.getBroadcast(context, sessionId,
-                Intent("android.intent.action.MAIN"), 0).intentSender)
-    }*/
 }

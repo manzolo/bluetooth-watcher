@@ -1,4 +1,4 @@
-package it.manzolo.job.service.bluewatcher;
+package it.manzolo.job.service.bluewatcher.utils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,9 +20,9 @@ import java.nio.charset.StandardCharsets;
 
 import it.manzolo.job.service.enums.BluetoothEvents;
 
-public class Sender {
+public class WebserverSender {
 
-    public static final String TAG = "Sender";
+    public static final String TAG = "WebserverSender";
 
     private Context context;
     private String url;
@@ -30,14 +30,16 @@ public class Sender {
     private String data;
     private String volt;
     private String temp;
+    private String batteryperc;
 
-    public Sender(Context context, String url, String device, String data, String volt, String temp) {
+    public WebserverSender(Context context, String url, String device, String data, String volt, String temp, String batteryperc) {
         this.context = context;
         this.url = url;
         this.device = device;
         this.data = data;
         this.volt = volt;
         this.temp = temp;
+        this.batteryperc = batteryperc;
     }
 
     public void send() {
@@ -117,6 +119,7 @@ public class Sender {
         jsonObject.put("data", this.data);
         jsonObject.put("volt", this.volt);
         jsonObject.put("temp", this.temp);
+        jsonObject.put("batteryperc", this.batteryperc);
 
         return jsonObject;
     }

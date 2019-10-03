@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="it.manzolo.job.service.bluewatcher.MainActivityFragment"
+    tools:context="it.manzolo.job.service.bluewatcher.activity.MainActivityFragment"
     tools:showIn="@layout/activity_main">
 
     <TextView
@@ -14,7 +14,7 @@
         android:orientation="horizontal"
         android:text="@string/service_name"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@+id/imageView"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,21 +23,18 @@
     <Button
         android:id="@+id/buttonUpdate"
         style="@style/Widget.AppCompat.Button"
-        android:layout_width="409dp"
-        android:layout_height="151dp"
-        android:layout_marginTop="525dp"
+        android:layout_width="380dp"
+        android:layout_height="66dp"
         android:text="@string/start_service"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/editText"
-        android:layout_width="409dp"
-        android:layout_height="427dp"
-        android:layout_marginTop="97dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginEnd="13dp"
         android:ems="10"
         android:focusable="false"
@@ -45,10 +42,11 @@
         android:inputType="textMultiLine"
         android:textAlignment="center"
         android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonUpdate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <ImageView
         android:id="@+id/imageView"

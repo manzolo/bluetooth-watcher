@@ -1,10 +1,9 @@
-package it.manzolo.job.service.bluewatcher
+package it.manzolo.job.service.bluewatcher.activity
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.Menu
@@ -13,6 +12,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import it.manzolo.job.service.bluewatcher.R
+import it.manzolo.job.service.bluewatcher.utils.Apk
 import it.manzolo.job.service.enums.BluetoothEvents
 import it.manzolo.job.service.enums.WebserverEvents
 import kotlinx.android.synthetic.main.activity_main.*
@@ -56,9 +57,10 @@ class MainActivity : AppCompatActivity() {
 
                 WebserverEvents.APP_UPDATE -> {
                     val file = File(applicationContext.cacheDir, "app.apk")
-                    val photoURI = applicationContext.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.applicationContext.packageName + ".provider", file) }
+                    val apkfile = applicationContext.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.applicationContext.packageName + ".provider", file) }
                     if (file.exists()) {
-                        installApk(photoURI)
+                        val apk = Apk()
+                        apk.installApk(applicationContext, apkfile)
                         val fileupdate = File(applicationContext.cacheDir, "app.ava")
                         fileupdate.delete()
                     }
@@ -75,6 +77,9 @@ class MainActivity : AppCompatActivity() {
                     if (debug) {
                         Toast.makeText(context, "Check for app update", Toast.LENGTH_LONG).show()
                     }
+                }
+                WebserverEvents.APP_NOAVAILABLEUPDATE -> {
+                    Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -104,6 +109,12 @@ class MainActivity : AppCompatActivity() {
     private fun getCheckUpdateLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
         iFilter.addAction(WebserverEvents.APP_CHECK_UPDATE)
+        return iFilter
+    }
+
+    private fun getNoUpdateLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserverEvents.APP_NOAVAILABLEUPDATE)
         return iFilter
     }
 
@@ -149,6 +160,7 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpgradeLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpdateavailableLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getCheckUpdateLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getNoUpdateLocalIntentFilter())
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -171,16 +183,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun installApk(uri: Uri) {
-
-        val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-            setDataAndType(uri, "application/vnd.android.package-archive")
-            //addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-            putExtra(Intent.EXTRA_RETURN_RESULT, true)
-
-        }
-        applicationContext.startActivity(intent)
-    }
 }

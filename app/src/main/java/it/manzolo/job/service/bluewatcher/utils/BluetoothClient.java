@@ -1,4 +1,4 @@
-package it.manzolo.job.service.bluewatcher;
+package it.manzolo.job.service.bluewatcher.utils;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -27,8 +27,10 @@ import java.util.UUID;
 import it.manzolo.job.service.enums.BluetoothEvents;
 import it.manzolo.job.service.enums.WebserverEvents;
 
-public class Btclient {
-    public static final String TAG = "Btclient";
+import static it.manzolo.job.service.bluewatcher.utils.BatteryKt.getBatteryPercentage;
+
+public class BluetoothClient {
+    public static final String TAG = "BluetoothClient";
     private Context context;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothSocketWrapper bluetoothSocket;
@@ -42,7 +44,7 @@ public class Btclient {
     volatile boolean stopWorker;
     private String addr;
 
-    public Btclient(String addr, Context context) {
+    public BluetoothClient(String addr, Context context) {
         this.addr = addr;
         this.context = context;
     }
@@ -162,7 +164,8 @@ public class Btclient {
 
                                             Log.d(TAG, "Send data to webserver");
                                             try {
-                                                Sender sender = new Sender(context, url, device, now, voltstr, tempstr);
+                                                Integer bp = getBatteryPercentage(context);
+                                                WebserverSender sender = new WebserverSender(context, url, device, now, voltstr, tempstr, bp.toString());
                                                 sender.send();
                                                 Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
                                                 // You can also include some extra data.

@@ -1,4 +1,4 @@
-package it.manzolo.job.service.bluewatcher;
+package it.manzolo.job.service.bluewatcher.utils;
 /**
  * JStruct:  The python struct library's port to java for reading and writing binary data as in python —  Copyright (C) 2016 Sohan Basak
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License

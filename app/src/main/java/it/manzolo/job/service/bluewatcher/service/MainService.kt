@@ -1,4 +1,4 @@
-package it.manzolo.job.service.bluewatcher
+package it.manzolo.job.service.bluewatcher.service
 
 import android.app.job.JobParameters
 import android.app.job.JobService
@@ -9,6 +9,9 @@ import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import it.manzolo.job.service.bluewatcher.App
+import it.manzolo.job.service.bluewatcher.updater.AppReceiveSettings
+import it.manzolo.job.service.bluewatcher.utils.BluetoothClient
 import it.manzolo.job.service.enums.BluetoothEvents
 
 
@@ -93,7 +96,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
         for (i in 0 until items.size) {
             val addr = items[i].replace("\\s".toRegex(), "")
             try {
-                val btclient = Btclient(addr, context)
+                val btclient = BluetoothClient(addr, context)
                 btclient.retrieveData()
                 Thread.sleep(2500)
 
