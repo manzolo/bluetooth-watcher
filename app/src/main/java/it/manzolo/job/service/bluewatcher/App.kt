@@ -14,7 +14,6 @@ class App : Application() {
     companion object {
 
         fun scheduleJobService(context: Context) {
-
             val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
 
             val componentName = ComponentName(context, MainService::class.java)
@@ -24,7 +23,8 @@ class App : Application() {
             if (debug) {
                 Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
             }
-                    val jobInfo = JobInfo.Builder(1, componentName)
+
+            val jobInfo = JobInfo.Builder(1, componentName)
                             .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                             .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)

@@ -24,8 +24,8 @@
     <Button
         android:id="@+id/button"
         style="@style/Widget.AppCompat.Button"
-        android:layout_width="284dp"
-        android:layout_height="164dp"
+        android:layout_width="382dp"
+        android:layout_height="151dp"
         android:layout_marginTop="8dp"
         android:text="@string/start_service"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -61,8 +61,8 @@
 
     <Button
         android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="286dp"
+        android:layout_height="51dp"
         android:text="Update app"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

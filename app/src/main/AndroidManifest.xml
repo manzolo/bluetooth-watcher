@@ -33,6 +33,11 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
+        <receiver android:name="it.manzolo.job.service.bluewatcher.MainActivity$UpdateReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".SettingsActivity"
@@ -52,6 +57,11 @@
         <service
             android:name=".MainService"
             android:label="MainJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".UpdateService"
+            android:label="UpdateJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 

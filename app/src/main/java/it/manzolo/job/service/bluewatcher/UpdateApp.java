@@ -1,14 +1,19 @@
 package it.manzolo.job.service.bluewatcher;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import it.manzolo.job.service.enums.WebserverEvents;
 
 public class UpdateApp extends AsyncTask<String, Void, Void> {
     private Context context;
@@ -27,11 +32,9 @@ public class UpdateApp extends AsyncTask<String, Void, Void> {
 
             HttpURLConnection c = (HttpURLConnection) url.openConnection();
             c.setRequestMethod("GET");
-            //c.setDoOutput(true);
             c.connect();
 
             File file = new File(context.getCacheDir(), "app.apk");
-            //FileProvider photoURI = new FileProvider.getUriForFile(context,context.getApplicationContext().getPackageName()+".provider",file);
             if (file.exists()) {
                 file.delete();
             }
@@ -47,8 +50,11 @@ public class UpdateApp extends AsyncTask<String, Void, Void> {
             fos.close();
             is.close();
 
-            Log.i("UpdateAPP", "Start update");
-
+            Log.i("ManzoloUpdate", "Download complete");
+            Intent intent = new Intent(WebserverEvents.APP_UPDATE);
+            // You can also include some extra data.
+            intent.putExtra("message", "Download complete");
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,4 +62,5 @@ public class UpdateApp extends AsyncTask<String, Void, Void> {
         }
         return null;
     }
-}   
+}
+
