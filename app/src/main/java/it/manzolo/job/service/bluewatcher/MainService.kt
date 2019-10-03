@@ -13,8 +13,6 @@ import it.manzolo.job.service.enums.BluetoothEvents
 
 
 class MainService : JobService() {
-    private var workerThread: Thread? = null
-
     companion object {
         val TAG: String = MainService::class.java.simpleName
     }
@@ -27,7 +25,7 @@ class MainService : JobService() {
     override fun onStartJob(jobParameters: JobParameters?): Boolean {
         Log.d(TAG, "onStartJob : " + jobParameters.toString())
         startWatcherTask()
-        App.scheduleJobService(this)
+        App.scheduleWatcherService(this)
         return true
     }
 
@@ -53,7 +51,7 @@ class MainService : JobService() {
         } else {
             val autoupdate = preferences.getBoolean("autoupdate", true)
             if (autoupdate) {
-                val appsettings = AppReceiveSettings(this.applicationContext, url + "/api/appgetsettings")
+                val appsettings = AppReceiveSettings(this.applicationContext)
                 appsettings.receive()
                 Log.d(TAG, "Settings updated")
             }

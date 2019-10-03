@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                 WebserverEvents.DATA_SENT -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
                     context.run { textView.text = intent.getStringExtra("message") }
-                    context.run { editText.append(intent.getStringExtra("message") + "\n") }
+                    //context.run { editText.append(intent.getStringExtra("message") + "\n") }
                 }
 
                 WebserverEvents.APP_UPDATE -> {
@@ -64,8 +64,17 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 WebserverEvents.APP_AVAILABLE -> {
-                    context.run { button2.isEnabled = true }
-                    context.run { button2.tag = intent.getStringExtra("message") }
+                    context.run { buttonUpdate.isEnabled = true }
+                    context.run { buttonUpdate.tag = intent.getStringExtra("message") }
+                    if (debug) {
+                        Toast.makeText(context, "Update available at " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                    }
+
+                }
+                WebserverEvents.APP_CHECK_UPDATE -> {
+                    if (debug) {
+                        Toast.makeText(context, "Check for app update", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
@@ -89,6 +98,12 @@ class MainActivity : AppCompatActivity() {
     private fun getUpgradeLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
         iFilter.addAction(WebserverEvents.APP_UPDATE)
+        return iFilter
+    }
+
+    private fun getCheckUpdateLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserverEvents.APP_CHECK_UPDATE)
         return iFilter
     }
 
@@ -133,7 +148,7 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpgradeLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpdateavailableLocalIntentFilter())
-
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getCheckUpdateLocalIntentFilter())
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

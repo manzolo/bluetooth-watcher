@@ -30,34 +30,36 @@ class MainActivityFragment : Fragment() {
         val fileupdate = File(context?.cacheDir, "app.ava")
         fileupdate.delete()
 
-        Log.d(TAG, "startUpdateService")
-        AppUpdate.scheduleUpdateService(activity as Context)
-        activity.run { textView.text = "Service update started" }
+        buttonUpdate.isEnabled = false
+        startUpdateService()
+        startJobService()
 
-        button2.isEnabled = false
-
-        button.setOnClickListener {
-            button.isEnabled = false
-            startJobService()
-        }
-        button2.setOnClickListener {
+        buttonUpdate.setOnClickListener {
             val activity = activity as MainActivity
             val file = File(activity.cacheDir, "app.apk")
             val photoURI = activity.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, activity.applicationContext.packageName + ".provider", file) }
+
+            buttonUpdate.isEnabled = false
 
             val updateapp = UpdateApp()
             updateapp.setContext(activity)
             Log.i("manzolo", file.toString())
             var outputDir = photoURI.toString()
-            updateapp.execute(button2.tag.toString(), outputDir)
+            updateapp.execute(buttonUpdate.tag.toString(), outputDir)
 
         }
     }
 
     private fun startJobService() {
         Log.d(TAG, "startJobService")
-        App.scheduleJobService(activity as Context)
+        App.scheduleWatcherService(activity as Context)
         activity.run { textView.text = "Service started" }
+    }
+
+    private fun startUpdateService() {
+        Log.d(TAG, "startUpdateService")
+        App.scheduleUpdateService(activity as Context)
+        activity.run { textView.text = "Service update started" }
     }
 
     fun installApk(uri: Uri) {

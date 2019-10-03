@@ -25,8 +25,8 @@ class UpdateService : JobService() {
 
     override fun onStartJob(jobParameters: JobParameters?): Boolean {
         Log.d(TAG, "onUpdateStartJob : " + jobParameters.toString())
-        startWatcherTask()
-        App.scheduleJobService(this)
+        startUpdateTask()
+        App.scheduleUpdateService(this)
         return true
     }
 
@@ -40,11 +40,14 @@ class UpdateService : JobService() {
         Log.d(TAG, "onUpdateDestroy")
     }
 
-    private fun startWatcherTask() {
-        //Log.d(TAG, "startWatcherTask+++++++++++++++++++++++++++++++++++++++++++++++++")
+    private fun startUpdateTask() {
+
+        Log.d(TAG, "checkForUpdate")
+        val intent = Intent(WebserverEvents.APP_CHECK_UPDATE)
+        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+
         val fileupdate = File(applicationContext.cacheDir, "app.ava")
         if (!fileupdate.exists()) {
-
             val appUpdaterUtils = AppUpdaterUtils(applicationContext)
                     .setUpdateFrom(UpdateFrom.GITHUB)
                     .setGitHubUserAndRepo("manzolo", "bluetooth-watcher")

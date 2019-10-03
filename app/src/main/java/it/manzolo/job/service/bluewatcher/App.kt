@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 class App : Application() {
     companion object {
 
-        fun scheduleJobService(context: Context) {
+        fun scheduleWatcherService(context: Context) {
             val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
 
             val componentName = ComponentName(context, MainService::class.java)
@@ -34,5 +34,27 @@ class App : Application() {
                     jobScheduler.schedule(jobInfo)
 
         }
+
+        fun scheduleUpdateService(context: Context) {
+            val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+            val componentName = ComponentName(context, UpdateService::class.java)
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val debug = preferences.getBoolean("debug", false)
+            //val seconds = "45"
+            val seconds = "14400"
+            if (debug) {
+                Toast.makeText(context, "Start update service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
+            }
+
+            val jobInfo = JobInfo.Builder(2, componentName)
+                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+                    .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                    .setPersisted(true)
+                    .build()
+            jobScheduler.schedule(jobInfo)
+        }
+
     }
+
 }
