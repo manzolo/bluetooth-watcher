@@ -29,7 +29,7 @@ import it.manzolo.job.service.enums.WebserverEvents;
 
 import static it.manzolo.job.service.bluewatcher.utils.BatteryKt.getBatteryPercentage;
 
-public class BluetoothClient {
+public final class BluetoothClient {
     public static final String TAG = "BluetoothClient";
     private Context context;
     private BluetoothAdapter mBluetoothAdapter;
@@ -42,6 +42,7 @@ public class BluetoothClient {
     private byte[] readBuffer;
     private int readBufferPosition;
     volatile boolean stopWorker;
+    private static boolean busy = false;
     private String addr;
 
     public BluetoothClient(String addr, Context context) {
@@ -50,10 +51,21 @@ public class BluetoothClient {
     }
 
     public void retrieveData() throws Exception {
-        this.openBT();
-        this.getData();
-        Thread.sleep(1000);
-        this.closeBT();
+        if (busy) {
+            throw new Exception(TAG + " is busy");
+        }
+        busy = true;
+        try {
+            this.openBT();
+            this.getData();
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            busy = false;
+            this.closeBT();
+            throw e;
+        } finally {
+            busy = false;
+        }
     }
 
     private void findBT() throws Exception {
@@ -85,7 +97,7 @@ public class BluetoothClient {
             mmInputStream = mmSocket.getInputStream();
 
         } catch (IOException normal_e) {
-            //e.printStackTrace();
+            normal_e.printStackTrace();
             //throw new Exception("Unable to connect to " + this.addr);
             try {
                 bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
@@ -94,6 +106,7 @@ public class BluetoothClient {
                 mmOutputStream = bluetoothSocket.getOutputStream();
                 mmInputStream = bluetoothSocket.getInputStream();
             } catch (Exception fallback_e) {
+                fallback_e.printStackTrace();
                 throw new Exception("Unable to connect to " + this.addr);
             }
         }
@@ -215,9 +228,16 @@ public class BluetoothClient {
 
     private void closeBT() throws IOException {
         stopWorker = true;
-        mmOutputStream.close();
-        mmInputStream.close();
+        if (mmOutputStream != null) {
+            mmOutputStream.close();
+        }
+        if (mmInputStream != null) {
+            mmInputStream.close();
+        }
+        //if (mmSocket.isConnected()){
         mmSocket.close();
+        //}
+        busy = false;
         Log.d(TAG, "Bluetooth Closed");
     }
 

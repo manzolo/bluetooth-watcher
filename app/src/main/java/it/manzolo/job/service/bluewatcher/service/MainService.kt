@@ -95,21 +95,34 @@ private class btTask : AsyncTask<Context, Void, String>() {
         val items = address.split(",")
         for (i in 0 until items.size) {
             val addr = items[i].replace("\\s".toRegex(), "")
-            try {
-                val btclient = BluetoothClient(addr, context)
-                btclient.retrieveData()
-                Thread.sleep(2500)
-
-            } catch (e: Exception) {
-                //e.printStackTrace()
-                Log.e(MainService.TAG, e.message)
-                val intent = Intent(BluetoothEvents.ERROR)
-                // You can also include some extra data.
-                intent.putExtra("message", e.message)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+            loopok@ for (i in 1..5) {
+                if (retry(addr, context)) {
+                    Thread.sleep(1000)
+                    break@loopok
+                }
             }
+
+
         }
         return "OK"
+    }
+
+    fun retry(addr: String, context: Context): Boolean {
+        try {
+            val btclient = BluetoothClient(addr, context)
+            btclient.retrieveData()
+            Thread.sleep(1000)
+            return true
+
+        } catch (e: Exception) {
+            //e.printStackTrace()
+            Log.e(MainService.TAG, e.message)
+            val intent = Intent(BluetoothEvents.ERROR)
+            // You can also include some extra data.
+            intent.putExtra("message", e.message)
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+            return false
+        }
     }
 
     @Override
