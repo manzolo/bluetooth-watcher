@@ -178,7 +178,8 @@ public final class BluetoothClient {
                                             Log.d(TAG, "Send data to webserver");
                                             try {
                                                 Integer bp = getBatteryPercentage(context);
-                                                WebserverSender sender = new WebserverSender(context, url, device, now, voltstr, tempstr, bp.toString());
+                                                Session session = new Session(context);
+                                                WebserverSender sender = new WebserverSender(context, url, device, now, voltstr, tempstr, bp.toString(), session.getlongitude(), session.getlatitude());
                                                 sender.send();
                                                 Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
                                                 // You can also include some extra data.

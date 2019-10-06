@@ -1,10 +1,12 @@
 package it.manzolo.job.service.bluewatcher.activity
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Looper
 import android.preference.PreferenceManager
 import android.view.Menu
 import android.view.MenuItem
@@ -12,16 +14,25 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.gms.location.*
 import it.manzolo.job.service.bluewatcher.R
 import it.manzolo.job.service.bluewatcher.utils.Apk
+import it.manzolo.job.service.bluewatcher.utils.Session
 import it.manzolo.job.service.enums.BluetoothEvents
 import it.manzolo.job.service.enums.WebserverEvents
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_main.*
 import java.io.File
 
+
 class MainActivity : AppCompatActivity() {
     val TAG = "MainActivity"
+    var session: Session? = null
+    private var fusedLocationClient: FusedLocationProviderClient? = null
+    private var mLocationRequest: LocationRequest? = null
+    private lateinit var locationCallback: LocationCallback
+
+
 
     private val mLocalBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -48,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
                     context.run { textView.text = intent.getStringExtra("message") }
                     context.run { editText.append(intent.getStringExtra("message") + "\n") }
+                    obtieneLocalizacion()
                 }
                 WebserverEvents.DATA_SENT -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
@@ -148,21 +160,6 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getConnectionOkLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getConnectionErrorLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpgradeLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpdateavailableLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getCheckUpdateLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getNoUpdateLocalIntentFilter())
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -183,4 +180,51 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //GPS
+    @SuppressLint("MissingPermission")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getConnectionOkLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getConnectionErrorLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpgradeLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpdateavailableLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getCheckUpdateLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getNoUpdateLocalIntentFilter())
+
+        //GPS
+        mLocationRequest?.interval = 120000 // two minute interval
+        mLocationRequest?.fastestInterval = 120000
+        mLocationRequest?.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        session = Session(applicationContext)
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+                for (location in locationResult.locations) {
+                    session!!.setlongitude(location?.longitude.toString())
+                    session!!.setlatitude(location?.latitude.toString())
+                    val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                    val debug = preferences.getBoolean("debug", false)
+                    if (debug) {
+                        Toast.makeText(applicationContext, location?.longitude.toString() + " " + location?.latitude.toString(), Toast.LENGTH_LONG).show()
+                    }
+
+                }
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun obtieneLocalizacion() {
+        fusedLocationClient?.requestLocationUpdates(mLocationRequest, locationCallback, Looper.getMainLooper())
+    }
+
 }
+
+

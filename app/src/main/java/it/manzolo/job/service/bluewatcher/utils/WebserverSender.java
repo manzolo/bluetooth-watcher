@@ -31,8 +31,10 @@ public class WebserverSender {
     private String volt;
     private String temp;
     private String batteryperc;
+    private String longitude;
+    private String latitude;
 
-    public WebserverSender(Context context, String url, String device, String data, String volt, String temp, String batteryperc) {
+    public WebserverSender(Context context, String url, String device, String data, String volt, String temp, String batteryperc, String longitude, String latitude) {
         this.context = context;
         this.url = url;
         this.device = device;
@@ -40,6 +42,8 @@ public class WebserverSender {
         this.volt = volt;
         this.temp = temp;
         this.batteryperc = batteryperc;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
     public void send() {
@@ -120,7 +124,8 @@ public class WebserverSender {
         jsonObject.put("volt", this.volt);
         jsonObject.put("temp", this.temp);
         jsonObject.put("batteryperc", this.batteryperc);
-
+        jsonObject.put("longitude", this.longitude);
+        jsonObject.put("latitude", this.latitude);
         return jsonObject;
     }
 
