@@ -1,6 +1,5 @@
 package it.manzolo.job.service.bluewatcher.activity
 
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -31,8 +30,6 @@ class MainActivity : AppCompatActivity() {
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var mLocationRequest: LocationRequest? = null
     private lateinit var locationCallback: LocationCallback
-
-
 
     private val mLocalBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -181,7 +178,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     //GPS
-    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -196,6 +192,7 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getNoUpdateLocalIntentFilter())
 
         //GPS
+        mLocationRequest = LocationRequest()
         mLocationRequest?.interval = 120000 // two minute interval
         mLocationRequest?.fastestInterval = 120000
         mLocationRequest?.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
@@ -218,9 +215,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        obtieneLocalizacion()
+
     }
 
-    @SuppressLint("MissingPermission")
     private fun obtieneLocalizacion() {
         fusedLocationClient?.requestLocationUpdates(mLocationRequest, locationCallback, Looper.getMainLooper())
     }
