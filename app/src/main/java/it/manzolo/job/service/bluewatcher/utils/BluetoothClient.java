@@ -5,10 +5,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -25,9 +23,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import it.manzolo.job.service.enums.BluetoothEvents;
-import it.manzolo.job.service.enums.WebserverEvents;
-
-import static it.manzolo.job.service.bluewatcher.utils.BatteryKt.getBatteryPercentage;
 
 public final class BluetoothClient {
     public static final String TAG = "BluetoothClient";
@@ -97,7 +92,7 @@ public final class BluetoothClient {
             mmInputStream = mmSocket.getInputStream();
 
         } catch (IOException normal_e) {
-            normal_e.printStackTrace();
+            //normal_e.printStackTrace();
             //throw new Exception("Unable to connect to " + this.addr);
             try {
                 bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
@@ -106,7 +101,7 @@ public final class BluetoothClient {
                 mmOutputStream = bluetoothSocket.getOutputStream();
                 mmInputStream = bluetoothSocket.getInputStream();
             } catch (Exception fallback_e) {
-                fallback_e.printStackTrace();
+                //fallback_e.printStackTrace();
                 throw new Exception("Unable to connect to " + this.addr);
             }
         }
@@ -163,39 +158,19 @@ public final class BluetoothClient {
 
                                     handler.post(new Runnable() {
                                         public void run() {
-                                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-                                            String url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt");
                                             Date date = Calendar.getInstance().getTime();
                                             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                             String now = dateFormat.format(date);
 
                                             Intent intentBt = new Intent(BluetoothEvents.DATA_RETRIEVED);
                                             // You can also include some extra data.
+                                            intentBt.putExtra("device", device);
+                                            intentBt.putExtra("volt", voltstr);
+                                            intentBt.putExtra("temp", tempstr);
+                                            intentBt.putExtra("data", now);
+
                                             intentBt.putExtra("message", "Device: " + device + " Volt:" + voltstr + " Temp:" + tempstr);
                                             LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);
-
-                                            Log.d(TAG, "Send data to webserver");
-                                            try {
-                                                Integer bp = getBatteryPercentage(context);
-                                                Session session = new Session(context);
-                                                WebserverSender sender = new WebserverSender(context, url, device, now, voltstr, tempstr, bp.toString(), session.getlongitude(), session.getlatitude());
-                                                sender.send();
-                                                Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
-                                                // You can also include some extra data.
-                                                intentWs.putExtra("message", "Device: " + device + " Volt:" + voltstr + " Temp:" + tempstr);
-                                                LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
-                                                //Toast.makeText(context, "Data sent", Toast.LENGTH_SHORT).show();
-                                                //Log.i(TAG, "Data sent");
-                                            } catch (Exception e) {
-                                                //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-                                                Log.e(TAG, e.getMessage());
-                                                Intent intent = new Intent(WebserverEvents.ERROR);
-                                                // You can also include some extra data.
-                                                intent.putExtra("message", e.getMessage());
-                                                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-                                                //e.printStackTrace();
-                                            }
                                         }
                                     });
                                 } else {

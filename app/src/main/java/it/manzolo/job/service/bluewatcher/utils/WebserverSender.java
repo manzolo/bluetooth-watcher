@@ -2,6 +2,7 @@ package it.manzolo.job.service.bluewatcher.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -26,24 +27,10 @@ public class WebserverSender {
 
     private Context context;
     private String url;
-    private String device;
-    private String data;
-    private String volt;
-    private String temp;
-    private String batteryperc;
-    private String longitude;
-    private String latitude;
 
-    public WebserverSender(Context context, String url, String device, String data, String volt, String temp, String batteryperc, String longitude, String latitude) {
+    public WebserverSender(Context context, String url) {
         this.context = context;
         this.url = url;
-        this.device = device;
-        this.data = data;
-        this.volt = volt;
-        this.temp = temp;
-        this.batteryperc = batteryperc;
-        this.longitude = longitude;
-        this.latitude = latitude;
     }
 
     public void send() {
@@ -54,27 +41,59 @@ public class WebserverSender {
         URL url = new URL(myUrl);
 
         Log.d(TAG, "Try connecting to " + myUrl);
-        // 1. create HttpURLConnection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 
-        // 2. build JSON object
-        JSONObject jsonObject = buidJsonObject();
+        DbVoltwatcherAdapter dbVoltwatcherAdapter = new DbVoltwatcherAdapter(context);
+        dbVoltwatcherAdapter.open();
+        Cursor cursor = dbVoltwatcherAdapter.fetchAllRowsNotSent();
+        boolean trysend = false;
+        try {
+            while (cursor.moveToNext()) {
 
-        Log.d(TAG, "Sending data=" + jsonObject.toString());
+                // 1. create HttpURLConnection
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 
-        // 3. add JSON content to POST request body
-        setPostRequestContent(conn, jsonObject);
+                //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE)));
+                //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DATA)));
+                String device = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE));
+                String data = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DATA));
+                String volt = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_VOLT));
+                String temp = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_TEMP));
+                String detecotrbattery = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DETECTORBATTERY));
+                String longitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LON));
+                String latitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LAT));
+                // 2. build JSON object
+                JSONObject jsonObject = buidJsonObject(device, data, volt, temp, detecotrbattery, longitude, latitude);
 
-        // 4. make POST request to the given URL
-        conn.connect();
 
-        String responseText = conn.getResponseMessage() + "";
+                Log.d(TAG, "Sending data=" + jsonObject.toString());
+
+                // 3. add JSON content to POST request body
+                setPostRequestContent(conn, jsonObject);
+
+                // 4. make POST request to the given URL
+                conn.connect();
+
+                String responseText = conn.getResponseMessage() + "";
+                dbVoltwatcherAdapter.updateSent(cursor.getInt(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_ID)));
+                trysend = true;
+            }
+        } finally {
+            cursor.close();
+        }
+        dbVoltwatcherAdapter.close();
+
+
 
         //Log.d(TAG, conn.getResponseMessage());
         // 5. return response message
-        return responseText;
+        if (trysend) {
+            return "OK";
+        } else {
+            return "KO";
+        }
+
 
     }
 
@@ -85,6 +104,20 @@ public class WebserverSender {
         writer.flush();
         writer.close();
         os.close();
+    }
+
+    private JSONObject buidJsonObject(String device, String data, String volt, String temp, String detectorbattery, String longitude, String latitude) throws JSONException {
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("device", device);
+        jsonObject.put("data", data);
+        jsonObject.put("volt", volt);
+        jsonObject.put("temp", temp);
+        jsonObject.put("batteryperc", detectorbattery);
+        jsonObject.put("longitude", longitude);
+        jsonObject.put("latitude", latitude);
+        return jsonObject;
     }
 
     private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
@@ -100,6 +133,7 @@ public class WebserverSender {
                     return "Error: " + e.getMessage();
                 }
             } catch (IOException e) {
+                //e.printStackTrace();
                 Log.e(TAG, e.getMessage());
                 Intent intent = new Intent(BluetoothEvents.ERROR);
                 // You can also include some extra data.
@@ -114,19 +148,6 @@ public class WebserverSender {
         protected void onPostExecute(String result) {
             Log.d(TAG, "Webserver response: " + result);
         }
-    }
-    private JSONObject buidJsonObject() throws JSONException {
-
-        JSONObject jsonObject = new JSONObject();
-
-        jsonObject.put("device", this.device);
-        jsonObject.put("data", this.data);
-        jsonObject.put("volt", this.volt);
-        jsonObject.put("temp", this.temp);
-        jsonObject.put("batteryperc", this.batteryperc);
-        jsonObject.put("longitude", this.longitude);
-        jsonObject.put("latitude", this.latitude);
-        return jsonObject;
     }
 
 

@@ -24,7 +24,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <receiver android:name="it.manzolo.job.service.bluewatcher.activity.MainActivity$UpdateReceiver">
+        <receiver android:name="it.manzolo.job.service.bluewatcher.receiver.UpdateReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
@@ -65,4 +65,5 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 </manifest>
