@@ -19,8 +19,12 @@ import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
 import it.manzolo.job.service.bluewatcher.R
-import it.manzolo.job.service.bluewatcher.utils.*
+import it.manzolo.job.service.bluewatcher.utils.Apk
+import it.manzolo.job.service.bluewatcher.utils.DbVoltwatcherAdapter
+import it.manzolo.job.service.bluewatcher.utils.Session
+import it.manzolo.job.service.bluewatcher.utils.getBatteryPercentage
 import it.manzolo.job.service.enums.BluetoothEvents
+import it.manzolo.job.service.enums.DatabaseEvents
 import it.manzolo.job.service.enums.WebserverEvents
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -35,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     private val mPowerManager: PowerManager? = null
     private var mWakeLock: PowerManager.WakeLock? = null
 
-    private val mLocalBroadcastReceiver = object : BroadcastReceiver() {
+    private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
@@ -61,11 +65,6 @@ class MainActivity : AppCompatActivity() {
                     context.run { textView.text = intent.getStringExtra("message") }
                     context.run { editText.append(intent.getStringExtra("message") + "\n") }
 
-
-                    val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-
-                    val url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
-
                     val device = intent.getStringExtra("device")
                     val data = intent.getStringExtra("data")
                     val volt = intent.getStringExtra("volt")
@@ -80,32 +79,13 @@ class MainActivity : AppCompatActivity() {
                         dbVoltwatcherAdapter.createRow(device, volt, temp, data, session.getlongitude(), session.getlatitude(), bp.toString())
                         dbVoltwatcherAdapter.close()
 
-                        if (isNetworkAvailable(applicationContext)) {
-                            Log.d(TAG, "Send data to webserver")
-                            val sender = WebserverSender(context, url)
-                            sender.send()
-                            val intentWs = Intent(WebserverEvents.DATA_SENT)
-                            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intentWs)
-                            // You can also include some extra data.
-                            if (debug) {
-                                Toast.makeText(context, "Data sent", Toast.LENGTH_LONG).show()
-                            }
-                            Log.d(TAG, "Data sent")
-                        } else {
-                            if (debug) {
-                                Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
-                            }
-                            Log.e(TAG, "No internet connection")
-                        }
-
                     } catch (e: Exception) {
                         //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
                         Log.e(TAG, e.message)
-                        val intent = Intent(WebserverEvents.ERROR)
+                        val intent = Intent(DatabaseEvents.ERROR)
                         // You can also include some extra data.
                         intent.putExtra("message", e.message)
                         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
-                        //e.printStackTrace();
                     }
 
                 }
@@ -140,6 +120,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 WebserverEvents.APP_NOAVAILABLEUPDATE -> {
                     Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
+                }
+                DatabaseEvents.ERROR -> {
+                    Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -201,6 +184,12 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
+    private fun getDatabaseErrorIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(DatabaseEvents.ERROR)
+        return iFilter
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -226,14 +215,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getConnectionOkLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getConnectionErrorLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpgradeLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getUpdateavailableLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getCheckUpdateLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(mLocalBroadcastReceiver, getNoUpdateLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionOkLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionErrorLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpgradeLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateavailableLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getCheckUpdateLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
 
         //GPS
         mLocationRequest = LocationRequest()

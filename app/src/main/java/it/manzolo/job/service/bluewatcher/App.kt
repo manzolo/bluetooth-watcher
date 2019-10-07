@@ -9,6 +9,7 @@ import android.preference.PreferenceManager
 import android.widget.Toast
 import it.manzolo.job.service.bluewatcher.service.MainService
 import it.manzolo.job.service.bluewatcher.service.UpdateService
+import it.manzolo.job.service.bluewatcher.service.WebsendService
 import java.util.concurrent.TimeUnit
 
 
@@ -57,6 +58,24 @@ class App : Application() {
             jobScheduler.schedule(jobInfo)
         }
 
+        fun scheduleWebsendService(context: Context) {
+            val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+            val componentName = ComponentName(context, WebsendService::class.java)
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val debug = preferences.getBoolean("debug", false)
+            val seconds = "10"
+            if (debug) {
+                Toast.makeText(context, "Start websend service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
+            }
+
+            val jobInfo = JobInfo.Builder(2, componentName)
+                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+                    .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                    .setPersisted(true)
+                    .build()
+            jobScheduler.schedule(jobInfo)
+        }
     }
 
 }
