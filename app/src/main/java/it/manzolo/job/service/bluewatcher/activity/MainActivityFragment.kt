@@ -35,6 +35,7 @@ class MainActivityFragment : Fragment() {
         //buttonUpdate.isEnabled = false
         startUpdateService()
         startJobService()
+        startWebsendService()
 
         buttonUpdate.setOnClickListener {
             val activity = activity as MainActivity
@@ -69,5 +70,11 @@ class MainActivityFragment : Fragment() {
         Log.d(TAG, "startUpdateService")
         App.scheduleUpdateService(activity as Context)
         activity.run { textView.text = "Service update started" }
+    }
+
+    private fun startWebsendService() {
+        Log.d(TAG, "startWebsendService")
+        App.scheduleWebsendService(activity as Context)
+        activity.run { textView.text = "Service websend started" }
     }
 }

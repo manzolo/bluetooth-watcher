@@ -20,6 +20,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import it.manzolo.job.service.enums.BluetoothEvents;
+import it.manzolo.job.service.enums.WebserverEvents;
 
 public class WebserverSender {
 
@@ -45,6 +46,9 @@ public class WebserverSender {
         DbVoltwatcherAdapter dbVoltwatcherAdapter = new DbVoltwatcherAdapter(context);
         dbVoltwatcherAdapter.open();
         Cursor cursor = dbVoltwatcherAdapter.fetchAllRowsNotSent();
+        Integer cursorCount = cursor.getCount();
+        Log.d(TAG, "Found " + cursorCount + " rows to send");
+
         boolean trysend = false;
         try {
             while (cursor.moveToNext()) {
@@ -79,12 +83,16 @@ public class WebserverSender {
                 dbVoltwatcherAdapter.updateSent(cursor.getInt(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_ID)));
                 trysend = true;
             }
+            if (cursorCount > 0) {
+                Log.d(TAG, "Data sent");
+                Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
+                intentWs.putExtra("message", cursorCount + " rows");
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
+            }
         } finally {
             cursor.close();
         }
         dbVoltwatcherAdapter.close();
-
-
 
         //Log.d(TAG, conn.getResponseMessage());
         // 5. return response message
