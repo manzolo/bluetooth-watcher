@@ -45,7 +45,7 @@ public class WebserverSender {
 
         DbVoltwatcherAdapter dbVoltwatcherAdapter = new DbVoltwatcherAdapter(context);
         dbVoltwatcherAdapter.open();
-        Cursor cursor = dbVoltwatcherAdapter.fetchAllRowsNotSent();
+        Cursor cursor = dbVoltwatcherAdapter.fetchRowsNotSent();
         Integer cursorCount = cursor.getCount();
         Log.d(TAG, "Found " + cursorCount + " rows to send");
 
@@ -61,14 +61,14 @@ public class WebserverSender {
                 //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE)));
                 //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DATA)));
                 String device = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE));
-                String data = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DATA));
-                String volt = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_VOLT));
-                String temp = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_TEMP));
+                String data = cursor.getString(cursor.getColumnIndex("grData"));
+                String volt = cursor.getString(cursor.getColumnIndex("volts"));
+                String temp = cursor.getString(cursor.getColumnIndex("temps"));
                 String detecotrbattery = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DETECTORBATTERY));
                 String longitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LON));
                 String latitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LAT));
                 // 2. build JSON object
-                JSONObject jsonObject = buidJsonObject(device, data, volt, temp, detecotrbattery, longitude, latitude);
+                JSONObject jsonObject = buidJsonObject(device, data + ":00", volt, temp, detecotrbattery, longitude, latitude);
 
 
                 Log.d(TAG, "Sending data=" + jsonObject.toString());
@@ -80,7 +80,7 @@ public class WebserverSender {
                 conn.connect();
 
                 String responseText = conn.getResponseMessage() + "";
-                dbVoltwatcherAdapter.updateSent(cursor.getInt(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_ID)));
+                dbVoltwatcherAdapter.updateSent(data);
                 trysend = true;
             }
             if (cursorCount > 0) {
