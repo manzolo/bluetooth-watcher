@@ -63,7 +63,7 @@ class App : Application() {
             val componentName = ComponentName(context, WebsendService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
-            val seconds = "10"
+            val seconds = "300"
             if (debug) {
                 Toast.makeText(context, "Start websend service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
             }

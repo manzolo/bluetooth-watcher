@@ -11,9 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.job.service.bluewatcher.App
-import it.manzolo.job.service.bluewatcher.utils.Session
 import it.manzolo.job.service.bluewatcher.utils.WebserverSender
-import it.manzolo.job.service.bluewatcher.utils.getBatteryPercentage
 import it.manzolo.job.service.enums.WebserverEvents
 
 class WebsendService : JobService() {
@@ -52,20 +50,9 @@ class WebsendService : JobService() {
         val debug = preferences.getBoolean("debug", false)
 
         try {
-            val bp = getBatteryPercentage(applicationContext)
-            val session = Session(applicationContext)
-
             if (isNetworkAvailable(applicationContext)) {
-                Log.d(TAG, "Send data to webserver")
                 val sender = WebserverSender(applicationContext, url)
                 sender.send()
-                val intentWs = Intent(WebserverEvents.DATA_SENT)
-                LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intentWs)
-                // You can also include some extra data.
-                if (debug) {
-                    Toast.makeText(applicationContext, "Data sent", Toast.LENGTH_LONG).show()
-                }
-                Log.d(TAG, "Data sent")
             } else {
                 if (debug) {
                     Toast.makeText(applicationContext, "No internet connection", Toast.LENGTH_LONG).show()

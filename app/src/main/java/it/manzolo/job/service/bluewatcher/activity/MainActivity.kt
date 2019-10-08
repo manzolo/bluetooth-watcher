@@ -92,6 +92,11 @@ class MainActivity : AppCompatActivity() {
                 WebserverEvents.DATA_SENT -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
                     context.run { textView.text = intent.getStringExtra("message") }
+                    // You can also include some extra data.
+                    if (debug) {
+                        Toast.makeText(context, "Data sent " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                    }
+
                     //context.run { editText.append(intent.getStringExtra("message") + "\n") }
                 }
 
@@ -252,6 +257,13 @@ class MainActivity : AppCompatActivity() {
 
         //Get location
         obtieneLocalizacion()
+
+        /*DEBUG SEND DATA TO WEBSERVER
+        val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
+        dbVoltwatcherAdapter.open()
+        dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "9.99", "30", "2019-10-09 00:00:00", "1.1", "2.2", "50")
+        dbVoltwatcherAdapter.close()
+        */
 
     }
 
