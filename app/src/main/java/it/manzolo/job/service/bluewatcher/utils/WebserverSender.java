@@ -80,7 +80,7 @@ public class WebserverSender {
                 conn.connect();
 
                 String responseText = conn.getResponseMessage() + "";
-                dbVoltwatcherAdapter.updateSent(data);
+                dbVoltwatcherAdapter.updateSent(device, data);
                 trysend = true;
             }
             if (cursorCount > 0) {

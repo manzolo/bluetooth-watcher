@@ -76,10 +76,10 @@ public class DbVoltwatcherAdapter {
     }
 
     // update a contact
-    public boolean updateSent(String data) {
+    public boolean updateSent(String device, String data) {
         String updateQuery = "update voltwatcher " +
                 "set sent = 1 " +
-                "where substr(data,1,15)||'0' = '" + data + "'";
+                "where substr(data,1,15)||'0' = '" + data + "' and device = '" + device + "'";
         Log.d("TAG", updateQuery);
         Cursor c = database.rawQuery(updateQuery, null);
         c.moveToFirst();
@@ -117,7 +117,7 @@ public class DbVoltwatcherAdapter {
                 + "from voltwatcher "
                 + "where sent=0 "
                 + "and data <= DATETIME('now', '-10 minutes', 'localtime') "
-                + "group by grData";
+                + "group by device,grData";
         Log.d("TAG", query);
         return database.rawQuery(query, null);
     }
