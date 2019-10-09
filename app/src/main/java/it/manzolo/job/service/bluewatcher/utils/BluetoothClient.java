@@ -188,7 +188,7 @@ public final class BluetoothClient {
 
                                     final DeviceInfo deviceInfo = new DeviceInfo(device, readBuffer);
 
-                                    if (deviceInfo.getVolt() == 0 && deviceInfo.getTempC() == 0) {
+                                    if (deviceInfo.getVolt() == 0.00) {
                                         Log.w(TAG, "Wrong data");
                                         Intent intentBtError = new Intent(BluetoothEvents.ERROR);
                                         intentBtError.putExtra("message", "Wrong data received from device " + deviceInfo.getAddress());
