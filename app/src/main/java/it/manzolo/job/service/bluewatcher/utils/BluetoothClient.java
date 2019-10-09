@@ -33,7 +33,6 @@ public final class BluetoothClient {
     private BluetoothDevice bluetoothDevice;
     private OutputStream bluetoothOutputStream;
     private InputStream bluetoothInputStream;
-    private static boolean busy = false;
     volatile boolean stopWorker;
     private Thread workerThread;
     private int readBufferPosition;
@@ -61,10 +60,6 @@ public final class BluetoothClient {
     };
 
     public void retrieveData() throws Exception {
-        if (busy) {
-            throw new Exception(TAG + " is busy");
-        }
-        busy = true;
         try {
             if (this.open()) {
                 Thread.sleep(500);
@@ -264,7 +259,6 @@ public final class BluetoothClient {
             bluetoothSocketWrapper.close();
         }
         bluetoothDevice = null;
-        busy = false;
 
         LocalBroadcastManager.getInstance(context).unregisterReceiver(closeBluetoothReceiver);
 
