@@ -187,25 +187,41 @@ public final class BluetoothClient {
 
                                 if (bytereaded == 130) {
 
+                                    Struct struct = new Struct();
                                     //volt
                                     byte[] voltarray = Arrays.copyOfRange(readBuffer, 2, 4);
-                                    Struct struct = new Struct();
-                                    final long[] volt = struct.unpack(">h", voltarray);
+                                    final long[] volt = struct.unpack("!H", voltarray);
 
-                                    //volt
-                                    byte[] temparray = Arrays.copyOfRange(readBuffer, 10, 12);
-                                    long[] temp = struct.unpack(">h", temparray);
-                                    if (volt[0] == 0 && temp[0] == 0) {
-                                        Log.w("Manzolo", "Errata lettura");
+                                    byte[] ampsarray = Arrays.copyOfRange(readBuffer, 4, 6);
+                                    final long[] amps = struct.unpack("!H", ampsarray);
+
+                                    byte[] mWarray = Arrays.copyOfRange(readBuffer, 6, 10);
+                                    final long[] mW = struct.unpack("!I", mWarray);
+
+                                    byte[] tempCarray = Arrays.copyOfRange(readBuffer, 10, 12);
+                                    long[] tempC = struct.unpack("!H", tempCarray);
+
+                                    byte[] tempFarray = Arrays.copyOfRange(readBuffer, 12, 14);
+                                    long[] tempF = struct.unpack("!H", tempFarray);
+
+                                    if (volt[0] == 0 && tempC[0] == 0) {
+                                        Log.w(TAG, "Wrong data");
                                         return;
                                     }
+                                    final String tempCstr = new StringBuilder().append(tempC[0]).toString();
+                                    final String tempFstr = new StringBuilder().append(tempF[0]).toString();
                                     final String voltstr = new StringBuilder().append(volt[0] / 100.0).toString();
-                                    final String tempstr = new StringBuilder().append(temp[0]).toString();
+                                    final String ampsstr = new StringBuilder().append(amps[0] / 1000.0).toString();
+                                    final String mWstr = new StringBuilder().append(mW[0] / 1000.0).toString();
 
 
                                     Log.d(TAG, "Device: " + device);
                                     Log.d(TAG, voltstr + " Volt");
-                                    Log.d(TAG, new StringBuilder().append(tempstr) + "°");
+                                    Log.d(TAG, ampsstr + " Amps");
+                                    Log.d(TAG, mWstr + " Mw");
+
+                                    Log.d(TAG, new StringBuilder().append(tempCstr) + "°");
+                                    Log.d(TAG, new StringBuilder().append(tempFstr) + "F");
 
                                     readBufferPosition = 0;
                                     bytereaded = -1;
@@ -221,10 +237,10 @@ public final class BluetoothClient {
                                             // You can also include some extra data.
                                             intentBt.putExtra("device", device);
                                             intentBt.putExtra("volt", voltstr);
-                                            intentBt.putExtra("temp", tempstr);
+                                            intentBt.putExtra("temp", tempCstr);
                                             intentBt.putExtra("data", now);
 
-                                            intentBt.putExtra("message", "Device: " + device + " Volt:" + voltstr + " Temp:" + tempstr);
+                                            intentBt.putExtra("message", "Device: " + device + " Volt:" + voltstr + " Temp:" + tempCstr);
                                             LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);
 
 
