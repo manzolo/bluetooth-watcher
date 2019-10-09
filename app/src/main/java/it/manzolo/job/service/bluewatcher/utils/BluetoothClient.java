@@ -3,8 +3,10 @@ package it.manzolo.job.service.bluewatcher.utils;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -14,7 +16,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -31,18 +32,32 @@ public final class BluetoothClient {
     private BluetoothSocketWrapper bluetoothSocketWrapper;
     private BluetoothSocket bluetoothSocket;
     private BluetoothDevice bluetoothDevice;
-    private static boolean busy = false;
     private OutputStream bluetoothOutputStream;
-    private Thread workerThread;
     private InputStream bluetoothInputStream;
-    private byte[] readBuffer;
+    private static boolean busy = false;
     volatile boolean stopWorker;
+    private Thread workerThread;
     private int readBufferPosition;
-    private String deviceaddress;
+    private byte[] readBuffer;
+    private String deviceAddress;
+    private BroadcastReceiver closeBluetoothReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Log.d(TAG, "Try closing bluetooth...");
+            try {
+                closeBT();
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+            }
+        }
+    };
 
-    public BluetoothClient(Context context, String deviceaddress) {
-        this.deviceaddress = deviceaddress;
+    public BluetoothClient(Context context, String deviceAddress) {
+        this.deviceAddress = deviceAddress;
         this.context = context;
+        //Register event for bluetooth close connection
+        LocalBroadcastManager.getInstance(context).registerReceiver(closeBluetoothReceiver, new IntentFilter(BluetoothEvents.CLOSECONNECTION));
     }
 
     public void retrieveData() throws Exception {
@@ -51,21 +66,21 @@ public final class BluetoothClient {
         }
         busy = true;
         try {
-
-            this.openBT();
-            Thread.sleep(500);
-            this.setBacklight();
-            Thread.sleep(500);
-            this.setScreenTimeout();
-            Thread.sleep(500);
-            this.getData();
+            if (this.openBT()) {
+                Thread.sleep(500);
+                this.setBacklight();
+                Thread.sleep(500);
+                this.setScreenTimeout();
+                Thread.sleep(500);
+                this.getData();
+            }
             Thread.sleep(500);
         } catch (Exception e) {
-            busy = false;
             this.closeBT();
             throw e;
         } finally {
-            busy = false;
+            //Close qui chiude la connessione metre il bluetooth riceve i dati
+            //this.closeBT();
         }
     }
 
@@ -82,7 +97,7 @@ public final class BluetoothClient {
 
         } catch (IOException normal_e) {
             //normal_e.printStackTrace();
-            //throw new Exception("Unable to connect to " + this.deviceaddress);
+            //throw new Exception("Unable to connect to " + this.deviceAddress);
             try {
                 bluetoothSocketWrapper = new FallbackBluetoothSocket(bluetoothSocketWrapper.getUnderlyingSocket());
                 Thread.sleep(500);
@@ -91,7 +106,7 @@ public final class BluetoothClient {
                 bluetoothInputStream = bluetoothSocketWrapper.getInputStream();
             } catch (Exception fallback_e) {
                 //fallback_e.printStackTrace();
-                throw new Exception("Unable to connect to " + this.deviceaddress);
+                throw new Exception("Unable to connect to " + this.deviceAddress);
             }
         }
         return true;
@@ -110,18 +125,52 @@ public final class BluetoothClient {
             throw new Exception("Bluetooth not enabled");
         }
 
-        bluetoothDevice = bluetoothAdapter.getRemoteDevice(this.deviceaddress);
+        bluetoothDevice = bluetoothAdapter.getRemoteDevice(this.deviceAddress);
         Log.d(TAG, "Bluetooth Device Found");
     }
 
+    private void setBacklight() {
+        try {
+            Log.d(TAG, "setBacklight");
+            byte backlight = (byte) 0xd0;
+            this.bluetoothOutputStream.write(backlight);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setScreenTimeout() {
+        try {
+            Log.d(TAG, "setScreenTimeout");
+            byte screentimeout = (byte) 0xe0;
+            this.bluetoothOutputStream.write(screentimeout);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getData() {
+        try {
+            Log.d(TAG, "Request bluetooth data...");
+            byte dataDump = (byte) 0xf0;
+            this.bluetoothOutputStream.write(dataDump);
+            this.listen();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void listen() {
+        readBufferPosition = 0;
+        readBuffer = new byte[130];
+        final String device = this.deviceAddress;
         final Handler handler = new Handler(Looper.getMainLooper());
+
         Log.d(TAG, "Listen...");
 
         stopWorker = false;
-        readBufferPosition = 0;
-        readBuffer = new byte[130];
-        final String device = this.deviceaddress;
         workerThread = new Thread(new Runnable() {
             public void run() {
                 while (!Thread.currentThread().isInterrupted() && !stopWorker) {
@@ -177,6 +226,13 @@ public final class BluetoothClient {
 
                                             intentBt.putExtra("message", "Device: " + device + " Volt:" + voltstr + " Temp:" + tempstr);
                                             LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);
+
+
+                                            Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
+                                            // You can also include some extra data.
+                                            intent.putExtra("message", "This is my message!");
+                                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
                                         }
                                     });
                                 } else {
@@ -198,39 +254,6 @@ public final class BluetoothClient {
         workerThread.start();
     }
 
-    private void setBacklight() {
-        try {
-            Log.d(TAG, "setBacklight");
-            byte backlight = (byte) 0xd0;
-            this.bluetoothOutputStream.write(backlight);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setScreenTimeout() {
-        try {
-            Log.d(TAG, "setScreenTimeout");
-            byte screentimeout = (byte) 0xe0;
-            this.bluetoothOutputStream.write(screentimeout);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void getData() {
-        try {
-            Log.d(TAG, "Request bluetooth data...");
-            byte dataDump = (byte) 0xf0;
-            this.bluetoothOutputStream.write(dataDump);
-            this.listen();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void closeBT() throws IOException {
         stopWorker = true;
         if (bluetoothOutputStream != null) {
@@ -242,129 +265,16 @@ public final class BluetoothClient {
         if (bluetoothSocket != null) {
             bluetoothSocket.close();
         }
-        //if (bluetoothSocket.isConnected()){
-
-        //}
+        if (bluetoothSocketWrapper != null) {
+            bluetoothSocketWrapper.close();
+        }
+        bluetoothDevice = null;
         busy = false;
-        Log.d(TAG, "Bluetooth Closed");
+
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(closeBluetoothReceiver);
+
+        Log.d(TAG, "Bluetooth Closed!");
     }
 
-
-    private interface BluetoothSocketWrapper {
-
-        InputStream getInputStream() throws IOException;
-
-        OutputStream getOutputStream() throws IOException;
-
-        String getRemoteDeviceName();
-
-        void connect() throws IOException;
-
-        String getRemoteDeviceAddress();
-
-        void close() throws IOException;
-
-        BluetoothSocket getUnderlyingSocket();
-
-    }
-
-
-    private static class NativeBluetoothSocket implements BluetoothSocketWrapper {
-
-        private BluetoothSocket socket;
-
-        public NativeBluetoothSocket(BluetoothSocket tmp) {
-            this.socket = tmp;
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return socket.getInputStream();
-        }
-
-        @Override
-        public OutputStream getOutputStream() throws IOException {
-            return socket.getOutputStream();
-        }
-
-        @Override
-        public String getRemoteDeviceName() {
-            return socket.getRemoteDevice().getName();
-        }
-
-        @Override
-        public void connect() throws IOException {
-            socket.connect();
-        }
-
-        @Override
-        public String getRemoteDeviceAddress() {
-            return socket.getRemoteDevice().getAddress();
-        }
-
-        @Override
-        public void close() throws IOException {
-            socket.close();
-        }
-
-        @Override
-        public BluetoothSocket getUnderlyingSocket() {
-            return socket;
-        }
-
-    }
-
-    private static class FallbackException extends Exception {
-
-        /**
-         *
-         */
-        private static final long serialVersionUID = 1L;
-
-        public FallbackException(Exception e) {
-            super(e);
-        }
-
-    }
-
-    private class FallbackBluetoothSocket extends NativeBluetoothSocket {
-
-        private BluetoothSocket fallbackSocket;
-
-        public FallbackBluetoothSocket(BluetoothSocket tmp) throws FallbackException {
-            super(tmp);
-            try {
-                Class<?> clazz = tmp.getRemoteDevice().getClass();
-                Class<?>[] paramTypes = new Class<?>[]{Integer.TYPE};
-                Method m = clazz.getMethod("createRfcommSocket", paramTypes);
-                Object[] params = new Object[]{Integer.valueOf(1)};
-                fallbackSocket = (BluetoothSocket) m.invoke(tmp.getRemoteDevice(), params);
-            } catch (Exception e) {
-                throw new FallbackException(e);
-            }
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return fallbackSocket.getInputStream();
-        }
-
-        @Override
-        public OutputStream getOutputStream() throws IOException {
-            return fallbackSocket.getOutputStream();
-        }
-
-
-        @Override
-        public void connect() throws IOException {
-            fallbackSocket.connect();
-        }
-
-
-        @Override
-        public void close() throws IOException {
-            fallbackSocket.close();
-        }
-
-    }
 }
+
