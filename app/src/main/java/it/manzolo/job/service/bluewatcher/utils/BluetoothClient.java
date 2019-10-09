@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -40,18 +39,6 @@ public final class BluetoothClient {
     private int readBufferPosition;
     private byte[] readBuffer;
     private String deviceAddress;
-    private BroadcastReceiver closeBluetoothReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
-            Log.d(TAG, "Try closing bluetooth...");
-            try {
-                closeBT();
-            } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
-            }
-        }
-    };
 
     public BluetoothClient(Context context, String deviceAddress) {
         this.deviceAddress = deviceAddress;
@@ -60,56 +47,41 @@ public final class BluetoothClient {
         LocalBroadcastManager.getInstance(context).registerReceiver(closeBluetoothReceiver, new IntentFilter(BluetoothEvents.CLOSECONNECTION));
     }
 
+    private BroadcastReceiver closeBluetoothReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Log.d(TAG, "Try closing bluetooth...");
+            try {
+                close();
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+            }
+        }
+    };
+
     public void retrieveData() throws Exception {
         if (busy) {
             throw new Exception(TAG + " is busy");
         }
         busy = true;
         try {
-            if (this.openBT()) {
+            if (this.open()) {
                 Thread.sleep(500);
                 this.setBacklight();
                 Thread.sleep(500);
                 this.setScreenTimeout();
                 Thread.sleep(500);
-                this.getData();
+                this.dataDump();
             }
             Thread.sleep(500);
         } catch (Exception e) {
-            this.closeBT();
+            this.close();
             throw e;
         } finally {
             //Close qui chiude la connessione metre il bluetooth riceve i dati
-            //this.closeBT();
+            //this.close();
         }
-    }
-
-    private boolean openBT() throws Exception {
-        this.findBT();
-        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-        try {
-            Log.d(TAG, "Connecting to " + bluetoothDevice.getAddress() + " UUID:" + uuid);
-            bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
-            bluetoothSocket.connect();
-            Log.d(TAG, "Connected to " + uuid);
-            bluetoothOutputStream = bluetoothSocket.getOutputStream();
-            bluetoothInputStream = bluetoothSocket.getInputStream();
-
-        } catch (IOException normal_e) {
-            //normal_e.printStackTrace();
-            //throw new Exception("Unable to connect to " + this.deviceAddress);
-            try {
-                bluetoothSocketWrapper = new FallbackBluetoothSocket(bluetoothSocketWrapper.getUnderlyingSocket());
-                Thread.sleep(500);
-                bluetoothSocketWrapper.connect();
-                bluetoothOutputStream = bluetoothSocketWrapper.getOutputStream();
-                bluetoothInputStream = bluetoothSocketWrapper.getInputStream();
-            } catch (Exception fallback_e) {
-                //fallback_e.printStackTrace();
-                throw new Exception("Unable to connect to " + this.deviceAddress);
-            }
-        }
-        return true;
     }
 
     private void findBT() throws Exception {
@@ -151,7 +123,35 @@ public final class BluetoothClient {
         }
     }
 
-    private void getData() {
+    private boolean open() throws Exception {
+        this.findBT();
+        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+        try {
+            Log.d(TAG, "Connecting to " + bluetoothDevice.getAddress() + " UUID:" + uuid);
+            bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+            bluetoothSocket.connect();
+            Log.d(TAG, "Connected to " + uuid);
+            bluetoothOutputStream = bluetoothSocket.getOutputStream();
+            bluetoothInputStream = bluetoothSocket.getInputStream();
+
+        } catch (IOException normal_e) {
+            //normal_e.printStackTrace();
+            //throw new Exception("Unable to connect to " + this.deviceAddress);
+            try {
+                bluetoothSocketWrapper = new FallbackBluetoothSocket(bluetoothSocketWrapper.getUnderlyingSocket());
+                Thread.sleep(500);
+                bluetoothSocketWrapper.connect();
+                bluetoothOutputStream = bluetoothSocketWrapper.getOutputStream();
+                bluetoothInputStream = bluetoothSocketWrapper.getInputStream();
+            } catch (Exception fallback_e) {
+                //fallback_e.printStackTrace();
+                throw new Exception("Unable to connect to " + this.deviceAddress);
+            }
+        }
+        return true;
+    }
+
+    private void dataDump() {
         try {
             Log.d(TAG, "Request bluetooth data...");
             byte dataDump = (byte) 0xf0;
@@ -177,7 +177,6 @@ public final class BluetoothClient {
                     try {
                         int bytesAvailable = bluetoothInputStream.available();
                         if (bytesAvailable > 0) {
-
                             int bytereaded = -1;
                             byte[] packetBytes = new byte[130];
                             bluetoothInputStream.read(packetBytes);
@@ -187,41 +186,23 @@ public final class BluetoothClient {
 
                                 if (bytereaded == 130) {
 
-                                    Struct struct = new Struct();
-                                    //volt
-                                    byte[] voltarray = Arrays.copyOfRange(readBuffer, 2, 4);
-                                    final long[] volt = struct.unpack("!H", voltarray);
+                                    final DeviceInfo deviceInfo = new DeviceInfo(device, readBuffer);
 
-                                    byte[] ampsarray = Arrays.copyOfRange(readBuffer, 4, 6);
-                                    final long[] amps = struct.unpack("!H", ampsarray);
-
-                                    byte[] mWarray = Arrays.copyOfRange(readBuffer, 6, 10);
-                                    final long[] mW = struct.unpack("!I", mWarray);
-
-                                    byte[] tempCarray = Arrays.copyOfRange(readBuffer, 10, 12);
-                                    long[] tempC = struct.unpack("!H", tempCarray);
-
-                                    byte[] tempFarray = Arrays.copyOfRange(readBuffer, 12, 14);
-                                    long[] tempF = struct.unpack("!H", tempFarray);
-
-                                    if (volt[0] == 0 && tempC[0] == 0) {
+                                    if (deviceInfo.getVolt() == 0 && deviceInfo.getTempC() == 0) {
                                         Log.w(TAG, "Wrong data");
+                                        Intent intentBtError = new Intent(BluetoothEvents.ERROR);
+                                        intentBtError.putExtra("message", "Wrong data received from device " + deviceInfo.getAddress());
+                                        LocalBroadcastManager.getInstance(context).sendBroadcast(intentBtError);
                                         return;
                                     }
-                                    final String tempCstr = new StringBuilder().append(tempC[0]).toString();
-                                    final String tempFstr = new StringBuilder().append(tempF[0]).toString();
-                                    final String voltstr = new StringBuilder().append(volt[0] / 100.0).toString();
-                                    final String ampsstr = new StringBuilder().append(amps[0] / 1000.0).toString();
-                                    final String mWstr = new StringBuilder().append(mW[0] / 1000.0).toString();
 
+                                    Log.d(TAG, "Device: " + deviceInfo.getAddress());
+                                    Log.d(TAG, deviceInfo.getVolt() + " Volt");
+                                    Log.d(TAG, deviceInfo.getAmp() + " A");
+                                    Log.d(TAG, deviceInfo.getmW() + " mW");
 
-                                    Log.d(TAG, "Device: " + device);
-                                    Log.d(TAG, voltstr + " Volt");
-                                    Log.d(TAG, ampsstr + " Amps");
-                                    Log.d(TAG, mWstr + " Mw");
-
-                                    Log.d(TAG, new StringBuilder().append(tempCstr) + "°");
-                                    Log.d(TAG, new StringBuilder().append(tempFstr) + "F");
+                                    Log.d(TAG, deviceInfo.getTempC() + "°");
+                                    Log.d(TAG, deviceInfo.getTempF() + "°F");
 
                                     readBufferPosition = 0;
                                     bytereaded = -1;
@@ -234,19 +215,17 @@ public final class BluetoothClient {
                                             String now = dateFormat.format(date);
 
                                             Intent intentBt = new Intent(BluetoothEvents.DATA_RETRIEVED);
-                                            // You can also include some extra data.
-                                            intentBt.putExtra("device", device);
-                                            intentBt.putExtra("volt", voltstr);
-                                            intentBt.putExtra("temp", tempCstr);
+
+                                            intentBt.putExtra("device", deviceInfo.getAddress());
+                                            intentBt.putExtra("volt", deviceInfo.getVolt().toString());
+                                            intentBt.putExtra("temp", deviceInfo.getTempC().toString());
                                             intentBt.putExtra("data", now);
 
-                                            intentBt.putExtra("message", "Device: " + device + " Volt:" + voltstr + " Temp:" + tempCstr);
+                                            intentBt.putExtra("message", "Device: " + deviceInfo.getAddress() + " Volt:" + deviceInfo.getVolt().toString() + " Temp:" + deviceInfo.getTempC().toString());
                                             LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);
 
 
                                             Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
-                                            // You can also include some extra data.
-                                            intent.putExtra("message", "This is my message!");
                                             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                                         }
@@ -270,7 +249,7 @@ public final class BluetoothClient {
         workerThread.start();
     }
 
-    private void closeBT() throws IOException {
+    private void close() throws IOException {
         stopWorker = true;
         if (bluetoothOutputStream != null) {
             bluetoothOutputStream.close();
@@ -291,6 +270,5 @@ public final class BluetoothClient {
 
         Log.d(TAG, "Bluetooth Closed!");
     }
-
 }
 
