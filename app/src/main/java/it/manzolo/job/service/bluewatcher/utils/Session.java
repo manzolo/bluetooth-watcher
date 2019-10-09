@@ -30,4 +30,14 @@ public class Session {
         String latitude = prefs.getString("latitude", "");
         return latitude;
     }
+
+    public String getUpdateApkUrl() {
+        String updateapkurl = prefs.getString("updateapkurl", "");
+        return updateapkurl;
+    }
+
+    public void setUpdateApkUrl(String updateapkurl) {
+        prefs.edit().putString("updateapkurl", updateapkurl).commit();
+    }
+
 }

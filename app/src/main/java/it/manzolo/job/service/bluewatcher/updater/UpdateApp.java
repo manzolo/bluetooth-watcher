@@ -54,6 +54,7 @@ public class UpdateApp extends AsyncTask<String, Void, Void> {
             Intent intent = new Intent(WebserverEvents.APP_UPDATE);
             // You can also include some extra data.
             intent.putExtra("message", "Download complete");
+            intent.putExtra("file", file.getAbsolutePath());
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
         } catch (Exception e) {

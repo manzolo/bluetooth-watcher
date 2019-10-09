@@ -17,5 +17,10 @@
         android:orderInCategory="400"
         android:title="@string/dbrestore"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_updateapp"
+        android:orderInCategory="400"
+        android:title="@string/updateapp"
+        app:showAsAction="never" />
 
 </menu>

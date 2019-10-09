@@ -6,12 +6,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.R
-import it.manzolo.job.service.bluewatcher.updater.UpdateApp
-import it.manzolo.job.service.bluewatcher.utils.GithubUpdater
 import kotlinx.android.synthetic.main.fragment_main.*
 import java.io.File
 
@@ -37,27 +34,6 @@ class MainActivityFragment : Fragment() {
         startJobService()
         startWebsendService()
 
-        buttonUpdate.setOnClickListener {
-            val activity = activity as MainActivity
-            val file = File(activity.cacheDir, "app.apk")
-            val photoURI = activity.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, activity.applicationContext.packageName + ".provider", file) }
-
-            buttonUpdate.isEnabled = false
-
-            val updateapp = UpdateApp()
-            updateapp.setContext(activity)
-            //Log.i("manzolo", file.toString())
-            var outputDir = photoURI.toString()
-            if (buttonUpdate.tag == null) {
-                val githubup = GithubUpdater()
-                githubup.checkUpdate(activity.applicationContext)
-            } else {
-                updateapp.execute(buttonUpdate.tag.toString(), outputDir)
-            }
-            buttonUpdate.isEnabled = true
-
-
-        }
     }
 
     private fun startJobService() {

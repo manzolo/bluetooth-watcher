@@ -21,4 +21,5 @@
     <string name="start_service">Update APP</string>
     <string name="dbbackup">Backup database</string>
     <string name="dbrestore">Restore database</string>
+    <string name="updateapp">Update App</string>
 </resources>

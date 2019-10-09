@@ -5,7 +5,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
 import android.os.Looper
-import android.os.PowerManager
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.Menu
@@ -17,6 +16,7 @@ import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
 import it.manzolo.job.service.bluewatcher.R
+import it.manzolo.job.service.bluewatcher.updater.UpdateApp
 import it.manzolo.job.service.bluewatcher.utils.*
 import it.manzolo.job.service.enums.BluetoothEvents
 import it.manzolo.job.service.enums.DatabaseEvents
@@ -31,8 +31,6 @@ class MainActivity : AppCompatActivity() {
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var mLocationRequest: LocationRequest? = null
     private lateinit var locationCallback: LocationCallback
-    private val mPowerManager: PowerManager? = null
-    private var mWakeLock: PowerManager.WakeLock? = null
 
     private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -96,22 +94,32 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 WebserverEvents.APP_UPDATE -> {
+
+                    //val filepath = intent.getStringExtra("file")
                     val file = File(applicationContext.cacheDir, "app.apk")
                     val apkfile = applicationContext.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.applicationContext.packageName + ".provider", file) }
                     if (file.exists()) {
+                        if (debug) {
+                            Toast.makeText(context, "Install update", Toast.LENGTH_LONG).show()
+                        }
                         val apk = Apk()
                         apk.installApk(applicationContext, apkfile)
+                        //install(applicationContext,applicationContext.packageName,file)
                         val fileupdate = File(applicationContext.cacheDir, "app.ava")
                         fileupdate.delete()
+                    } else {
+                        if (debug) {
+                            Toast.makeText(context, "Update file not found", Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
                 WebserverEvents.APP_AVAILABLE -> {
-                    context.run { buttonUpdate.isEnabled = true }
-                    context.run { buttonUpdate.tag = intent.getStringExtra("message") }
+                    val session = Session(context)
+                    val updateUrl = intent.getStringExtra("message")
+                    session.updateApkUrl = updateUrl
                     if (debug) {
-                        Toast.makeText(context, "Update available at " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Update available at " + updateUrl, Toast.LENGTH_LONG).show()
                     }
-
                 }
                 WebserverEvents.APP_CHECK_UPDATE -> {
                     if (debug) {
@@ -212,6 +220,25 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_dbrestore -> {
                 showRestoreDialog()
+                return true
+            }
+            R.id.action_updateapp -> {
+                val session = Session(applicationContext)
+                val file = File(applicationContext.cacheDir, "app.apk")
+                val photoURI = applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.packageName + ".provider", file) }
+
+                val updateapp = UpdateApp()
+                updateapp.setContext(applicationContext)
+                //Log.i("manzolo", file.toString())
+                var outputDir = photoURI.toString()
+                //Log.e(TAG, session.updateApkUrl)
+                //Log.e(TAG, outputDir)
+                if (session.updateApkUrl.length == 0) {
+                    val githubup = GithubUpdater()
+                    githubup.checkUpdate(applicationContext)
+                } else {
+                    updateapp.execute(session.updateApkUrl, outputDir)
+                }
                 return true
             }
             else -> super.onOptionsItemSelected(item)
@@ -344,4 +371,29 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    /*fun install(context: Context, packageName: String, apkPath: File) {
+
+        // PackageManager provides an instance of PackageInstaller
+        val packageInstaller = context.packageManager.packageInstaller
+
+        // Prepare params for installing one APK file with MODE_FULL_INSTALL
+        // We could use MODE_INHERIT_EXISTING to install multiple split APKs
+        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        params.setAppPackageName(packageName)
+
+        // Get a PackageInstaller.Session for performing the actual update
+        val sessionId = packageInstaller.createSession(params)
+        val session = packageInstaller.openSession(sessionId)
+
+        // Copy APK file bytes into OutputStream provided by install Session
+        val out = session.openWrite(packageName, 0, -1)
+        val fis = apkPath.inputStream()
+        fis.copyTo(out)
+        session.fsync(out)
+        out.close()
+
+        // The app gets killed after installation session commit
+        session.commit(PendingIntent.getBroadcast(context, sessionId,
+                Intent("android.intent.action.MAIN"), 0).intentSender)
+    }*/
 }
