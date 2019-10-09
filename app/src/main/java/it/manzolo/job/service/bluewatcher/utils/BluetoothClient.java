@@ -27,21 +27,22 @@ import it.manzolo.job.service.enums.BluetoothEvents;
 public final class BluetoothClient {
     public static final String TAG = "BluetoothClient";
     private Context context;
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothSocketWrapper bluetoothSocket;
-    private BluetoothSocket mmSocket;
-    private BluetoothDevice mmDevice;
-    private OutputStream mmOutputStream;
-    private InputStream mmInputStream;
-    private Thread workerThread;
-    private byte[] readBuffer;
-    private int readBufferPosition;
-    volatile boolean stopWorker;
     private static boolean busy = false;
-    private String addr;
+    private String bluetoothAddress;
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothSocketWrapper bluetoothSocketWrapper;
+    private BluetoothSocket bluetoothSocket;
+    private BluetoothDevice bluetoothDevice;
+    private OutputStream bluetoothoutputStream;
+    private InputStream bluetoothinputStream;
 
-    public BluetoothClient(String addr, Context context) {
-        this.addr = addr;
+    private int readBufferPosition;
+    private byte[] readBuffer;
+    private Thread workerThread;
+    volatile boolean stopWorker;
+
+    public BluetoothClient(Context context, String bluetoothAddress) {
+        this.bluetoothAddress = bluetoothAddress;
         this.context = context;
     }
 
@@ -51,81 +52,92 @@ public final class BluetoothClient {
         }
         busy = true;
         try {
-            this.openBT();
-            this.getData();
+            this.open();
+            this.listen();
             Thread.sleep(1000);
         } catch (Exception e) {
             busy = false;
-            this.closeBT();
+            this.close();
             throw e;
         } finally {
             busy = false;
         }
     }
 
-    private void findBT() throws Exception {
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private void checkDevice() throws Exception {
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        mBluetoothAdapter.cancelDiscovery();
+        bluetoothAdapter.cancelDiscovery();
 
-        if (mBluetoothAdapter == null) {
+        if (bluetoothAdapter == null) {
             throw new Exception("No bluetooth adapter available");
         }
 
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (!bluetoothAdapter.isEnabled()) {
             throw new Exception("Bluetooth not enabled");
         }
 
-        mmDevice = mBluetoothAdapter.getRemoteDevice(this.addr);
+        bluetoothDevice = bluetoothAdapter.getRemoteDevice(this.bluetoothAddress);
         Log.d(TAG, "Bluetooth Device Found");
     }
 
-    private boolean openBT() throws Exception {
-        this.findBT();
+    private boolean open() throws Exception {
+        this.checkDevice();
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         try {
-            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
+            bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
             Log.d(TAG, "Connecting to " + uuid);
-            mmSocket.connect();
+            bluetoothSocket.connect();
             Log.d(TAG, "Connected to " + uuid);
-            mmOutputStream = mmSocket.getOutputStream();
-            mmInputStream = mmSocket.getInputStream();
+            bluetoothoutputStream = bluetoothSocket.getOutputStream();
+            bluetoothinputStream = bluetoothSocket.getInputStream();
 
         } catch (IOException normal_e) {
             //normal_e.printStackTrace();
-            //throw new Exception("Unable to connect to " + this.addr);
+            //throw new Exception("Unable to connect to " + this.bluetoothAddress);
             try {
-                bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
+                bluetoothSocketWrapper = new FallbackBluetoothSocket(bluetoothSocketWrapper.getUnderlyingSocket());
                 Thread.sleep(500);
-                bluetoothSocket.connect();
-                mmOutputStream = bluetoothSocket.getOutputStream();
-                mmInputStream = bluetoothSocket.getInputStream();
+                bluetoothSocketWrapper.connect();
+                bluetoothoutputStream = bluetoothSocketWrapper.getOutputStream();
+                bluetoothinputStream = bluetoothSocketWrapper.getInputStream();
             } catch (Exception fallback_e) {
                 //fallback_e.printStackTrace();
-                throw new Exception("Unable to connect to " + this.addr);
+                throw new Exception("Unable to connect to " + this.bluetoothAddress);
             }
         }
         return true;
     }
 
-    private void beginListenForData() {
+    private void listen() throws IOException {
         final Handler handler = new Handler(Looper.getMainLooper());
+        Log.d(TAG, "Request bluetooth data...");
+        byte backlight = (byte) 0xd0;
+        bluetoothoutputStream.write(backlight);
+
+        byte screentimeout = (byte) 0xe0;
+        bluetoothoutputStream.write(screentimeout);
+
+        byte dataDump = (byte) 0xf0;
+        bluetoothoutputStream.write(dataDump);
+
+        this.listen();
         Log.d(TAG, "Listen...");
 
         stopWorker = false;
         readBufferPosition = 0;
         readBuffer = new byte[130];
-        final String device = this.addr;
+        final String device = this.bluetoothAddress;
         workerThread = new Thread(new Runnable() {
             public void run() {
                 while (!Thread.currentThread().isInterrupted() && !stopWorker) {
                     try {
-                        int bytesAvailable = mmInputStream.available();
+                        int bytesAvailable = bluetoothinputStream.available();
                         if (bytesAvailable > 0) {
 
                             int bytereaded = -1;
                             byte[] packetBytes = new byte[130];
-                            mmInputStream.read(packetBytes);
+                            bluetoothinputStream.read(packetBytes);
                             for (int i = 0; i < bytesAvailable; i++) {
                                 byte b = packetBytes[i];
                                 bytereaded++;
@@ -192,26 +204,16 @@ public final class BluetoothClient {
         workerThread.start();
     }
 
-    private void getData() {
-        try {
-            byte data = (byte) 0xf0;
-            mmOutputStream.write(data);
-            this.beginListenForData();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void closeBT() throws IOException {
+    private void close() throws IOException {
         stopWorker = true;
-        if (mmOutputStream != null) {
-            mmOutputStream.close();
+        if (bluetoothoutputStream != null) {
+            bluetoothoutputStream.close();
         }
-        if (mmInputStream != null) {
-            mmInputStream.close();
+        if (bluetoothinputStream != null) {
+            bluetoothinputStream.close();
         }
-        //if (mmSocket.isConnected()){
-        mmSocket.close();
+        //if (bluetoothSocket.isConnected()){
+        bluetoothSocket.close();
         //}
         busy = false;
         Log.d(TAG, "Bluetooth Closed");

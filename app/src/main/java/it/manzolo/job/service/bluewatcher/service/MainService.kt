@@ -92,28 +92,26 @@ private class btTask : AsyncTask<Context, Void, String>() {
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val address = preferences.getString("devices", "")
-        val items = address.split(",")
-        for (i in 0 until items.size) {
-            val addr = items[i].replace("\\s".toRegex(), "")
+        val bluetoothDevices = address.split(",")
+        for (i in 0 until bluetoothDevices.size) {
+            val bluetoothDeviceAddress = bluetoothDevices[i].replace("\\s".toRegex(), "")
             loopok@ for (i in 1..5) {
-                if (retry(addr, context)) {
+                if (btConnectionRetry(context, bluetoothDeviceAddress)) {
                     Thread.sleep(1000)
                     break@loopok
                 }
             }
-
-
         }
         return "OK"
     }
 
-    fun retry(addr: String, context: Context): Boolean {
+    fun btConnectionRetry(context: Context, addr: String): Boolean {
         try {
-            val btclient = BluetoothClient(addr, context)
-            btclient.retrieveData()
+            val bluetoothClient = BluetoothClient(context, addr)
+            bluetoothClient.retrieveData()
             Thread.sleep(1000)
+            //bluetoothClient.close()
             return true
-
         } catch (e: Exception) {
             //e.printStackTrace()
             Log.e(MainService.TAG, e.message)

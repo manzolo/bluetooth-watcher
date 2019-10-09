@@ -21,7 +21,7 @@ class App : Application() {
 
             val componentName = ComponentName(context, MainService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val seconds = preferences.getString("seconds", "30")
+            val seconds = "60"
             val debug = preferences.getBoolean("debug", false)
             if (debug) {
                 Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
@@ -43,7 +43,6 @@ class App : Application() {
             val componentName = ComponentName(context, UpdateService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
-            //val seconds = "3660"
             val seconds = "14400"
             if (debug) {
                 Toast.makeText(context, "Start update service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
@@ -63,7 +62,7 @@ class App : Application() {
             val componentName = ComponentName(context, WebsendService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
-            val seconds = "300"
+            val seconds = preferences.getString("seconds", "300")
             if (debug) {
                 Toast.makeText(context, "Start websend service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
             }

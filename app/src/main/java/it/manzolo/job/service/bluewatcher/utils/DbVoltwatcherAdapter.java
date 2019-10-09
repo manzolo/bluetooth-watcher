@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DbVoltwatcherAdapter {
     public static final String KEY_ID = "_id";
@@ -16,7 +17,6 @@ public class DbVoltwatcherAdapter {
     public static final String KEY_LON = "longitude";
     public static final String KEY_LAT = "latitude";
     public static final String KEY_SENT = "sent";
-    @SuppressWarnings("unused")
     private static final String LOG_TAG = DbVoltwatcherAdapter.class.getSimpleName();
     // Database fields
     private static final String DATABASE_TABLE = "voltwatcher";
@@ -68,13 +68,25 @@ public class DbVoltwatcherAdapter {
     }
 
     // update a contact
-    public boolean updateSent(Integer id) {
+    public boolean updateSingleSent(Integer id) {
         ContentValues updateValues = new ContentValues();
         updateValues.put(KEY_SENT, 1);
         return database.update(DATABASE_TABLE, updateValues, KEY_ID
                 + "=" + id, null) > 0;
     }
 
+    // update a contact
+    public boolean updateSent(String device, String data) {
+        String updateQuery = "update voltwatcher " +
+                "set sent = 1 " +
+                "where substr(data,1,15)||'0' = '" + data + "' and device = '" + device + "'";
+        Log.d("TAG", updateQuery);
+        Cursor c = database.rawQuery(updateQuery, null);
+        c.moveToFirst();
+        c.close();
+        return true;
+
+    }
     // delete a contact
     public boolean deleteRow(long id) {
         return database.delete(DATABASE_TABLE, KEY_ID + "=" + id, null) > 0;
@@ -98,6 +110,16 @@ public class DbVoltwatcherAdapter {
                 KEY_VOLT, KEY_TEMP, KEY_DATA, KEY_LON, KEY_LAT, KEY_DETECTORBATTERY}, KEY_SENT + " = 0", null, null, null, null, null);
         return mCursor;
 
+    }
+
+    public Cursor fetchRowsNotSent() {
+        String query = "select device as device ,substr(data,1,15)||'0' as grData, round(avg(volts),2) as volts, round(avg(temps),2) as temps, round(avg(detectorbattery),2) as detectorbattery, avg(longitude) as longitude, avg(latitude) as latitude "
+                + "from voltwatcher "
+                + "where sent=0 "
+                + "and data <= DATETIME('now', '-10 minutes', 'localtime') "
+                + "group by device,grData";
+        Log.d("TAG", query);
+        return database.rawQuery(query, null);
     }
 
 }
