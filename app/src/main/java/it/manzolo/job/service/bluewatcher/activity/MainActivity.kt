@@ -1,9 +1,6 @@
 package it.manzolo.job.service.bluewatcher.activity
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
@@ -14,15 +11,13 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
 import it.manzolo.job.service.bluewatcher.R
-import it.manzolo.job.service.bluewatcher.utils.Apk
-import it.manzolo.job.service.bluewatcher.utils.DbVoltwatcherAdapter
-import it.manzolo.job.service.bluewatcher.utils.Session
-import it.manzolo.job.service.bluewatcher.utils.getBatteryPercentage
+import it.manzolo.job.service.bluewatcher.utils.*
 import it.manzolo.job.service.enums.BluetoothEvents
 import it.manzolo.job.service.enums.DatabaseEvents
 import it.manzolo.job.service.enums.WebserverEvents
@@ -211,6 +206,14 @@ class MainActivity : AppCompatActivity() {
                 this.startActivity(intent1)
                 return true
             }
+            R.id.action_dbbackup -> {
+                showBackupDialog()
+                return true
+            }
+            R.id.action_dbrestore -> {
+                showRestoreDialog()
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -271,6 +274,74 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient?.requestLocationUpdates(mLocationRequest, locationCallback, Looper.getMainLooper())
     }
 
+    // Method to show an alert dialog with yes, no and cancel button
+    private fun showBackupDialog() {
+        // Late initialize an alert dialog object
+        lateinit var dialog: AlertDialog
+
+
+        // Initialize a new instance of alert dialog builder object
+        val builder = AlertDialog.Builder(this)
+
+        // Set a title for alert dialog
+        builder.setTitle("Are you sure")
+
+        // On click listener for dialog buttons
+        val dialogClickListener = DialogInterface.OnClickListener { _, which ->
+            when (which) {
+                DialogInterface.BUTTON_POSITIVE -> {
+                    val db = DatabaseHelper(applicationContext)
+                    db.backup()
+                }
+            }
+        }
+
+        // Set the alert dialog positive/yes button
+        builder.setPositiveButton("YES", dialogClickListener)
+
+        // Set the alert dialog negative/no button
+        builder.setNegativeButton("NO", dialogClickListener)
+
+        // Initialize the AlertDialog using builder object
+        dialog = builder.create()
+
+        // Finally, display the alert dialog
+        dialog.show()
+    }
+
+    // Method to show an alert dialog with yes, no and cancel button
+    private fun showRestoreDialog() {
+        // Late initialize an alert dialog object
+        lateinit var dialog: AlertDialog
+
+
+        // Initialize a new instance of alert dialog builder object
+        val builder = AlertDialog.Builder(this)
+
+        // Set a title for alert dialog
+        builder.setTitle("Are you sure")
+
+        // On click listener for dialog buttons
+        val dialogClickListener = DialogInterface.OnClickListener { _, which ->
+            when (which) {
+                DialogInterface.BUTTON_POSITIVE -> {
+                    val db = DatabaseHelper(applicationContext)
+                    db.restore()
+                }
+            }
+        }
+
+        // Set the alert dialog positive/yes button
+        builder.setPositiveButton("YES", dialogClickListener)
+
+        // Set the alert dialog negative/no button
+        builder.setNegativeButton("NO", dialogClickListener)
+
+        // Initialize the AlertDialog using builder object
+        dialog = builder.create()
+
+        // Finally, display the alert dialog
+        dialog.show()
+    }
+
 }
-
-
