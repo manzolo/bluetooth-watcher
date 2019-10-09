@@ -183,11 +183,15 @@ public final class BluetoothClient {
 
                                     final DeviceInfo deviceInfo = new DeviceInfo(device, readBuffer);
 
-                                    if (deviceInfo.getVolt() == 0.00) {
+                                    if (deviceInfo.getVolt() <= 0.00) {
                                         Log.w(TAG, "Wrong data");
                                         Intent intentBtError = new Intent(BluetoothEvents.ERROR);
                                         intentBtError.putExtra("message", "Wrong data received from device " + deviceInfo.getAddress());
                                         LocalBroadcastManager.getInstance(context).sendBroadcast(intentBtError);
+                                        Thread.currentThread().interrupt();
+                                        Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
+                                        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                                        stopWorker = true;
                                         return;
                                     }
 
@@ -219,7 +223,6 @@ public final class BluetoothClient {
                                             intentBt.putExtra("message", "Device: " + deviceInfo.getAddress() + " Volt:" + deviceInfo.getVolt().toString() + " Temp:" + deviceInfo.getTempC().toString());
                                             LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);
 
-
                                             Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
                                             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
@@ -235,6 +238,7 @@ public final class BluetoothClient {
                     } catch (IOException ex) {
                         stopWorker = true;
                     } catch (Exception e) {
+                        stopWorker = true;
                         e.printStackTrace();
                     }
                 }

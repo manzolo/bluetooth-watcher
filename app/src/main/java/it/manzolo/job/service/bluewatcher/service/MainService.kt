@@ -109,7 +109,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
         try {
             val bluetoothClient = BluetoothClient(context, addr)
             bluetoothClient.retrieveData()
-            Thread.sleep(10000)
+            Thread.sleep(2500)
             //bluetoothClient.close()
             return true
         } catch (e: Exception) {
