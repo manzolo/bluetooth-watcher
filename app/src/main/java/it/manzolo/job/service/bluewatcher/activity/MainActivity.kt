@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                     val device = intent.getStringExtra("device")
                     val data = intent.getStringExtra("data")
                     val volt = intent.getStringExtra("volt")
-                    val temp = intent.getStringExtra("temp")
+                    val temp = intent.getStringExtra("tempC")
 
                     try {
                         val bp = getBatteryPercentage(applicationContext)
