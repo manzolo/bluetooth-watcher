@@ -294,7 +294,7 @@ class MainActivity : AppCompatActivity() {
         dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "9.99", "30", "2019-10-09 00:00:00", "1.1", "2.2", "50")
         dbVoltwatcherAdapter.close()
         */
-
+        Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
     }
 
     private fun obtieneLocalizacion() {
