@@ -80,10 +80,14 @@ public class WebserverSender {
                 conn.connect();
 
                 String responseText = conn.getResponseMessage() + "";
-                dbVoltwatcherAdapter.updateSent(device, data);
-                trysend = true;
+                if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400) {
+                    dbVoltwatcherAdapter.updateSent(device, data);
+                    trysend = true;
+                } else {
+                    trysend = false;
+                }
             }
-            if (cursorCount > 0) {
+            if (cursorCount > 0 && trysend) {
                 Log.d(TAG, "Data sent");
                 Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
                 intentWs.putExtra("message", cursorCount + " rows");
@@ -101,8 +105,6 @@ public class WebserverSender {
         } else {
             return "KO";
         }
-
-
     }
 
     private void setPostRequestContent(HttpURLConnection conn, JSONObject jsonObject) throws IOException {
