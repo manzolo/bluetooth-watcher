@@ -7,7 +7,7 @@
       "type": "MAIN",
       "splits": [],
       "versionCode": 1,
-      "versionName": "1.0.20",
+      "versionName": "1.0.21",
       "enabled": true,
       "outputFile": "app-release.apk",
       "fullName": "release",

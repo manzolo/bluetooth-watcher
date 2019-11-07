@@ -21,7 +21,7 @@ class App : Application() {
 
             val componentName = ComponentName(context, MainService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val seconds = "60"
+            val seconds = "120"
             val debug = preferences.getBoolean("debug", false)
             if (debug) {
                 Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
