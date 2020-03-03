@@ -8,9 +8,9 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "it.manzolo.job.service.bluewatcher"
-        minSdkVersion 24
+        minSdkVersion 23
         versionCode 1
-        versionName "1.0.21"
+        versionName "1.0.22"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
