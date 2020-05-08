@@ -43,7 +43,7 @@ class App : Application() {
             val componentName = ComponentName(context, UpdateService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
-            val seconds = "3600"
+            val seconds = "25200"
             if (debug) {
                 Toast.makeText(context, "Start update service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
             }
@@ -68,7 +68,7 @@ class App : Application() {
             }
 
             val jobInfo = JobInfo.Builder(3, componentName)
-                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong()))
                     .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                     .setPersisted(true)

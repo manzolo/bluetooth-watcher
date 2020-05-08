@@ -46,7 +46,7 @@ class MainService : JobService() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
         val url = preferences.getString("webserviceurl", "")
         val debug = preferences.getBoolean("debug", false)
-        if (url.replace("\\s".toRegex(), "").length === 0) {
+        if (url!!.replace("\\s".toRegex(), "").length === 0) {
             if (debug) {
                 Toast.makeText(this, "Web server in setting not set", Toast.LENGTH_LONG).show()
             }
@@ -61,7 +61,7 @@ class MainService : JobService() {
             val enabled = preferences.getBoolean("enabled", true)
             val address = preferences.getString("devices", "")
 
-            if (address.replace("\\s".toRegex(), "").length === 0) {
+            if (address!!.replace("\\s".toRegex(), "").length === 0) {
                 Log.e(TAG, "No devices in settings")
                 if (debug) {
                     Toast.makeText(this, "No devices in settings", Toast.LENGTH_LONG).show()
@@ -92,7 +92,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val address = preferences.getString("devices", "")
-        val bluetoothDevices = address.split(",")
+        val bluetoothDevices = address!!.split(",")
         for (i in 0 until bluetoothDevices.size) {
             val bluetoothDeviceAddress = bluetoothDevices[i].replace("\\s".toRegex(), "")
             loopok@ for (i in 1..5) {
