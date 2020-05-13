@@ -13,9 +13,6 @@ import androidx.core.app.ActivityCompat
 import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.utils.Session
 
-/**
- * Created by roberto on 9/29/16.
- */
 class LocationService : JobService() {
     var mLocationListeners = arrayOf(
             LocationListener(LocationManager.GPS_PROVIDER)
@@ -30,7 +27,7 @@ class LocationService : JobService() {
     }
 
     fun startWebsendTask() {
-        Log.e(TAG, "onStartCommand")
+        Log.d(TAG, "onStartCommand")
     }
 
     override fun onStopJob(p0: JobParameters?): Boolean {
@@ -39,7 +36,7 @@ class LocationService : JobService() {
     }
 
     override fun onCreate() {
-        Log.e(TAG, "onCreate")
+        Log.d(TAG, "onCreate")
         initializeLocationManager()
         try {
             mLocationManager!!.requestLocationUpdates(
@@ -56,7 +53,7 @@ class LocationService : JobService() {
     }
 
     override fun onDestroy() {
-        Log.e(TAG, "onDestroy")
+        Log.d(TAG, "onDestroy")
         super.onDestroy()
         if (mLocationManager != null) {
             for (i in mLocationListeners.indices) {
@@ -73,7 +70,7 @@ class LocationService : JobService() {
     }
 
     private fun initializeLocationManager() {
-        Log.e(TAG, "initializeLocationManager - LOCATION_INTERVAL: $LOCATION_INTERVAL LOCATION_DISTANCE: $LOCATION_DISTANCE")
+        Log.d(TAG, "initializeLocationManager - LOCATION_INTERVAL: $LOCATION_INTERVAL LOCATION_DISTANCE: $LOCATION_DISTANCE")
         if (mLocationManager == null) {
             mLocationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         }
@@ -82,7 +79,7 @@ class LocationService : JobService() {
     inner class LocationListener(provider: String) : android.location.LocationListener {
         var mLastLocation: Location
         override fun onLocationChanged(location: Location) {
-            Log.e(TAG, "onLocationChanged: $location")
+            Log.d(TAG, "onLocationChanged: $location")
             mLastLocation.set(location)
             val session = Session(applicationContext)
 
@@ -95,19 +92,19 @@ class LocationService : JobService() {
         }
 
         override fun onProviderDisabled(provider: String) {
-            Log.e(TAG, "onProviderDisabled: $provider")
+            Log.d(TAG, "onProviderDisabled: $provider")
         }
 
         override fun onProviderEnabled(provider: String) {
-            Log.e(TAG, "onProviderEnabled: $provider")
+            Log.d(TAG, "onProviderEnabled: $provider")
         }
 
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
-            Log.e(TAG, "onStatusChanged: $provider")
+            Log.d(TAG, "onStatusChanged: $provider")
         }
 
         init {
-            Log.e(TAG, "LocationListener $provider")
+            Log.d(TAG, "LocationListener $provider")
             mLastLocation = Location(provider)
         }
     }

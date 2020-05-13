@@ -5,8 +5,8 @@ import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
-import android.preference.PreferenceManager
 import android.widget.Toast
+import androidx.preference.PreferenceManager
 import it.manzolo.job.service.bluewatcher.service.LocationService
 import it.manzolo.job.service.bluewatcher.service.MainService
 import it.manzolo.job.service.bluewatcher.service.UpdateService

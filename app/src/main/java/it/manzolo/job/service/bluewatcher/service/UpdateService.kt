@@ -40,7 +40,7 @@ class UpdateService : JobService() {
 
         Log.d(TAG, "checkForUpdate")
         val intent = Intent(WebserverEvents.APP_CHECK_UPDATE)
-        val sendBroadcast = LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
 
         val githubup = GithubUpdater()
         githubup.checkUpdate(applicationContext)

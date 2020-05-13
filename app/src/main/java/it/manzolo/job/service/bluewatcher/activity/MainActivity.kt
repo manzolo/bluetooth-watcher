@@ -1,11 +1,7 @@
 package it.manzolo.job.service.bluewatcher.activity
 
 import android.content.*
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Bundle
-import android.preference.PreferenceManager
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -13,6 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import it.manzolo.job.service.bluewatcher.R
 import it.manzolo.job.service.bluewatcher.updater.UpdateApp
 import it.manzolo.job.service.bluewatcher.utils.*
@@ -34,7 +31,8 @@ class MainActivity : AppCompatActivity() {
                 BluetoothEvents.ERROR -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
                     context.run { textView.text = intent.getStringExtra("message") }
-                    context.run { editText.append(intent.getStringExtra("message") + "\n") }
+                    context.run { editText.append(intent.getStringExtra("message")) }
+                    context.run { editText.append("\n") }
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
@@ -42,7 +40,8 @@ class MainActivity : AppCompatActivity() {
                 WebserverEvents.ERROR -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
                     context.run { textView.text = intent.getStringExtra("message") }
-                    context.run { editText.append(intent.getStringExtra("message") + "\n") }
+                    context.run { editText.append(intent.getStringExtra("message")) }
+                    context.run { editText.append("\n") }
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
@@ -50,7 +49,8 @@ class MainActivity : AppCompatActivity() {
                 BluetoothEvents.DATA_RETRIEVED -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
                     context.run { textView.text = intent.getStringExtra("message") }
-                    context.run { editText.append(intent.getStringExtra("message") + "\n") }
+                    context.run { editText.append(intent.getStringExtra("message")) }
+                    context.run { editText.append("\n") }
 
                     val device = intent.getStringExtra("device")
                     val data = intent.getStringExtra("data")
@@ -65,14 +65,12 @@ class MainActivity : AppCompatActivity() {
                         dbVoltwatcherAdapter.open()
                         dbVoltwatcherAdapter.createRow(device, volt, temp, data, session.getlongitude(), session.getlatitude(), bp.toString())
                         dbVoltwatcherAdapter.close()
-
                     } catch (e: Exception) {
-                        //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e(TAG, e.message)
-                        val intent = Intent(DatabaseEvents.ERROR)
+                        //Log.e(TAG, e.message)
+                        val dbIntent = Intent(DatabaseEvents.ERROR)
                         // You can also include some extra data.
-                        intent.putExtra("message", e.message)
-                        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+                        dbIntent.putExtra("message", e.message)
+                        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(dbIntent)
                     }
 
                 }
@@ -128,14 +126,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-
-    fun isNetworkAvailable(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        var activeNetworkInfo: NetworkInfo? = null
-        activeNetworkInfo = cm.activeNetworkInfo
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
 
     private fun getUpgradeLocalIntentFilter(): IntentFilter {
@@ -224,7 +214,7 @@ class MainActivity : AppCompatActivity() {
                 val updateapp = UpdateApp()
                 updateapp.setContext(applicationContext)
                 //Log.i("manzolo", file.toString())
-                var outputDir = photoURI.toString()
+                val outputDir = photoURI.toString()
                 //Log.e(TAG, session.updateApkUrl)
                 //Log.e(TAG, outputDir)
                 if (session.updateApkUrl.length == 0) {

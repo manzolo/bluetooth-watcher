@@ -5,14 +5,14 @@ import android.app.job.JobService
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.net.NetworkInfo
-import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.utils.WebserverSender
 import it.manzolo.job.service.enums.WebserverEvents
+
 
 class WebsendService : JobService() {
     companion object {
@@ -49,7 +49,7 @@ class WebsendService : JobService() {
         val url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
 
         try {
-            if (isNetworkAvailable(applicationContext)) {
+            if (isNetworkAvailable()) {
                 val sender = WebserverSender(applicationContext, url)
                 sender.send()
             } else {
@@ -70,18 +70,12 @@ class WebsendService : JobService() {
         }
 
     }
-    /*val intent = Intent(WebserverEvents.APP_CHECK_UPDATE)
-    val sendBroadcast = LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
-    val githubup = GithubUpdater()
-    githubup.checkUpdate(applicationContext)*/
 
-    fun isNetworkAvailable(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        var activeNetworkInfo: NetworkInfo? = null
-        activeNetworkInfo = cm.activeNetworkInfo
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
         return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
-
 }
 
 

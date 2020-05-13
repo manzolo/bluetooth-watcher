@@ -5,10 +5,10 @@ import android.app.job.JobService
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
-import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.updater.AppReceiveSettings
 import it.manzolo.job.service.bluewatcher.utils.BluetoothClient
@@ -95,7 +95,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
         val bluetoothDevices = address!!.split(",")
         for (i in 0 until bluetoothDevices.size) {
             val bluetoothDeviceAddress = bluetoothDevices[i].replace("\\s".toRegex(), "")
-            loopok@ for (i in 1..5) {
+            loopok@ for (idxretry in 1..5) {
                 if (btConnectionRetry(context, bluetoothDeviceAddress)) {
                     Thread.sleep(1000)
                     break@loopok

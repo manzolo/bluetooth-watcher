@@ -71,9 +71,6 @@ public final class BluetoothClient {
         } catch (Exception e) {
             this.close();
             throw e;
-        } finally {
-            //Close qui chiude la connessione metre il bluetooth riceve i dati
-            //this.close();
         }
     }
 
@@ -227,7 +224,7 @@ public final class BluetoothClient {
                             intentBt.putExtra("tempF", deviceInfo.getTempF().toString());
                             intentBt.putExtra("amp", deviceInfo.getAmp().toString());
 
-                            intentBt.putExtra("message", "Device: " + deviceInfo.getAddress() + " Volt:" + deviceInfo.getVolt().toString() + " Temp:" + deviceInfo.getTempC().toString());
+                            intentBt.putExtra("message", now + " " + deviceInfo.getAddress() + " " + deviceInfo.getVolt().toString() + "v " + deviceInfo.getTempC().toString() + "°");
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);
 
                             Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
