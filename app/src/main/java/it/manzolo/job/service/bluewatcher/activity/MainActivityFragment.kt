@@ -34,6 +34,7 @@ class MainActivityFragment : Fragment() {
         startJobService()
         startWebsendService()
 
+
     }
 
     private fun startJobService() {
@@ -53,4 +54,5 @@ class MainActivityFragment : Fragment() {
         App.scheduleWebsendService(activity as Context)
         activity.run { textView.text = "Service websend started" }
     }
+
 }

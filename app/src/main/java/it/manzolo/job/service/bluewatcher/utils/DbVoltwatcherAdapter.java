@@ -75,13 +75,24 @@ public class DbVoltwatcherAdapter {
                 + "=" + id, null) > 0;
     }
 
-    // update a contact
+    // update
     public boolean updateSent(String device, String data) {
         String updateQuery = "update voltwatcher " +
                 "set sent = 1 " +
                 "where substr(data,1,15)||'0' = '" + data + "' and device = '" + device + "'";
         Log.d("TAG", updateQuery);
         Cursor c = database.rawQuery(updateQuery, null);
+        c.moveToFirst();
+        c.close();
+        return true;
+
+    }
+
+    // delete
+    public boolean deleteSent() {
+        String deleteQuery = "delete from voltwatcher where sent = 1";
+        Log.d("TAG", deleteQuery);
+        Cursor c = database.rawQuery(deleteQuery, null);
         c.moveToFirst();
         c.close();
         return true;

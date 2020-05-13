@@ -1,5 +1,6 @@
 package it.manzolo.job.service.bluewatcher.service
 
+import android.annotation.SuppressLint
 import android.app.job.JobParameters
 import android.app.job.JobService
 import android.content.Context
@@ -26,6 +27,8 @@ class WebsendService : JobService() {
 
     override fun onStartJob(jobParameters: JobParameters?): Boolean {
         Log.d(TAG, "onWebsendStartJob : " + jobParameters.toString())
+        val startService = startService(Intent(this, LocationService::class.java))
+        startService.run { }
         startWebsendTask()
         App.scheduleWebsendService(this)
         return true
@@ -41,13 +44,13 @@ class WebsendService : JobService() {
         Log.d(TAG, "onWebsendDestroy")
     }
 
+    @SuppressLint("MissingPermission")
     private fun startWebsendTask() {
 
         Log.d(TAG, "WebsendStart")
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-
-        val url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
         val debug = preferences.getBoolean("debug", false)
+        val url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
 
         try {
             if (isNetworkAvailable(applicationContext)) {

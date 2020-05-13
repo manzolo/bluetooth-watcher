@@ -4,7 +4,6 @@ import android.content.*
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
-import android.os.Looper
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.Menu
@@ -14,7 +13,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.gms.location.*
 import it.manzolo.job.service.bluewatcher.R
 import it.manzolo.job.service.bluewatcher.updater.UpdateApp
 import it.manzolo.job.service.bluewatcher.utils.*
@@ -25,13 +23,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_main.*
 import java.io.File
 
+
 class MainActivity : AppCompatActivity() {
     val TAG = "MainActivity"
-    var session: Session? = null
-    private var fusedLocationClient: FusedLocationProviderClient? = null
-    private var mLocationRequest: LocationRequest? = null
-    private lateinit var locationCallback: LocationCallback
-
     private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -260,34 +254,6 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
 
-        //GPS
-        mLocationRequest = LocationRequest()
-        mLocationRequest?.interval = 120000 // two minute interval
-        mLocationRequest?.fastestInterval = 120000
-        mLocationRequest?.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        session = Session(applicationContext)
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                locationResult ?: return
-                for (location in locationResult.locations) {
-                    session!!.setlongitude(location?.longitude.toString())
-                    session!!.setlatitude(location?.latitude.toString())
-                    val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-                    val debug = preferences.getBoolean("debug", false)
-                    if (debug) {
-                        Toast.makeText(applicationContext, location?.longitude.toString() + " " + location?.latitude.toString(), Toast.LENGTH_LONG).show()
-                    }
-
-                }
-            }
-        }
-
-        //Get location
-        obtieneLocalizacion()
-
         /*DEBUG SEND DATA TO WEBSERVER
         val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
         dbVoltwatcherAdapter.open()
@@ -295,10 +261,6 @@ class MainActivity : AppCompatActivity() {
         dbVoltwatcherAdapter.close()
         */
         Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
-    }
-
-    private fun obtieneLocalizacion() {
-        fusedLocationClient?.requestLocationUpdates(mLocationRequest, locationCallback, Looper.getMainLooper())
     }
 
     // Method to show an alert dialog with yes, no and cancel button

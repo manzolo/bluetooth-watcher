@@ -61,6 +61,10 @@
             android:label="UpdateJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <service
+            android:name=".service.LocationService"
+            android:label="LocationService" />
+
     </application>
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

@@ -81,6 +81,7 @@ public class WebserverSender {
 
                 String responseText = conn.getResponseMessage() + "";
                 if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400) {
+                    dbVoltwatcherAdapter.deleteSent();
                     dbVoltwatcherAdapter.updateSent(device, data);
                     trysend = true;
                 } else {
