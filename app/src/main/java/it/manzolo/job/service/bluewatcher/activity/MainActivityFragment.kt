@@ -33,6 +33,7 @@ class MainActivityFragment : Fragment() {
         startUpdateService()
         startJobService()
         startWebsendService()
+        startLocationService()
 
 
     }
@@ -53,6 +54,12 @@ class MainActivityFragment : Fragment() {
         Log.d(TAG, "startWebsendService")
         App.scheduleWebsendService(activity as Context)
         activity.run { textView.text = "Service websend started" }
+    }
+
+    private fun startLocationService() {
+        Log.d(TAG, "startLocationService")
+        App.scheduleLocationService(activity as Context)
+        activity.run { textView.text = "Service location started" }
     }
 
 }

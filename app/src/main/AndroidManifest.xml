@@ -63,7 +63,8 @@
 
         <service
             android:name=".service.LocationService"
-            android:label="LocationService" />
+            android:label="LocationService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
     </application>
 
