@@ -41,70 +41,76 @@ public class WebserverSender {
     private String httpPost(String myUrl) throws IOException, JSONException {
         URL url = new URL(myUrl);
 
-        Log.d(TAG, "Try connecting to " + myUrl);
+
 
         DbVoltwatcherAdapter dbVoltwatcherAdapter = new DbVoltwatcherAdapter(context);
         dbVoltwatcherAdapter.open();
         Cursor cursor = dbVoltwatcherAdapter.fetchRowsNotSent();
         Integer cursorCount = cursor.getCount();
         Log.d(TAG, "Found " + cursorCount + " rows to send");
+        if (cursorCount > 0) {
+            Log.d(TAG, "Try connecting to " + myUrl);
 
-        boolean trysend = false;
-        try {
-            while (cursor.moveToNext()) {
+            boolean trysend = false;
+            try {
+                while (cursor.moveToNext()) {
 
-                // 1. create HttpURLConnection
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                    // 1. create HttpURLConnection
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 
-                //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE)));
-                //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DATA)));
-                String device = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE));
-                String data = cursor.getString(cursor.getColumnIndex("grData"));
-                String volt = cursor.getString(cursor.getColumnIndex("volts"));
-                String temp = cursor.getString(cursor.getColumnIndex("temps"));
-                String detecotrbattery = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DETECTORBATTERY));
-                String longitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LON));
-                String latitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LAT));
-                // 2. build JSON object
-                JSONObject jsonObject = buidJsonObject(device, data + ":00", volt, temp, detecotrbattery, longitude, latitude);
+                    //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE)));
+                    //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DATA)));
+                    String device = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE));
+                    String data = cursor.getString(cursor.getColumnIndex("grData"));
+                    String volt = cursor.getString(cursor.getColumnIndex("volts"));
+                    String temp = cursor.getString(cursor.getColumnIndex("temps"));
+                    String detecotrbattery = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DETECTORBATTERY));
+                    String longitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LON));
+                    String latitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LAT));
+                    // 2. build JSON object
+                    JSONObject jsonObject = buidJsonObject(device, data + ":00", volt, temp, detecotrbattery, longitude, latitude);
 
 
-                Log.d(TAG, "Sending data=" + jsonObject.toString());
+                    Log.d(TAG, "Sending data=" + jsonObject.toString());
 
-                // 3. add JSON content to POST request body
-                setPostRequestContent(conn, jsonObject);
+                    // 3. add JSON content to POST request body
+                    setPostRequestContent(conn, jsonObject);
 
-                // 4. make POST request to the given URL
-                conn.connect();
+                    // 4. make POST request to the given URL
+                    conn.connect();
 
-                String responseText = conn.getResponseMessage() + "";
-                if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400) {
-                    dbVoltwatcherAdapter.deleteSent();
-                    dbVoltwatcherAdapter.updateSent(device, data);
-                    trysend = true;
-                } else {
-                    trysend = false;
+                    String responseText = conn.getResponseMessage() + "";
+                    if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400) {
+                        dbVoltwatcherAdapter.deleteSent();
+                        dbVoltwatcherAdapter.updateSent(device, data);
+                        trysend = true;
+                    } else {
+                        trysend = false;
+                    }
                 }
+                if (cursorCount > 0 && trysend) {
+                    Log.d(TAG, "Data sent");
+                    Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
+                    intentWs.putExtra("message", cursorCount + " rows");
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
+                }
+            } finally {
+                cursor.close();
             }
-            if (cursorCount > 0 && trysend) {
-                Log.d(TAG, "Data sent");
-                Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
-                intentWs.putExtra("message", cursorCount + " rows");
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
-            }
-        } finally {
-            cursor.close();
-        }
-        dbVoltwatcherAdapter.close();
+            dbVoltwatcherAdapter.close();
 
-        //Log.d(TAG, conn.getResponseMessage());
-        // 5. return response message
-        if (trysend) {
-            return "OK";
+            //Log.d(TAG, conn.getResponseMessage());
+            // 5. return response message
+            if (trysend) {
+                return "OK";
+            } else {
+                return "KO";
+            }
         } else {
-            return "KO";
+            cursor.close();
+            return "No data found to send";
         }
     }
 

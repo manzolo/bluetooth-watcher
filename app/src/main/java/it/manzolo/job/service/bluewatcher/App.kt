@@ -25,17 +25,14 @@ class App : Application() {
             val seconds = "60"
             val debug = preferences.getBoolean("debug", false)
             if (debug) {
-                Toast.makeText(context, "Start service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val jobInfo = JobInfo.Builder(1, componentName)
-                            .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
-                            .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
-                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                            .setPersisted(true)
-                            .build()
-
-                    jobScheduler.schedule(jobInfo)
+                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong() / 2))
+                    .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+            //.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            jobScheduler.schedule(jobInfo.build())
 
         }
 
@@ -46,16 +43,14 @@ class App : Application() {
             val debug = preferences.getBoolean("debug", false)
             val seconds = "25200"
             if (debug) {
-                Toast.makeText(context, "Start update service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start update service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val jobInfo = JobInfo.Builder(2, componentName)
-                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong() / 2))
                     .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setPersisted(true)
-                    .build()
-            jobScheduler.schedule(jobInfo)
+            jobScheduler.schedule(jobInfo.build())
         }
 
         fun scheduleWebsendService(context: Context) {
@@ -65,16 +60,14 @@ class App : Application() {
             val debug = preferences.getBoolean("debug", false)
             val seconds = preferences.getString("seconds", "300")
             if (debug) {
-                Toast.makeText(context, "Start websend service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start websend service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val jobInfo = JobInfo.Builder(3, componentName)
-                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong()))
+                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong() / 2))
                     .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setPersisted(true)
-                    .build()
-            jobScheduler.schedule(jobInfo)
+            jobScheduler.schedule(jobInfo.build())
         }
 
 
@@ -85,16 +78,14 @@ class App : Application() {
             val debug = preferences.getBoolean("debug", false)
             val seconds = preferences.getString("seconds", "600")
             if (debug) {
-                Toast.makeText(context, "Start location service every " + seconds + " seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start location service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val jobInfo = JobInfo.Builder(4, componentName)
-                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong()))
+                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong() / 2))
                     .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setPersisted(true)
-                    .build()
-            jobScheduler.schedule(jobInfo)
+            //.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            jobScheduler.schedule(jobInfo.build())
         }
 
     }

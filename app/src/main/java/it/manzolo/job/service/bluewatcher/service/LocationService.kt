@@ -10,7 +10,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.utils.Session
 
 class LocationService : JobService() {
@@ -22,7 +21,7 @@ class LocationService : JobService() {
     override fun onStartJob(jobParameters: JobParameters?): Boolean {
         Log.d(TAG, "onLocationStartJob : " + jobParameters.toString())
         startWebsendTask()
-        App.scheduleWebsendService(this)
+        //App.scheduleWebsendService(this)
         return true
     }
 

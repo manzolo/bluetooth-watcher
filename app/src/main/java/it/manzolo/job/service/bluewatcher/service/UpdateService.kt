@@ -5,7 +5,6 @@ import android.app.job.JobService
 import android.content.Intent
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.utils.GithubUpdater
 import it.manzolo.job.service.enums.WebserverEvents
 
@@ -22,7 +21,7 @@ class UpdateService : JobService() {
     override fun onStartJob(jobParameters: JobParameters?): Boolean {
         Log.d(TAG, "onUpdateStartJob : " + jobParameters.toString())
         startUpdateTask()
-        App.scheduleUpdateService(this)
+        //App.scheduleUpdateService(this)
         return true
     }
 

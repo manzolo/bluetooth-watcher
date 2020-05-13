@@ -9,7 +9,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.utils.WebserverSender
 import it.manzolo.job.service.enums.WebserverEvents
 
@@ -27,7 +26,7 @@ class WebsendService : JobService() {
     override fun onStartJob(jobParameters: JobParameters?): Boolean {
         Log.d(TAG, "onWebsendStartJob : " + jobParameters.toString())
         startWebsendTask()
-        App.scheduleWebsendService(this)
+        //App.scheduleWebsendService(this)
         return true
     }
 

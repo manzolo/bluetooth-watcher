@@ -9,7 +9,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.updater.AppReceiveSettings
 import it.manzolo.job.service.bluewatcher.utils.BluetoothClient
 import it.manzolo.job.service.enums.BluetoothEvents
@@ -28,7 +27,7 @@ class MainService : JobService() {
     override fun onStartJob(jobParameters: JobParameters?): Boolean {
         Log.d(TAG, "onStartJob : " + jobParameters.toString())
         startWatcherTask()
-        App.scheduleWatcherService(this)
+        //App.scheduleWatcherService(this)
         return true
     }
 
