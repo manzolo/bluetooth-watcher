@@ -1,10 +1,10 @@
 package it.manzolo.job.service.bluewatcher.service
 
-import android.app.job.JobParameters
-import android.app.job.JobService
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
+import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -13,7 +13,7 @@ import it.manzolo.job.service.bluewatcher.utils.WebserverSender
 import it.manzolo.job.service.enums.WebserverEvents
 
 
-class WebsendService : JobService() {
+class WebsendService : Service() {
     companion object {
         val TAG: String = WebsendService::class.java.simpleName
     }
@@ -23,16 +23,15 @@ class WebsendService : JobService() {
         Log.d(TAG, "onWebsendCreate")
     }
 
-    override fun onStartJob(jobParameters: JobParameters?): Boolean {
-        Log.d(TAG, "onWebsendStartJob : " + jobParameters.toString())
-        startWebsendTask()
-        //App.scheduleWebsendService(this)
-        return true
+    override fun onBind(intent: Intent?): IBinder? {
+        TODO("Not yet implemented")
     }
 
-    override fun onStopJob(p0: JobParameters?): Boolean {
-        Log.d(TAG, "onWebsendStopJob")
-        return true
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onWebsendStartJob")
+        startWebsendTask()
+        //App.scheduleWebsendService(this)
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {

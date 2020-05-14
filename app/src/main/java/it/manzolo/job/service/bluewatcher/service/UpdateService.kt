@@ -1,14 +1,14 @@
 package it.manzolo.job.service.bluewatcher.service
 
-import android.app.job.JobParameters
-import android.app.job.JobService
+import android.app.Service
 import android.content.Intent
+import android.os.IBinder
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.job.service.bluewatcher.utils.GithubUpdater
 import it.manzolo.job.service.enums.WebserverEvents
 
-class UpdateService : JobService() {
+class UpdateService : Service() {
     companion object {
         val TAG: String = UpdateService::class.java.simpleName
     }
@@ -18,16 +18,15 @@ class UpdateService : JobService() {
         Log.d(TAG, "onUpdateCreate")
     }
 
-    override fun onStartJob(jobParameters: JobParameters?): Boolean {
-        Log.d(TAG, "onUpdateStartJob : " + jobParameters.toString())
-        startUpdateTask()
-        //App.scheduleUpdateService(this)
-        return true
+    override fun onBind(intent: Intent?): IBinder? {
+        TODO("Not yet implemented")
     }
 
-    override fun onStopJob(p0: JobParameters?): Boolean {
-        Log.d(TAG, "onUpdateStopJob")
-        return true
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onUpdateStartJob")
+        startUpdateTask()
+        //App.scheduleUpdateService(this)
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {

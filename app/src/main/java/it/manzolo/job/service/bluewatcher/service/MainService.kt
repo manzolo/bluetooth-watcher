@@ -1,10 +1,10 @@
 package it.manzolo.job.service.bluewatcher.service
 
-import android.app.job.JobParameters
-import android.app.job.JobService
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
+import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -14,7 +14,7 @@ import it.manzolo.job.service.bluewatcher.utils.BluetoothClient
 import it.manzolo.job.service.enums.BluetoothEvents
 
 
-class MainService : JobService() {
+class MainService : Service() {
     companion object {
         val TAG: String = MainService::class.java.simpleName
     }
@@ -24,17 +24,16 @@ class MainService : JobService() {
         Log.d(TAG, "onCreate")
     }
 
-    override fun onStartJob(jobParameters: JobParameters?): Boolean {
-        Log.d(TAG, "onStartJob : " + jobParameters.toString())
-        startWatcherTask()
-        //App.scheduleWatcherService(this)
-        return true
+    override fun onBind(intent: Intent?): IBinder? {
+        TODO("Not yet implemented")
     }
 
-    override fun onStopJob(p0: JobParameters?): Boolean {
-        Log.d(TAG, "onStopJob")
-        return true
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onWebserverStartJob")
+        startWatcherTask()
+        return START_NOT_STICKY
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

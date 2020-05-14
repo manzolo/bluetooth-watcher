@@ -1,24 +1,42 @@
 package it.manzolo.job.service.bluewatcher
 
+import android.app.AlarmManager
 import android.app.Application
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
-import android.content.ComponentName
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import it.manzolo.job.service.bluewatcher.service.LocationService
 import it.manzolo.job.service.bluewatcher.service.MainService
 import it.manzolo.job.service.bluewatcher.service.UpdateService
 import it.manzolo.job.service.bluewatcher.service.WebsendService
-import java.util.concurrent.TimeUnit
+import java.util.*
 
 
 class App : Application() {
     companion object {
 
         fun scheduleWatcherService(context: Context) {
-            val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val seconds = "60"
+            val debug = preferences.getBoolean("debug", false)
+            if (debug) {
+                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
+            }
+
+            val myIntent = Intent(context, MainService::class.java)
+            val pendingIntent = PendingIntent.getService(context, 0, myIntent, 0)
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val calendar: Calendar = Calendar.getInstance()
+            calendar.timeInMillis = System.currentTimeMillis()
+            calendar.add(Calendar.SECOND, seconds.toInt()) // first time
+
+            val frequency = seconds.toInt() * 1000.toLong() // in ms
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, frequency, pendingIntent)
+            /*val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
 
             val componentName = ComponentName(context, MainService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -32,12 +50,31 @@ class App : Application() {
                     .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong() / 2))
                     .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
             //.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            jobScheduler.schedule(jobInfo.build())
+            jobScheduler.schedule(jobInfo.build())*/
 
         }
 
         fun scheduleUpdateService(context: Context) {
-            val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val seconds = "25200" //25200
+            val debug = preferences.getBoolean("debug", false)
+            if (debug) {
+                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
+            }
+
+            val myIntent = Intent(context, UpdateService::class.java)
+            val pendingIntent = PendingIntent.getService(context, 0, myIntent, 0)
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val calendar: Calendar = Calendar.getInstance()
+            calendar.timeInMillis = System.currentTimeMillis()
+            calendar.add(Calendar.SECOND, seconds.toInt()) // first time
+
+            val frequency = seconds.toInt() * 1000.toLong() // in ms
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, frequency, pendingIntent)
+
+            /*val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             val componentName = ComponentName(context, UpdateService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
@@ -50,11 +87,31 @@ class App : Application() {
                     .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds.toLong() / 2))
                     .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            jobScheduler.schedule(jobInfo.build())
+            jobScheduler.schedule(jobInfo.build())*/
         }
 
         fun scheduleWebsendService(context: Context) {
-            val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val seconds = preferences.getString("seconds", "300") // 300
+            val debug = preferences.getBoolean("debug", false)
+            if (debug) {
+                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
+            }
+
+            val myIntent = Intent(context, WebsendService::class.java)
+            val pendingIntent = PendingIntent.getService(context, 0, myIntent, 0)
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val calendar: Calendar = Calendar.getInstance()
+            calendar.timeInMillis = System.currentTimeMillis()
+            calendar.add(Calendar.SECOND, seconds!!.toInt()) // first time
+
+            val frequency = seconds.toInt() * 1000.toLong() // in ms
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, frequency, pendingIntent)
+
+            /*val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             val componentName = ComponentName(context, WebsendService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
@@ -67,11 +124,31 @@ class App : Application() {
                     .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong() / 2))
                     .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            jobScheduler.schedule(jobInfo.build())
+            jobScheduler.schedule(jobInfo.build())*/
         }
 
 
         fun scheduleLocationService(context: Context) {
+
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val seconds = "600" //600
+            val debug = preferences.getBoolean("debug", false)
+            if (debug) {
+                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
+            }
+
+            val myIntent = Intent(context, LocationService::class.java)
+            val pendingIntent = PendingIntent.getService(context, 0, myIntent, 0)
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val calendar: Calendar = Calendar.getInstance()
+            calendar.timeInMillis = System.currentTimeMillis()
+            calendar.add(Calendar.SECOND, seconds.toInt()) // first time
+
+            val frequency = seconds.toInt() * 1000.toLong() // in ms
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, frequency, pendingIntent)
+            /*
             val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             val componentName = ComponentName(context, LocationService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -85,7 +162,7 @@ class App : Application() {
                     .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong() / 2))
                     .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
             //.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            jobScheduler.schedule(jobInfo.build())
+            jobScheduler.schedule(jobInfo.build())*/
         }
 
     }

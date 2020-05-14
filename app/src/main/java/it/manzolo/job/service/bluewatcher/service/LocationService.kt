@@ -1,37 +1,36 @@
 package it.manzolo.job.service.bluewatcher.service
 
 import android.Manifest
-import android.app.job.JobParameters
-import android.app.job.JobService
+import android.app.Service
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import it.manzolo.job.service.bluewatcher.utils.Session
 
-class LocationService : JobService() {
+class LocationService : Service() {
     var mLocationListeners = arrayOf(
             LocationListener(LocationManager.GPS_PROVIDER)
     )
     private var mLocationManager: LocationManager? = null
 
-    override fun onStartJob(jobParameters: JobParameters?): Boolean {
-        Log.d(TAG, "onLocationStartJob : " + jobParameters.toString())
-        startWebsendTask()
-        //App.scheduleWebsendService(this)
-        return true
+    override fun onBind(intent: Intent?): IBinder? {
+        TODO("Not yet implemented")
     }
 
-    fun startWebsendTask() {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onLocationStartJob")
+        startLocationTask()
+        return START_NOT_STICKY
+    }
+
+    fun startLocationTask() {
         Log.d(TAG, "onStartCommand")
-    }
-
-    override fun onStopJob(p0: JobParameters?): Boolean {
-        Log.d(WebsendService.TAG, "onLocationStopJob")
-        return true
     }
 
     override fun onCreate() {
