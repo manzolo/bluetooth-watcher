@@ -34,6 +34,7 @@ class MainActivityFragment : Fragment() {
         startJobService()
         startWebsendService()
         startLocationService()
+        startRebootService()
 
 
     }
@@ -61,5 +62,13 @@ class MainActivityFragment : Fragment() {
         App.scheduleLocationService(activity as Context)
         activity.run { textView.text = "Service location started" }
     }
+
+    private fun startRebootService() {
+        Log.d(TAG, "startRebootService")
+        App.scheduleRebootService(activity as Context)
+        activity.run { textView.text = "Service reboot started" }
+    }
+
+
 
 }

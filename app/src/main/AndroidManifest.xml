@@ -71,6 +71,11 @@
             android:label="LocationService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <service
+            android:name=".service.RebootService"
+            android:label="RebootService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
