@@ -24,6 +24,16 @@
             app:summary="Click to show a text entry dialog"
             app:title="Webserver url" />
         <EditTextPreference
+            app:dialogTitle="Enter username"
+            app:key="webserviceusername"
+            app:summary="Click to show a text entry dialog"
+            app:title="Webserver username" />
+        <EditTextPreference
+            app:dialogTitle="Enter password"
+            app:key="webservicepassword"
+            app:summary="Click to show a text entry dialog"
+            app:title="Webserver password" />
+        <EditTextPreference
             app:dialogTitle="Select duration"
             app:key="seconds"
             app:summary="Set every seconds service send data to webserver"

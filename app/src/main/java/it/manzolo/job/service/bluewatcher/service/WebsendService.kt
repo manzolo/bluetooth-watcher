@@ -45,10 +45,12 @@ class WebsendService : Service() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val debug = preferences.getBoolean("debug", false)
         val url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
+        val username = preferences.getString("webserviceusername", "username")
+        val password = preferences.getString("webservicepassword", "password")
 
         try {
             if (isNetworkAvailable()) {
-                val sender = WebserverSender(applicationContext, url)
+                val sender = WebserverSender(applicationContext, url, username, password)
                 sender.send()
             } else {
                 if (debug) {
