@@ -51,10 +51,14 @@ class MainService : Service() {
             Log.e(TAG, "Web server in setting not set")
         } else {
             val autoupdate = preferences.getBoolean("autoupdate", true)
+            val webserverurl = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
+            val username = preferences.getString("webserviceusername", "username")
+            val password = preferences.getString("webservicepassword", "password")
+
             if (autoupdate) {
-                val appsettings = AppReceiveSettings(this.applicationContext)
+                val appsettings = AppReceiveSettings(this.applicationContext, webserverurl, username, password)
                 appsettings.receive()
-                Log.d(TAG, "Settings updated")
+                //Log.d(TAG, "Settings updated")
             }
             val enabled = preferences.getBoolean("enabled", true)
             val address = preferences.getString("devices", "")

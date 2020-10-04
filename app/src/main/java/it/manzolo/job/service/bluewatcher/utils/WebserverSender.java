@@ -74,6 +74,7 @@ public class WebserverSender {
 
         DbVoltwatcherAdapter dbVoltwatcherAdapter = new DbVoltwatcherAdapter(context);
         dbVoltwatcherAdapter.open();
+        dbVoltwatcherAdapter.deleteSent();
         Cursor cursor = dbVoltwatcherAdapter.fetchRowsNotSent();
         Integer cursorCount = cursor.getCount();
         Log.d(TAG, "Found " + cursorCount + " rows to send");
@@ -135,21 +136,20 @@ public class WebserverSender {
 
                         // 4. make POST request to the given URL
                         conn.connect();
+                        InputStream responseObject = conn.getInputStream();
 
-                        String responseText = conn.getResponseMessage() + "";
-                        if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400) {
-                            dbVoltwatcherAdapter.deleteSent();
+                        JSONObject jsonResponseObject = new JSONObject(convertStreamToString(responseObject));
+                        if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400 && jsonResponseObject.get("errcode").equals(0)) {
                             dbVoltwatcherAdapter.updateSent(device, data);
+                            Log.d(TAG, "Updated records sent");
                             trysend = true;
-                        } else {
-                            trysend = false;
                         }
-                        if (cursorCount > 0 && trysend) {
-                            Log.d(TAG, "Data sent");
-                            Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
-                            intentWs.putExtra("message", cursorCount + " rows");
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
-                        }
+                    }
+                    if (cursorCount > 0 && trysend) {
+                        Log.d(TAG, "Data sent");
+                        Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
+                        intentWs.putExtra("message", cursorCount + " rows");
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     }
                 }
             } finally {
