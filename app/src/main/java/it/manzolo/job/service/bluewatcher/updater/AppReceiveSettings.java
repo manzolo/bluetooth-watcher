@@ -12,17 +12,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
+import it.manzolo.job.service.bluewatcher.utils.HttpUtils;
 import it.manzolo.job.service.enums.BluetoothEvents;
 
 public class AppReceiveSettings {
@@ -39,28 +34,6 @@ public class AppReceiveSettings {
         this.url = url;
         this.username = username;
         this.password = password;
-    }
-
-    private static String convertStreamToString(InputStream is) {
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
     }
 
     private String httpGet(String webserverurl) throws IOException, JSONException {
@@ -80,15 +53,13 @@ public class AppReceiveSettings {
         loginConn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
         JSONObject jsonLoginObject = buidLoginJsonObject(usernameapi, passwordapi);
         // 3. add JSON content to POST request body
-        setPostRequestContent(loginConn, jsonLoginObject);
+        new HttpUtils().setPostRequestContent(loginConn, jsonLoginObject);
 
         // 4. make POST request to the given URL
         loginConn.connect();
         if (loginConn.getResponseCode() >= 200 && loginConn.getResponseCode() < 400) {
-            InputStream responseLogin = loginConn.getInputStream();
-            String tokenObject = convertStreamToString(responseLogin);
-            JSONObject obj = new JSONObject(tokenObject);
-            String token = obj.getString("token");
+            JSONObject tokenObject = new JSONObject(new HttpUtils().convertStreamToString(loginConn.getInputStream()));
+            String token = tokenObject.getString("token");
             Log.d("TOKEN", token);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -100,7 +71,7 @@ public class AppReceiveSettings {
             conn.setRequestProperty("Authorization", "Bearer " + token);
 
             InputStream response = conn.getInputStream();
-            JSONObject jsonObject = new JSONObject(convertStreamToString(response));
+            JSONObject jsonObject = new JSONObject(new HttpUtils().convertStreamToString(response));
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.context);
 
             SharedPreferences.Editor editor = preferences.edit();
@@ -125,15 +96,6 @@ public class AppReceiveSettings {
 
     public void receive() {
         new HTTPAsyncTask().execute(this.url, username, password);
-    }
-
-    private void setPostRequestContent(HttpURLConnection conn, JSONObject jsonObject) throws IOException {
-        OutputStream os = conn.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-        writer.write(jsonObject.toString());
-        writer.flush();
-        writer.close();
-        os.close();
     }
 
     private JSONObject buidLoginJsonObject(String username, String password) throws JSONException {

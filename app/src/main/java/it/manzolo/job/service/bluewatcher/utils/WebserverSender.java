@@ -11,16 +11,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 import it.manzolo.job.service.enums.BluetoothEvents;
 import it.manzolo.job.service.enums.WebserverEvents;
@@ -41,27 +35,6 @@ public class WebserverSender {
         this.password = password;
     }
 
-    private static String convertStreamToString(InputStream is) {
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
-    }
 
     public void send() {
         new HTTPAsyncTask().execute(this.url, username, password);
@@ -76,7 +49,7 @@ public class WebserverSender {
         dbVoltwatcherAdapter.open();
         dbVoltwatcherAdapter.deleteSent();
         Cursor cursor = dbVoltwatcherAdapter.fetchRowsNotSent();
-        Integer cursorCount = cursor.getCount();
+        int cursorCount = cursor.getCount();
         Log.d(TAG, "Found " + cursorCount + " rows to send");
         if (cursorCount > 0) {
             Log.d(TAG, "Try connecting to " + myUrl);
@@ -95,18 +68,16 @@ public class WebserverSender {
                     loginConn.setReadTimeout(10000);
                     loginConn.setRequestMethod("POST");
                     loginConn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-                    JSONObject jsonLoginObject = buidLoginJsonObject(usernameapi, passwordapi);
 
                     // 3. add JSON content to POST request body
-                    setPostRequestContent(loginConn, jsonLoginObject);
+
+                    new HttpUtils().setPostRequestContent(loginConn, buidLoginJsonObject(usernameapi, passwordapi));
 
                     // 4. make POST request to the given URL
                     loginConn.connect();
                     if (loginConn.getResponseCode() >= 200 && loginConn.getResponseCode() < 400) {
-                        InputStream response = loginConn.getInputStream();
-                        String tokenObject = convertStreamToString(response);
-                        JSONObject obj = new JSONObject(tokenObject);
-                        String token = obj.getString("token");
+                        JSONObject tokenObject = new JSONObject(new HttpUtils().convertStreamToString(loginConn.getInputStream()));
+                        String token = tokenObject.getString("token");
                         Log.d("TOKEN", token);
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                         conn.setRequestMethod("PUT");
@@ -132,13 +103,13 @@ public class WebserverSender {
                         Log.d(TAG, "Sending data=" + jsonObject.toString());
 
                         // 3. add JSON content to POST request body
-                        setPostRequestContent(conn, jsonObject);
+                        new HttpUtils().setPostRequestContent(conn, jsonObject);
 
                         // 4. make POST request to the given URL
                         conn.connect();
                         InputStream responseObject = conn.getInputStream();
 
-                        JSONObject jsonResponseObject = new JSONObject(convertStreamToString(responseObject));
+                        JSONObject jsonResponseObject = new JSONObject(new HttpUtils().convertStreamToString(responseObject));
                         if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400 && jsonResponseObject.get("errcode").equals(0)) {
                             dbVoltwatcherAdapter.updateSent(device, data);
                             Log.d(TAG, "Updated records sent");
@@ -168,15 +139,6 @@ public class WebserverSender {
             cursor.close();
             return "No data found to send";
         }
-    }
-
-    private void setPostRequestContent(HttpURLConnection conn, JSONObject jsonObject) throws IOException {
-        OutputStream os = conn.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-        writer.write(jsonObject.toString());
-        writer.flush();
-        writer.close();
-        os.close();
     }
 
     private JSONObject buidJsonObject(String device, String data, String volt, String temp, String detectorbattery, String longitude, String latitude) throws JSONException {
