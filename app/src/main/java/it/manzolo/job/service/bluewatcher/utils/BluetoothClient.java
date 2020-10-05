@@ -14,10 +14,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.UUID;
 
 import it.manzolo.job.service.enums.BluetoothEvents;
@@ -210,10 +206,7 @@ public final class BluetoothClient {
                             Log.d(TAG, deviceInfo.getTempC() + "°");
                             Log.d(TAG, deviceInfo.getTempF() + "°F");
 
-
-                            Date date = Calendar.getInstance().getTime();
-                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            String now = dateFormat.format(date);
+                            String now = DateUtils.now();
 
                             Intent intentBt = new Intent(BluetoothEvents.DATA_RETRIEVED);
 

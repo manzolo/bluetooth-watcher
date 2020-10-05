@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
             when (intent?.action) {
                 BluetoothEvents.ERROR -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    context.run { textView.text = intent.getStringExtra("message") }
                     context.run { editText.append(intent.getStringExtra("message")) }
                     context.run { editText.append("\n") }
                     if (debug) {
@@ -39,7 +38,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 WebserverEvents.ERROR -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    context.run { textView.text = intent.getStringExtra("message") }
                     context.run { editText.append(intent.getStringExtra("message")) }
                     context.run { editText.append("\n") }
                     if (debug) {
@@ -48,7 +46,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 BluetoothEvents.DATA_RETRIEVED -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
-                    context.run { textView.text = intent.getStringExtra("message") }
                     context.run { editText.append(intent.getStringExtra("message")) }
                     context.run { editText.append("\n") }
 
@@ -76,7 +73,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 WebserverEvents.DATA_SENT -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
-                    context.run { textView.text = intent.getStringExtra("message") }
+                    context.run { editText.append(intent.getStringExtra("message")) }
+                    context.run { editText.append("\n") }
                     // You can also include some extra data.
                     if (debug) {
                         Toast.makeText(context, "Data sent " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()

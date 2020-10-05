@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.R
+import it.manzolo.job.service.bluewatcher.utils.DateUtils
 import kotlinx.android.synthetic.main.fragment_main.*
 import java.io.File
 
@@ -42,31 +43,37 @@ class MainActivityFragment : Fragment() {
     private fun startJobService() {
         Log.d(TAG, "startJobService")
         App.scheduleWatcherService(activity as Context)
-        activity.run { textView.text = "Service started" }
+        val now = DateUtils.now()
+        activity.run { editText.append("$now Service started\n") }
     }
 
     private fun startUpdateService() {
         Log.d(TAG, "startUpdateService")
         App.scheduleUpdateService(activity as Context)
-        activity.run { textView.text = "Service update started" }
+        val now = DateUtils.now()
+        activity.run { editText.append("$now Service update started\n") }
     }
 
     private fun startWebsendService() {
         Log.d(TAG, "startWebsendService")
         App.scheduleWebsendService(activity as Context)
-        activity.run { textView.text = "Service websend started" }
+        val now = DateUtils.now()
+        activity.run { editText.append("$now Service websender started\n") }
     }
 
     private fun startLocationService() {
         Log.d(TAG, "startLocationService")
         App.scheduleLocationService(activity as Context)
-        activity.run { textView.text = "Service location started" }
+        val now = DateUtils.now()
+        activity.run { editText.append("$now Service location started\n") }
     }
 
     private fun startRebootService() {
         Log.d(TAG, "startRebootService")
         App.scheduleRebootService(activity as Context)
-        activity.run { textView.text = "Service reboot started" }
+
+        val now = DateUtils.now()
+        activity.run { editText.append("$now Service reboot started\n") }
     }
 
 

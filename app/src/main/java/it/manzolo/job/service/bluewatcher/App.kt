@@ -19,7 +19,7 @@ class App : Application() {
             val seconds = "60"
             val debug = preferences.getBoolean("debug", false)
             if (debug) {
-                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start main service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val myIntent = Intent(context, MainService::class.java)
@@ -56,7 +56,7 @@ class App : Application() {
             val seconds = "25200" //25200
             val debug = preferences.getBoolean("debug", false)
             if (debug) {
-                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start update service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val myIntent = Intent(context, UpdateService::class.java)
@@ -93,7 +93,7 @@ class App : Application() {
             val seconds = preferences.getString("seconds", "60")
             val debug = preferences.getBoolean("debug", false)
             if (debug) {
-                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start websend service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val myIntent = Intent(context, WebsendService::class.java)
@@ -131,7 +131,7 @@ class App : Application() {
             val seconds = "600" //600
             val debug = preferences.getBoolean("debug", false)
             if (debug) {
-                Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start location service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val myIntent = Intent(context, LocationService::class.java)

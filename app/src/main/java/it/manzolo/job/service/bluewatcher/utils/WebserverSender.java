@@ -114,7 +114,7 @@ public class WebserverSender {
                     if (cursorCount > 0 && trysend) {
                         Log.d(TAG, "Data sent");
                         Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
-                        intentWs.putExtra("message", cursorCount + " rows");
+                        intentWs.putExtra("message", DateUtils.now() + " " + cursorCount + " rows sent");
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     }
                 }
