@@ -13,6 +13,11 @@ import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 
 public class HttpUtils {
+    final public static String loginUrl = "/api/login_check";
+    final public static String sendVoltUrl = "/api/volt/record.json";
+    final public static String getSettingsUrl = "/api/get/settings/app.json";
+    final public static int connectionTimeout = 30000;
+
 
     public String convertStreamToString(InputStream is) {
 
@@ -44,4 +49,6 @@ public class HttpUtils {
         writer.close();
         os.close();
     }
+
+
 }

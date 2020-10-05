@@ -90,7 +90,7 @@ class App : Application() {
         fun scheduleWebsendService(context: Context) {
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val seconds = preferences.getString("seconds", "300") // 300
+            val seconds = preferences.getString("seconds", "60")
             val debug = preferences.getBoolean("debug", false)
             if (debug) {
                 Toast.makeText(context, "Start service every $seconds seconds", Toast.LENGTH_SHORT).show()

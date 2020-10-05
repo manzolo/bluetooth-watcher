@@ -13,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -25,33 +24,31 @@ public class AppReceiveSettings {
     private static final String TAG = "AppReceiveSettings";
 
     private Context context;
-    private String url;
-    private String username;
-    private String password;
+    private String webserviceUrl;
+    private String webserviceUsername;
+    private String webservicePassword;
 
-    public AppReceiveSettings(Context context, String url, String username, String password) {
+    public AppReceiveSettings(Context context, String webserviceUrl, String webserviceUsername, String webservicePassword) {
         this.context = context;
-        this.url = url;
-        this.username = username;
-        this.password = password;
+        this.webserviceUrl = webserviceUrl;
+        this.webserviceUsername = webserviceUsername;
+        this.webservicePassword = webservicePassword;
     }
 
-    private String httpGet(String webserverurl) throws IOException, JSONException {
-        URL loginurl = new URL(webserverurl + "/api/login_check");
-        URL url = new URL(webserverurl + "/api/get/settings/app.json");
+    private String httpGet() throws IOException, JSONException {
+        URL loginUrl = new URL(this.webserviceUrl + HttpUtils.loginUrl);
+        URL url = new URL(this.webserviceUrl + HttpUtils.getSettingsUrl);
 
         // 1. create HttpURLConnection
-        String usernameapi = username;
-        String passwordapi = password;
 
-        HttpURLConnection loginConn = (HttpURLConnection) loginurl.openConnection();
+        HttpURLConnection loginConn = (HttpURLConnection) loginUrl.openConnection();
         loginConn.setUseCaches(false);
         loginConn.setAllowUserInteraction(false);
-        loginConn.setConnectTimeout(10000);
-        loginConn.setReadTimeout(10000);
+        loginConn.setConnectTimeout(HttpUtils.connectionTimeout);
+        loginConn.setReadTimeout(HttpUtils.connectionTimeout);
         loginConn.setRequestMethod("POST");
         loginConn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-        JSONObject jsonLoginObject = buidLoginJsonObject(usernameapi, passwordapi);
+        JSONObject jsonLoginObject = buidLoginJsonObject();
         // 3. add JSON content to POST request body
         new HttpUtils().setPostRequestContent(loginConn, jsonLoginObject);
 
@@ -65,13 +62,12 @@ public class AppReceiveSettings {
             conn.setRequestMethod("GET");
             conn.setUseCaches(false);
             conn.setAllowUserInteraction(false);
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(HttpUtils.connectionTimeout);
+            conn.setReadTimeout(HttpUtils.connectionTimeout);
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             conn.setRequestProperty("Authorization", "Bearer " + token);
 
-            InputStream response = conn.getInputStream();
-            JSONObject jsonObject = new JSONObject(new HttpUtils().convertStreamToString(response));
+            JSONObject jsonObject = new JSONObject(new HttpUtils().convertStreamToString(conn.getInputStream()));
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.context);
 
             SharedPreferences.Editor editor = preferences.edit();
@@ -95,15 +91,15 @@ public class AppReceiveSettings {
     }
 
     public void receive() {
-        new HTTPAsyncTask().execute(this.url, username, password);
+        new HTTPAsyncTask().execute();
     }
 
-    private JSONObject buidLoginJsonObject(String username, String password) throws JSONException {
+    private JSONObject buidLoginJsonObject() throws JSONException {
 
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("username", username);
-        jsonObject.put("password", password);
+        jsonObject.put("username", this.webserviceUsername);
+        jsonObject.put("password", this.webservicePassword);
         return jsonObject;
     }
 
@@ -113,7 +109,7 @@ public class AppReceiveSettings {
             // params comes from the execute() call: params[0] is the url.
             try {
                 try {
-                    return httpGet(urls[0]);
+                    return httpGet();
                 } catch (JSONException e) {
                     Log.e(TAG, e.getMessage());
                     //e.printStackTrace();
