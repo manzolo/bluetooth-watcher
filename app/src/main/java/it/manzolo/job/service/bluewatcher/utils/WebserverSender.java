@@ -90,9 +90,9 @@ public class WebserverSender {
                         String data = cursor.getString(cursor.getColumnIndex("grData"));
                         String volt = cursor.getString(cursor.getColumnIndex("volts"));
                         String temp = cursor.getString(cursor.getColumnIndex("temps"));
-                        String detectorBattery = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DETECTORBATTERY));
-                        String longitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LON));
-                        String latitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LAT));
+                        String detectorBattery = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DETECTOR_BATTERY));
+                        String longitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LONGITUDE));
+                        String latitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LATITUDE));
                         // 2. build JSON object
                         JSONObject jsonObject = buidJsonObject(device, data + ":00", volt, temp, detectorBattery, longitude, latitude);
 

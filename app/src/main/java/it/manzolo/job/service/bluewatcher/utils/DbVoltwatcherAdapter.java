@@ -13,9 +13,9 @@ public class DbVoltwatcherAdapter {
     public static final String KEY_VOLT = "volts";
     public static final String KEY_TEMP = "temps";
     public static final String KEY_DATA = "data";
-    public static final String KEY_DETECTORBATTERY = "detectorbattery";
-    public static final String KEY_LON = "longitude";
-    public static final String KEY_LAT = "latitude";
+    public static final String KEY_DETECTOR_BATTERY = "detectorbattery";
+    public static final String KEY_LONGITUDE = "longitude";
+    public static final String KEY_LATITUDE = "latitude";
     public static final String KEY_SENT = "sent";
     private static final String LOG_TAG = DbVoltwatcherAdapter.class.getSimpleName();
     // Database fields
@@ -44,9 +44,9 @@ public class DbVoltwatcherAdapter {
         values.put(KEY_VOLT, volt);
         values.put(KEY_TEMP, temp);
         values.put(KEY_DATA, data);
-        values.put(KEY_LON, longitude);
-        values.put(KEY_LAT, latitude);
-        values.put(KEY_DETECTORBATTERY, detectorbattery);
+        values.put(KEY_LONGITUDE, longitude);
+        values.put(KEY_LATITUDE, latitude);
+        values.put(KEY_DETECTOR_BATTERY, detectorbattery);
         values.put(KEY_SENT, sent);
 
         return values;
@@ -106,19 +106,19 @@ public class DbVoltwatcherAdapter {
     // fetch all rows
     public Cursor fetchAllRows() {
         return database.query(DATABASE_TABLE, new String[]{KEY_ID, KEY_DEVICE,
-                KEY_VOLT, KEY_TEMP, KEY_DATA, KEY_LON, KEY_LAT, KEY_DETECTORBATTERY, KEY_SENT}, null, null, null, null, null);
+                KEY_VOLT, KEY_TEMP, KEY_DATA, KEY_LONGITUDE, KEY_LATITUDE, KEY_DETECTOR_BATTERY, KEY_SENT}, null, null, null, null, null);
     }
 
     // fetch all rows
     public Cursor fetchAllRowsNotSent() {
         return database.query(DATABASE_TABLE, new String[]{KEY_ID, KEY_DEVICE,
-                KEY_VOLT, KEY_TEMP, KEY_DATA, KEY_LON, KEY_LAT, KEY_DETECTORBATTERY, KEY_SENT}, KEY_SENT + " = 0", null, null, null, null);
+                KEY_VOLT, KEY_TEMP, KEY_DATA, KEY_LONGITUDE, KEY_LATITUDE, KEY_DETECTOR_BATTERY, KEY_SENT}, KEY_SENT + " = 0", null, null, null, null);
     }
 
     //
     public Cursor RowExists(String device, String data) {
         Cursor mCursor = database.query(true, DATABASE_TABLE, new String[]{KEY_ID, KEY_DEVICE,
-                KEY_VOLT, KEY_TEMP, KEY_DATA, KEY_LON, KEY_LAT, KEY_DETECTORBATTERY}, KEY_SENT + " = 0", null, null, null, null, null);
+                KEY_VOLT, KEY_TEMP, KEY_DATA, KEY_LONGITUDE, KEY_LATITUDE, KEY_DETECTOR_BATTERY}, KEY_SENT + " = 0", null, null, null, null, null);
         return mCursor;
 
     }
