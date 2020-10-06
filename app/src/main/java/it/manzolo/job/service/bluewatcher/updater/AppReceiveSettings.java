@@ -74,27 +74,28 @@ public class AppReceiveSettings {
             SharedPreferences.Editor editor = preferences.edit();
             try {
                 editor.putString("webservice_service_every_seconds", jsonObject.get("webservice_service_every_seconds").toString());
-            } finally {
+            } catch (JSONException e) {
                 Log.w(TAG, "webservice_service_every_seconds setting not found");
             }
+
             try {
                 editor.putString("location_service_every_seconds", jsonObject.get("location_service_every_seconds").toString());
-            } finally {
+            } catch (JSONException e) {
                 Log.w(TAG, "location_service_every_seconds setting not found");
             }
             try {
                 editor.putString("update_service_every_seconds", jsonObject.get("update_service_every_seconds").toString());
-            } finally {
+            } catch (JSONException e) {
                 Log.w(TAG, "update_service_every_seconds setting not found");
             }
             try {
                 editor.putString("restart_app_service_every_seconds", jsonObject.get("restart_app_service_every_seconds").toString());
-            } finally {
+            } catch (JSONException e) {
                 Log.w(TAG, "restart_app_service_every_seconds setting not found");
             }
             try {
                 editor.putString("devices", jsonObject.get("devices").toString());
-            } finally {
+            } catch (JSONException e) {
                 Log.w(TAG, "devices setting not found");
             }
             try {
@@ -103,7 +104,7 @@ public class AppReceiveSettings {
                 } else {
                     editor.putBoolean("enabled", false);
                 }
-            } finally {
+            } catch (JSONException e) {
                 Log.w(TAG, "enabled service setting not found");
             }
 

@@ -10,7 +10,7 @@ android {
         applicationId "it.manzolo.job.service.bluewatcher"
         minSdkVersion 22
         versionCode 1
-        versionName "1.2.5"
+        versionName "1.2.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

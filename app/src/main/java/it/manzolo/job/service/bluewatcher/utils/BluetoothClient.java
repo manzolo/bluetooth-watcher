@@ -237,26 +237,6 @@ public final class BluetoothClient {
         workerThread.start();
     }
 
-    private boolean isBufferFull(byte[] array) {
-        for (byte b : array) {
-            if (b == 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private Integer bufferLength(byte[] array) {
-        Integer i = 0;
-        for (byte b : array) {
-
-            if (b != 0) {
-                i++;
-            }
-        }
-        return i;
-    }
-
     private void close() throws IOException {
         stopWorker = true;
         if (bluetoothOutputStream != null) {

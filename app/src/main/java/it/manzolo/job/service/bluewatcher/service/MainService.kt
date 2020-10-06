@@ -121,12 +121,12 @@ private class btTask : AsyncTask<Context, Void, String>() {
     }
 
     fun btConnectionRetry(context: Context, addr: String): Boolean {
-        try {
+        return try {
             val bluetoothClient = BluetoothClient(context, addr)
             bluetoothClient.retrieveData()
             Thread.sleep(2500)
             //bluetoothClient.close()
-            return true
+            true
         } catch (e: Exception) {
             //e.printStackTrace()
             Log.e(MainService.TAG, e.message)
@@ -134,7 +134,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
             // You can also include some extra data.
             intent.putExtra("message", e.message)
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-            return false
+            false
         }
     }
 

@@ -42,7 +42,7 @@ public class WebserverSender {
     private String httpPost() throws IOException {
         URL loginUrl = new URL(this.webserviceUrl + HttpUtils.loginUrl);
         URL url = new URL(this.webserviceUrl + HttpUtils.sendVoltUrl);
-        boolean trysend = false;
+        boolean sendSuccessfully = false;
 
         DbVoltwatcherAdapter dbVoltwatcherAdapter = new DbVoltwatcherAdapter(context);
         dbVoltwatcherAdapter.open();
@@ -104,11 +104,22 @@ public class WebserverSender {
                         // 4. make POST request to the given URL
                         conn.connect();
 
-                        JSONObject jsonResponseObject = new JSONObject(new HttpUtils().convertStreamToString(conn.getInputStream()));
-                        if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400 && jsonResponseObject.get("errcode").equals(0)) {
-                            dbVoltwatcherAdapter.updateSent(device, data);
-                            Log.d(TAG, "Updated records sent");
-                            trysend = true;
+
+                        if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400) {
+                            JSONObject jsonResponseObject = new JSONObject(new HttpUtils().convertStreamToString(conn.getInputStream()));
+                            if (jsonResponseObject.get("errcode").equals(0)) {
+                                dbVoltwatcherAdapter.updateSent(device, data);
+                                Log.d(TAG, "Updated records sent");
+                                sendSuccessfully = true;
+                            } else {
+                                Intent intentWs = new Intent(WebserverEvents.ERROR);
+                                intentWs.putExtra("message", jsonResponseObject.get("errcode").toString() + " " + jsonResponseObject.get("message").toString());
+                                LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
+                            }
+                        } else {
+                            Intent intentWs = new Intent(WebserverEvents.ERROR);
+                            intentWs.putExtra("message", conn.getResponseCode() + " " + conn.getResponseMessage());
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                         }
                         Intent intentWs = new Intent(WebserverEvents.INFO);
                         intentWs.putExtra("message", jsonObject.toString());
@@ -118,7 +129,7 @@ public class WebserverSender {
                         intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode());
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     }
-                    if (cursorCount > 0 && trysend) {
+                    if (cursorCount > 0 && sendSuccessfully) {
                         Log.d(TAG, "Data sent");
                         Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
                         intentWs.putExtra("message", cursorCount + " rows sent");
@@ -127,7 +138,7 @@ public class WebserverSender {
                 }
             } catch (Exception e) {
                 Intent intentWs = new Intent(WebserverEvents.ERROR);
-                intentWs.putExtra("message", e.getMessage());
+                intentWs.putExtra("message", "Unable to send data to " + this.webserviceUrl);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
             } finally {
                 cursor.close();
@@ -136,7 +147,7 @@ public class WebserverSender {
 
             //Log.d(TAG, conn.getResponseMessage());
             // 5. return response message
-            if (trysend) {
+            if (sendSuccessfully) {
                 return "OK";
             } else {
                 return "KO";
