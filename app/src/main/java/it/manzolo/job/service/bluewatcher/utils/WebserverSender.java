@@ -39,7 +39,7 @@ public class WebserverSender {
         new HTTPAsyncTask().execute();
     }
 
-    private String httpPost() throws IOException, JSONException {
+    private String httpPost() throws IOException {
         URL loginUrl = new URL(this.webserviceUrl + HttpUtils.loginUrl);
         URL url = new URL(this.webserviceUrl + HttpUtils.sendVoltUrl);
         boolean trysend = false;
@@ -110,14 +110,25 @@ public class WebserverSender {
                             Log.d(TAG, "Updated records sent");
                             trysend = true;
                         }
+                        Intent intentWs = new Intent(WebserverEvents.INFO);
+                        intentWs.putExtra("message", jsonObject.toString());
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
+                    } else {
+                        Intent intentWs = new Intent(WebserverEvents.ERROR);
+                        intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode());
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     }
                     if (cursorCount > 0 && trysend) {
                         Log.d(TAG, "Data sent");
                         Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
-                        intentWs.putExtra("message", DateUtils.now() + " " + cursorCount + " rows sent");
+                        intentWs.putExtra("message", cursorCount + " rows sent");
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     }
                 }
+            } catch (Exception e) {
+                Intent intentWs = new Intent(WebserverEvents.ERROR);
+                intentWs.putExtra("message", e.getMessage());
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
             } finally {
                 cursor.close();
             }
@@ -132,6 +143,9 @@ public class WebserverSender {
             }
         } else {
             cursor.close();
+            Intent intentWs = new Intent(WebserverEvents.INFO);
+            intentWs.putExtra("message", "No data found to send");
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
             return "No data found to send";
         }
     }
@@ -164,13 +178,7 @@ public class WebserverSender {
         protected String doInBackground(String... urls) {
             // params comes from the execute() call: params[0] is the url.
             try {
-                try {
-                    return httpPost();
-                } catch (JSONException e) {
-                    Log.e(TAG, e.getMessage());
-                    //e.printStackTrace();
-                    return "Error: " + e.getMessage();
-                }
+                return httpPost();
             } catch (IOException e) {
                 //e.printStackTrace();
                 Log.e(TAG, e.getMessage());

@@ -27,27 +27,31 @@ class MainActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
+            val now = DateUtils.now()
             when (intent?.action) {
                 BluetoothEvents.ERROR -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    context.run { editText.append(intent.getStringExtra("message")) }
-                    context.run { editText.append("\n") }
+                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.ERROR -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    context.run { editText.append(intent.getStringExtra("message")) }
-                    context.run { editText.append("\n") }
+                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    if (debug) {
+                        Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                    }
+                }
+                WebserverEvents.INFO -> {
+                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 BluetoothEvents.DATA_RETRIEVED -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
-                    context.run { editText.append(intent.getStringExtra("message")) }
-                    context.run { editText.append("\n") }
+                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
 
                     val device = intent.getStringExtra("device")
                     val data = intent.getStringExtra("data")
@@ -73,8 +77,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 WebserverEvents.DATA_SENT -> {
                     context.run { imageView.setImageResource(android.R.drawable.presence_online) }
-                    context.run { editText.append(intent.getStringExtra("message")) }
-                    context.run { editText.append("\n") }
+                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     // You can also include some extra data.
                     if (debug) {
                         Toast.makeText(context, "Data sent " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
@@ -116,7 +119,7 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(context, "Check for app update", Toast.LENGTH_LONG).show()
                     }
                 }
-                WebserverEvents.APP_NOAVAILABLEUPDATE -> {
+                WebserverEvents.APP_NO_AVAILABLE_UPDATE -> {
                     Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
                 }
                 DatabaseEvents.ERROR -> {
@@ -140,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getNoUpdateLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserverEvents.APP_NOAVAILABLEUPDATE)
+        iFilter.addAction(WebserverEvents.APP_NO_AVAILABLE_UPDATE)
         return iFilter
     }
 
@@ -165,6 +168,12 @@ class MainActivity : AppCompatActivity() {
     private fun getWebserverErrorDataSentLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
         iFilter.addAction(WebserverEvents.ERROR)
+        return iFilter
+    }
+
+    private fun getWebserverInfoDataSentLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserverEvents.INFO)
         return iFilter
     }
 
@@ -236,6 +245,7 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionErrorLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverInfoDataSentLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpgradeLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateavailableLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getCheckUpdateLocalIntentFilter())

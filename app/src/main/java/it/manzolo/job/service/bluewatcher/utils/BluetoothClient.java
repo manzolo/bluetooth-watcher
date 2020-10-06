@@ -150,7 +150,7 @@ public final class BluetoothClient {
 
     private void listen() {
         readBufferPosition = 0;
-        final Integer bufferLength = 130;
+        final int bufferLength = 130;
         readBuffer = new byte[bufferLength];
         final String device = this.deviceAddress;
 
@@ -217,7 +217,7 @@ public final class BluetoothClient {
                             intentBt.putExtra("tempF", deviceInfo.getTempF().toString());
                             intentBt.putExtra("amp", deviceInfo.getAmp().toString());
 
-                            intentBt.putExtra("message", now + " " + deviceInfo.getAddress() + " " + deviceInfo.getVolt().toString() + "v " + deviceInfo.getTempC().toString() + "°");
+                            intentBt.putExtra("message", deviceInfo.getAddress() + " " + deviceInfo.getVolt().toString() + "v " + deviceInfo.getTempC().toString() + "°");
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);
 
                             Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);

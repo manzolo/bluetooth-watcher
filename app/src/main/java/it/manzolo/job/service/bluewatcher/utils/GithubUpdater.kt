@@ -25,14 +25,14 @@ class GithubUpdater {
                             Log.d("Ava", isUpdateAvailable.toString())
 
                             if (isUpdateAvailable!!) {
-                                val fileupdate = File(context.cacheDir, "app.ava")
-                                fileupdate.createNewFile()
+                                val updateFile = File(context.cacheDir, "app.ava")
+                                updateFile.createNewFile()
 
                                 val intent = Intent(WebserverEvents.APP_AVAILABLE)
                                 intent.putExtra("message", update.urlToDownload.toString() + "/download/app-release.apk")
                                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                             } else {
-                                val intent = Intent(WebserverEvents.APP_NOAVAILABLEUPDATE)
+                                val intent = Intent(WebserverEvents.APP_NO_AVAILABLE_UPDATE)
                                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                             }
                         }

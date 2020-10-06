@@ -18,6 +18,7 @@ import java.net.URL;
 
 import it.manzolo.job.service.bluewatcher.utils.HttpUtils;
 import it.manzolo.job.service.enums.BluetoothEvents;
+import it.manzolo.job.service.enums.WebserverEvents;
 
 public class AppReceiveSettings {
 
@@ -81,10 +82,14 @@ public class AppReceiveSettings {
                 editor.putBoolean("enabled", false);
             }
 
-            editor.commit();
+            editor.apply();
 
             Log.d(TAG, "Settings updated");
             return conn.getResponseMessage() + "";
+        } else {
+            Intent intentWs = new Intent(WebserverEvents.ERROR);
+            intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode());
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
         }
         Log.e(TAG, "Unable to update settings");
         return "";

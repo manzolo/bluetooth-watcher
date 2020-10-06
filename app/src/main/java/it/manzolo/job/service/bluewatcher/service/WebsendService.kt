@@ -53,6 +53,10 @@ class WebsendService : Service() {
                 val sender = WebserverSender(applicationContext, url, username, password)
                 sender.send()
             } else {
+                val intent = Intent(WebserverEvents.INFO)
+                // You can also include some extra data.
+                intent.putExtra("message", "No internet connection")
+                LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
                 if (debug) {
                     Toast.makeText(applicationContext, "No internet connection", Toast.LENGTH_LONG).show()
                 }
@@ -76,6 +80,39 @@ class WebsendService : Service() {
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
+
+    /*
+    private fun isNetworkAvailable(context: Context): Boolean {
+        var result = false
+        val connectivityManager =
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val actNw =
+                    connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            result = when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            connectivityManager.run {
+                connectivityManager.activeNetworkInfo?.run {
+                    result = when (type) {
+                        ConnectivityManager.TYPE_WIFI -> true
+                        ConnectivityManager.TYPE_MOBILE -> true
+                        ConnectivityManager.TYPE_ETHERNET -> true
+                        else -> false
+                    }
+
+                }
+            }
+        }
+
+        return result
+    }
+    */
 }
 
 

@@ -12,6 +12,7 @@ import androidx.preference.PreferenceManager
 import it.manzolo.job.service.bluewatcher.updater.AppReceiveSettings
 import it.manzolo.job.service.bluewatcher.utils.BluetoothClient
 import it.manzolo.job.service.enums.BluetoothEvents
+import it.manzolo.job.service.enums.WebserverEvents
 
 
 class MainService : Service() {
@@ -44,11 +45,15 @@ class MainService : Service() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
         val url = preferences.getString("webserviceurl", "")
         val debug = preferences.getBoolean("debug", false)
-        if (url!!.replace("\\s".toRegex(), "").length === 0) {
+        if (url!!.replace("\\s".toRegex(), "").isEmpty()) {
             if (debug) {
                 Toast.makeText(this, "Web server in setting not set", Toast.LENGTH_LONG).show()
             }
             Log.e(TAG, "Web server in setting not set")
+            val intent = Intent(WebserverEvents.ERROR)
+            // You can also include some extra data.
+            intent.putExtra("message", "Web server in setting not set")
+            LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
         } else {
             val autoupdate = preferences.getBoolean("autoupdate", true)
             val webserverurl = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
@@ -63,7 +68,11 @@ class MainService : Service() {
             val enabled = preferences.getBoolean("enabled", true)
             val address = preferences.getString("devices", "")
 
-            if (address!!.replace("\\s".toRegex(), "").length === 0) {
+            if (address!!.replace("\\s".toRegex(), "").isEmpty()) {
+                val intent = Intent(BluetoothEvents.ERROR)
+                // You can also include some extra data.
+                intent.putExtra("message", "No devices in settings")
+                LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
                 Log.e(TAG, "No devices in settings")
                 if (debug) {
                     Toast.makeText(this, "No devices in settings", Toast.LENGTH_LONG).show()
@@ -78,6 +87,10 @@ class MainService : Service() {
                         //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
                     }
                 } else {
+                    val intent = Intent(BluetoothEvents.ERROR)
+                    // You can also include some extra data.
+                    intent.putExtra("message", "Service disabled in settings")
+                    LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
                     Log.w(TAG, "Service disabled in settings")
                     if (debug) {
                         Toast.makeText(this, "Service disabled in settings", Toast.LENGTH_LONG).show()
