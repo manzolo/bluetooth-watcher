@@ -73,7 +73,7 @@ public class AppReceiveSettings {
 
             SharedPreferences.Editor editor = preferences.edit();
 
-            editor.putString("seconds", jsonObject.get("seconds").toString());
+            editor.putString("webservice_service_every_seconds", jsonObject.get("seconds").toString());
             editor.putString("devices", jsonObject.get("devices").toString());
 
             if (jsonObject.get("enabled").toString().equals("1")) {

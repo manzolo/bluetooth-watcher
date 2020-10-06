@@ -35,9 +35,25 @@
             app:title="Webserver password" />
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="seconds"
-            app:summary="Set every seconds service send data to webserver"
-            app:title="Every seconds" />
+            app:key="webservice_service_every_seconds"
+            app:summary="Set every seconds service send data to webservice"
+            app:title="Webservice send data every seconds" />
+        <EditTextPreference
+            app:dialogTitle="Select duration"
+            app:key="location_service_every_seconds"
+            app:summary="Set every seconds location service start"
+            app:title="Location service start every seconds" />
+        <EditTextPreference
+            app:dialogTitle="Select duration"
+            app:key="update_service_every_seconds"
+            app:summary="Set every seconds update service start"
+            app:title="Update service start every seconds" />
+        <EditTextPreference
+            app:dialogTitle="Select duration"
+            app:key="restart_app_service_every_seconds"
+            app:summary="Set every seconds restart app service start"
+            app:title="Restart app service start every seconds" />
+
         <EditTextPreference
             app:dialogTitle="Select devices address"
             app:key="devices"
