@@ -15,9 +15,9 @@ import it.manzolo.job.service.enums.BluetoothEvents
 import it.manzolo.job.service.enums.WebserverEvents
 
 
-class MainService : Service() {
+class BluetoothService : Service() {
     companion object {
-        val TAG: String = MainService::class.java.simpleName
+        val TAG: String = BluetoothService::class.java.simpleName
     }
 
     override fun onCreate() {
@@ -55,12 +55,12 @@ class MainService : Service() {
             intent.putExtra("message", "Web server in setting not set")
             LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
         } else {
-            val autoupdate = preferences.getBoolean("autoupdate", true)
+            val autoSettingsUpdate = preferences.getBoolean("auto_settings_update", true)
             val webserverurl = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
             val username = preferences.getString("webserviceusername", "username")
             val password = preferences.getString("webservicepassword", "password")
 
-            if (autoupdate) {
+            if (autoSettingsUpdate) {
                 val appsettings = AppReceiveSettings(this.applicationContext, webserverurl, username, password)
                 appsettings.receive()
                 //Log.d(TAG, "Settings updated")
@@ -129,7 +129,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
             true
         } catch (e: Exception) {
             //e.printStackTrace()
-            Log.e(MainService.TAG, e.message)
+            Log.e(BluetoothService.TAG, e.message)
             val intent = Intent(BluetoothEvents.ERROR)
             // You can also include some extra data.
             intent.putExtra("message", e.message)

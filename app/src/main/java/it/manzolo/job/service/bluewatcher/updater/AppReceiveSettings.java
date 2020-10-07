@@ -77,7 +77,11 @@ public class AppReceiveSettings {
             } catch (JSONException e) {
                 Log.w(TAG, "webservice_service_every_seconds setting not found");
             }
-
+            try {
+                editor.putString("bluetooth_service_every_seconds", jsonObject.get("bluetooth_service_every_seconds").toString());
+            } catch (JSONException e) {
+                Log.w(TAG, "bluetooth_service_every_seconds setting not found");
+            }
             try {
                 editor.putString("location_service_every_seconds", jsonObject.get("location_service_every_seconds").toString());
             } catch (JSONException e) {

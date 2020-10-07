@@ -52,7 +52,7 @@
         </activity>
 
         <service
-            android:name=".service.MainService"
+            android:name=".service.BluetoothService"
             android:label="MainJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

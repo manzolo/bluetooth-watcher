@@ -29,8 +29,8 @@ class MainActivityFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState == null) {
             // only create fragment if activity is started for the first time
-            val fileupdate = File(context?.cacheDir, "app.ava")
-            fileupdate.delete()
+            val fileUpdate = File(context?.cacheDir, "app.ava")
+            fileUpdate.delete()
 
             //buttonUpdate.isEnabled = false
             startJobService()

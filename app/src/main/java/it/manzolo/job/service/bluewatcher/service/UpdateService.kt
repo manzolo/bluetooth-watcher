@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import it.manzolo.job.service.bluewatcher.utils.GithubUpdater
 import it.manzolo.job.service.enums.WebserverEvents
 
@@ -35,12 +36,15 @@ class UpdateService : Service() {
     }
 
     private fun startUpdateTask() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
+        val autoAppUpdate = preferences.getBoolean("auto_app_update", false)
+        if (autoAppUpdate) {
+            Log.d(TAG, "checkForUpdate")
+            val intent = Intent(WebserverEvents.APP_CHECK_UPDATE)
+            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
 
-        Log.d(TAG, "checkForUpdate")
-        val intent = Intent(WebserverEvents.APP_CHECK_UPDATE)
-        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
-
-        val githubup = GithubUpdater()
-        githubup.checkUpdate(applicationContext)
+            val githubup = GithubUpdater()
+            githubup.checkUpdate(applicationContext)
+        }
     }
 }

@@ -36,6 +36,11 @@ class SettingsActivity : AppCompatActivity() {
                 editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             }
 
+            val bluetoothEverySecondsPreference: EditTextPreference? = findPreference("bluetooth_service_every_seconds")
+
+            bluetoothEverySecondsPreference?.setOnBindEditTextListener { editText ->
+                editText.inputType = InputType.TYPE_CLASS_NUMBER
+            }
             val webserviceEverySecondsPreference: EditTextPreference? = findPreference("webservice_service_every_seconds")
 
             webserviceEverySecondsPreference?.setOnBindEditTextListener { editText ->

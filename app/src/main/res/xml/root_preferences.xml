@@ -33,6 +33,12 @@
             app:key="webservicepassword"
             app:summary="Click to show a text entry dialog"
             app:title="Webserver password" />
+
+        <EditTextPreference
+            app:dialogTitle="Select duration"
+            app:key="bluetooth_service_every_seconds"
+            app:summary="Set every seconds bluetooth service start"
+            app:title="Bluetooth start every seconds" />
         <EditTextPreference
             app:dialogTitle="Select duration"
             app:key="webservice_service_every_seconds"
@@ -71,9 +77,14 @@
             app:title="Service enabled" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
-            app:key="autoupdate"
+            app:key="auto_settings_update"
             app:summary="Click to switch on or off"
             app:title="Auto settings update from webservice" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="auto_app_update"
+            app:summary="Click to switch on or off"
+            app:title="Auto app update" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
             app:key="debug"
