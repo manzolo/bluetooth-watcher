@@ -129,12 +129,13 @@ public class WebserverSender {
                         intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode());
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     }
-                    if (cursorCount > 0 && sendSuccessfully) {
-                        Log.d(TAG, "Data sent");
-                        Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
-                        intentWs.putExtra("message", cursorCount + " rows sent");
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
-                    }
+
+                }
+                if (cursorCount > 0 && sendSuccessfully) {
+                    Log.d(TAG, "Data sent");
+                    Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
+                    intentWs.putExtra("message", cursorCount + " rows sent");
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                 }
             } catch (Exception e) {
                 Intent intentWs = new Intent(WebserverEvents.ERROR);
