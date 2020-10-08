@@ -76,7 +76,7 @@ class App : Application() {
         fun scheduleRebootService(context: Context) {
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val seconds = preferences.getString("restart_app_service_every_seconds", "21600")
+            val seconds = preferences.getString("restart_app_service_every_seconds", "43200")
             val serviceIntent = Intent(context, RebootService::class.java)
             if (seconds != null) {
                 cron(context, serviceIntent, seconds)
@@ -92,6 +92,7 @@ class App : Application() {
             val frequency = seconds.toInt() * 1000.toLong() // in ms
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(pendingIntent)
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, time.timeInMillis, frequency, pendingIntent)
 
 
