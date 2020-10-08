@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
 
             Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
             setUIRef()
+            mLogs.add(0, Bluelog(DateUtils.now(), "Service started", Bluelog.logEvents.INFO))
             if (BuildConfig.DEBUG) {
                 // do something for a debug build
                 val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
@@ -56,7 +57,6 @@ class MainActivity : AppCompatActivity() {
                 dbVoltwatcherAdapter.close()
                 mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set", Bluelog.logEvents.WARNING))
             }
-            mLogs.add(0, Bluelog(DateUtils.now(), "Service started", Bluelog.logEvents.INFO))
 
         }
     }
