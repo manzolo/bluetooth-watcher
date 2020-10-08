@@ -1,16 +1,18 @@
 package it.manzolo.job.service.bluewatcher.activity
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.R
+import it.manzolo.job.service.bluewatcher.utils.Bluelog
 import it.manzolo.job.service.bluewatcher.utils.DateUtils
-import kotlinx.android.synthetic.main.fragment_main.*
 import java.io.File
 
 
@@ -46,37 +48,43 @@ class MainActivityFragment : Fragment() {
     private fun startJobService() {
         Log.d(TAG, "startJobService")
         App.scheduleWatcherService(activity as Context)
+        val intent = Intent(Bluelog.logEvents.BROADCAST)
+        // You can also include some extra data.
         val now = DateUtils.now()
-        activity.run { editText.append("$now Service started\n") }
+        intent.putExtra("message", "$now Service started")
+        intent.putExtra("type", Bluelog.logEvents.INFO)
+        LocalBroadcastManager.getInstance(activity as Context).sendBroadcast(intent)
+        //activity.run { editText.append("$now Service started\n") }
     }
 
     private fun startUpdateService() {
         Log.d(TAG, "startUpdateService")
         App.scheduleUpdateService(activity as Context)
-        val now = DateUtils.now()
-        activity.run { editText.append("$now Service update started\n") }
+        //val now = DateUtils.now()
+        //activity.run { editText.append("$now Service update started\n") }
     }
 
     private fun startWebsendService() {
         Log.d(TAG, "startWebsendService")
         App.scheduleWebsendService(activity as Context)
-        val now = DateUtils.now()
-        activity.run { editText.append("$now Service websender started\n") }
+
+        //val now = DateUtils.now()
+        //activity.run { editText.append("$now Service websender started\n") }
     }
 
     private fun startLocationService() {
         Log.d(TAG, "startLocationService")
         App.scheduleLocationService(activity as Context)
-        val now = DateUtils.now()
-        activity.run { editText.append("$now Service location started\n") }
+        //val now = DateUtils.now()
+        //activity.run { editText.append("$now Service location started\n") }
     }
 
     private fun startRebootService() {
         Log.d(TAG, "startRebootService")
         App.scheduleRebootService(activity as Context)
 
-        val now = DateUtils.now()
-        activity.run { editText.append("$now Service reboot started\n") }
+        //val now = DateUtils.now()
+        //activity.run { editText.append("$now Service reboot started\n") }
     }
 
 

@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import it.manzolo.job.service.bluewatcher.R
 import it.manzolo.job.service.bluewatcher.updater.UpdateApp
 import it.manzolo.job.service.bluewatcher.utils.*
@@ -17,41 +19,73 @@ import it.manzolo.job.service.enums.BluetoothEvents
 import it.manzolo.job.service.enums.DatabaseEvents
 import it.manzolo.job.service.enums.WebserverEvents
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_main.*
 import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
     val TAG = "MainActivity"
+    private val mLogs: ArrayList<Bluelog> = ArrayList()
+    private var mRecyclerView: RecyclerView? = null
+    val myRecyclerViewAdapter = MyRecyclerViewAdapter(mLogs)
+
+    private fun setUIRef() {
+        //Reference of RecyclerView
+        mRecyclerView = findViewById(R.id.myRecyclerView)
+
+        //Linear Layout Manager
+        val linearLayoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
+
+        //Set Layout Manager to RecyclerView
+        mRecyclerView!!.layoutManager = linearLayoutManager
+
+        //Create adapter
+
+
+        //Set adapter to RecyclerView
+        mRecyclerView!!.adapter = myRecyclerViewAdapter
+    }
+
     private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
+
+
             val now = DateUtils.now()
+
             when (intent?.action) {
+                Bluelog.logEvents.BROADCAST -> {
+                    //context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
+                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
+                }
                 BluetoothEvents.ERROR -> {
-                    context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    //context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
+                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.ERROR -> {
-                    context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    //context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
+                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.INFO -> {
-                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
+                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 BluetoothEvents.DATA_RETRIEVED -> {
-                    context.run { imageView.setImageResource(android.R.drawable.presence_online) }
-                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    //context.run { imageView.setImageResource(android.R.drawable.presence_online) }
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
+                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
 
                     val device = intent.getStringExtra("device")
                     val data = intent.getStringExtra("data")
@@ -76,8 +110,9 @@ class MainActivity : AppCompatActivity() {
 
                 }
                 WebserverEvents.DATA_SENT -> {
-                    context.run { imageView.setImageResource(android.R.drawable.presence_online) }
-                    context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    //context.run { imageView.setImageResource(android.R.drawable.presence_online) }
+                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
                     // You can also include some extra data.
                     if (debug) {
                         Toast.makeText(context, "Data sent " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
@@ -110,28 +145,40 @@ class MainActivity : AppCompatActivity() {
                     val session = Session(context)
                     val updateUrl = intent.getStringExtra("message")
                     session.updateApkUrl = updateUrl
+                    mLogs.add(0, Bluelog(now, "Update available at " + updateUrl, Bluelog.logEvents.INFO))
                     if (debug) {
                         Toast.makeText(context, "Update available at " + updateUrl, Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.APP_CHECK_UPDATE -> {
+                    mLogs.add(0, Bluelog(now, "Check for app update", Bluelog.logEvents.INFO))
                     if (debug) {
                         Toast.makeText(context, "Check for app update", Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.APP_NO_AVAILABLE_UPDATE -> {
+                    mLogs.add(0, Bluelog(now, "No available update", Bluelog.logEvents.INFO))
                     Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
                 }
                 DatabaseEvents.ERROR -> {
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
                     Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                 }
             }
+            myRecyclerViewAdapter.notifyDataSetChanged()
+
         }
     }
 
     private fun getUpgradeLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
         iFilter.addAction(WebserverEvents.APP_UPDATE)
+        return iFilter
+    }
+
+    private fun getLogMessagesIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(Bluelog.logEvents.BROADCAST)
         return iFilter
     }
 
@@ -251,6 +298,8 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getCheckUpdateLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLogMessagesIntentFilter())
+
 
         /*DEBUG SEND DATA TO WEBSERVER
         val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
@@ -259,6 +308,7 @@ class MainActivity : AppCompatActivity() {
         dbVoltwatcherAdapter.close()
         */
         Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
+        setUIRef()
     }
 
     // Method to show an alert dialog with yes, no and cancel button
