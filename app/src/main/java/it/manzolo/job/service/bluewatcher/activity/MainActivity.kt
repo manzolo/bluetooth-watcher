@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLogMessagesIntentFilter())
 
             Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
-            setUIRef()
+            logUiInit()
             mLogs.add(0, Bluelog(DateUtils.now(), "Service started", Bluelog.logEvents.INFO))
             if (BuildConfig.DEBUG) {
                 // do something for a debug build
@@ -57,11 +57,10 @@ class MainActivity : AppCompatActivity() {
                 dbVoltwatcherAdapter.close()
                 mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set", Bluelog.logEvents.WARNING))
             }
-
         }
     }
 
-    private fun setUIRef() {
+    private fun logUiInit() {
         //Reference of RecyclerView
         mRecyclerView = findViewById(R.id.myRecyclerView)
         //Linear Layout Manager
@@ -80,21 +79,15 @@ class MainActivity : AppCompatActivity() {
 
             when (intent?.action) {
                 Bluelog.logEvents.BROADCAST -> {
-                    //context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
                 }
                 BluetoothEvents.ERROR -> {
-                    //context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.ERROR -> {
-                    //context.run { imageView.setImageResource(android.R.drawable.presence_busy) }
-                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
@@ -102,15 +95,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 WebserverEvents.INFO -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
-                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 BluetoothEvents.DATA_RETRIEVED -> {
-                    //context.run { imageView.setImageResource(android.R.drawable.presence_online) }
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
-                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
 
                     val device = intent.getStringExtra("device")
                     val data = intent.getStringExtra("data")
@@ -135,15 +125,14 @@ class MainActivity : AppCompatActivity() {
 
                 }
                 WebserverEvents.DATA_SENT -> {
-                    //context.run { imageView.setImageResource(android.R.drawable.presence_online) }
-                    //context.run { editText.append(now + " " + intent.getStringExtra("message") + "\n") }
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
                     // You can also include some extra data.
                     if (debug) {
                         Toast.makeText(context, "Data sent " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
-
-                    //context.run { editText.append(intent.getStringExtra("message") + "\n") }
+                }
+                WebserverEvents.DEBUG -> {
+                    Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                 }
 
                 WebserverEvents.APP_UPDATE -> {

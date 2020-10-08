@@ -133,7 +133,7 @@ public class WebserverSender {
                 }
                 if (cursorCount > 0 && sendSuccessfully) {
                     Log.d(TAG, "Data sent");
-                    Intent intentWs = new Intent(WebserverEvents.DATA_SENT);
+                    Intent intentWs = new Intent(WebserverEvents.DEBUG);
                     intentWs.putExtra("message", cursorCount + " rows sent");
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                 }
@@ -155,7 +155,8 @@ public class WebserverSender {
             }
         } else {
             cursor.close();
-            Intent intentWs = new Intent(WebserverEvents.INFO);
+
+            Intent intentWs = new Intent(WebserverEvents.DEBUG);
             intentWs.putExtra("message", "No data found to send");
             LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
 
