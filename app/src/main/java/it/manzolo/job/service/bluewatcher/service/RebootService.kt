@@ -1,10 +1,11 @@
 package it.manzolo.job.service.bluewatcher.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.os.PowerManager
 import android.util.Log
-import com.jakewharton.processphoenix.ProcessPhoenix
 
 
 class RebootService : Service() {
@@ -21,10 +22,9 @@ class RebootService : Service() {
 
     fun starRebootTask() {
         Log.d(TAG, "onRebootStartCommand")
-        //val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-        //pm.reboot(null)
-        //Runtime.getRuntime().exit(0)
-        ProcessPhoenix.triggerRebirth(this.applicationContext)
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        pm.reboot(null)
+        //ProcessPhoenix.triggerRebirth(this.applicationContext)
     }
 
     override fun onCreate() {

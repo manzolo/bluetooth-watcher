@@ -53,7 +53,7 @@ class WebsendService : Service() {
                 val sender = WebserverSender(applicationContext, url, username, password)
                 sender.send()
             } else {
-                val intent = Intent(WebserverEvents.INFO)
+                val intent = Intent(WebserverEvents.ERROR)
                 // You can also include some extra data.
                 intent.putExtra("message", "No internet connection")
                 LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
