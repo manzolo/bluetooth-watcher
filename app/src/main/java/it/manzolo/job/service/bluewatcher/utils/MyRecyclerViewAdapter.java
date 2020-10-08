@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -40,12 +41,20 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.textViewMessage.setText(message);
 
         String type = mLogs.get(position).getType();
-        //holder.textViewType.setText(type);
 
-        if (type.equals("E")) {
-            holder.textViewMessage.setTextColor(Color.RED);
-        } else {
-            holder.textViewMessage.setTextColor(Color.BLACK);
+        switch (type) {
+            case Bluelog.logEvents.ERROR:
+                holder.textViewMessage.setTextColor(Color.RED);
+                holder.imageViewType.setImageResource(android.R.drawable.presence_busy);
+                break;
+            case Bluelog.logEvents.INFO:
+                holder.textViewMessage.setTextColor(Color.BLACK);
+                holder.imageViewType.setImageResource(android.R.drawable.presence_online);
+                break;
+            case Bluelog.logEvents.WARNING:
+                holder.textViewMessage.setTextColor(Color.BLACK);
+                holder.imageViewType.setImageResource(android.R.drawable.presence_invisible);
+                break;
         }
     }
 
@@ -68,13 +77,14 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     class MyViewHolder extends RecyclerView.ViewHolder {
         private TextView textViewData;
         private TextView textViewMessage;
-        private TextView textViewType;
+        private ImageView imageViewType;
 
         MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
             textViewData = itemView.findViewById(R.id.logData);
             textViewMessage = itemView.findViewById(R.id.logMessage);
+            imageViewType = itemView.findViewById(R.id.logstatus);
         }
     }
 }

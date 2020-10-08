@@ -12,6 +12,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import it.manzolo.job.service.bluewatcher.BuildConfig
 import it.manzolo.job.service.bluewatcher.R
 import it.manzolo.job.service.bluewatcher.updater.UpdateApp
 import it.manzolo.job.service.bluewatcher.utils.*
@@ -28,19 +29,45 @@ class MainActivity : AppCompatActivity() {
     private var mRecyclerView: RecyclerView? = null
     val myRecyclerViewAdapter = MyRecyclerViewAdapter(mLogs)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            setContentView(R.layout.activity_main)
+            setSupportActionBar(toolbar)
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionOkLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionErrorLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverInfoDataSentLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpgradeLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateavailableLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getCheckUpdateLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLogMessagesIntentFilter())
+
+            Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
+            setUIRef()
+            if (BuildConfig.DEBUG) {
+                // do something for a debug build
+                val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
+                dbVoltwatcherAdapter.open()
+                dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "12.99", "30", DateUtils.now(), "1.1", "2.2", "50")
+                dbVoltwatcherAdapter.close()
+                mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set", Bluelog.logEvents.WARNING))
+            }
+            mLogs.add(0, Bluelog(DateUtils.now(), "Service started", Bluelog.logEvents.INFO))
+
+        }
+    }
+
     private fun setUIRef() {
         //Reference of RecyclerView
         mRecyclerView = findViewById(R.id.myRecyclerView)
-
         //Linear Layout Manager
         val linearLayoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
-
         //Set Layout Manager to RecyclerView
         mRecyclerView!!.layoutManager = linearLayoutManager
-
-        //Create adapter
-
-
         //Set adapter to RecyclerView
         mRecyclerView!!.adapter = myRecyclerViewAdapter
     }
@@ -49,8 +76,6 @@ class MainActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
-
-
             val now = DateUtils.now()
 
             when (intent?.action) {
@@ -145,7 +170,7 @@ class MainActivity : AppCompatActivity() {
                     val session = Session(context)
                     val updateUrl = intent.getStringExtra("message")
                     session.updateApkUrl = updateUrl
-                    mLogs.add(0, Bluelog(now, "Update available at " + updateUrl, Bluelog.logEvents.INFO))
+                    mLogs.add(0, Bluelog(now, "Update available at " + updateUrl, Bluelog.logEvents.WARNING))
                     if (debug) {
                         Toast.makeText(context, "Update available at " + updateUrl, Toast.LENGTH_LONG).show()
                     }
@@ -281,34 +306,6 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    //GPS
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionOkLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionErrorLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverInfoDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpgradeLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateavailableLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getCheckUpdateLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLogMessagesIntentFilter())
-
-
-        /*DEBUG SEND DATA TO WEBSERVER
-        val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
-        dbVoltwatcherAdapter.open()
-        dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "9.99", "30", "2019-10-09 00:00:00", "1.1", "2.2", "50")
-        dbVoltwatcherAdapter.close()
-        */
-        Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
-        setUIRef()
     }
 
     // Method to show an alert dialog with yes, no and cancel button

@@ -1,18 +1,14 @@
 package it.manzolo.job.service.bluewatcher.activity
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.job.service.bluewatcher.App
 import it.manzolo.job.service.bluewatcher.R
-import it.manzolo.job.service.bluewatcher.utils.Bluelog
-import it.manzolo.job.service.bluewatcher.utils.DateUtils
 import java.io.File
 
 
@@ -48,12 +44,7 @@ class MainActivityFragment : Fragment() {
     private fun startJobService() {
         Log.d(TAG, "startJobService")
         App.scheduleWatcherService(activity as Context)
-        val intent = Intent(Bluelog.logEvents.BROADCAST)
-        // You can also include some extra data.
-        val now = DateUtils.now()
-        intent.putExtra("message", "$now Service started")
-        intent.putExtra("type", Bluelog.logEvents.INFO)
-        LocalBroadcastManager.getInstance(activity as Context).sendBroadcast(intent)
+
         //activity.run { editText.append("$now Service started\n") }
     }
 

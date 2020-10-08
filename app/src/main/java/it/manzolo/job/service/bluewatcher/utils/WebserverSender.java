@@ -158,6 +158,7 @@ public class WebserverSender {
             Intent intentWs = new Intent(WebserverEvents.INFO);
             intentWs.putExtra("message", "No data found to send");
             LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
+
             return "No data found to send";
         }
     }

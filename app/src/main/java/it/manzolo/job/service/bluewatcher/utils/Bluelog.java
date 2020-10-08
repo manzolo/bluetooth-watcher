@@ -25,6 +25,7 @@ public class Bluelog {
 
     public interface logEvents {
         String ERROR = "E";
+        String WARNING = "W";
         String INFO = "I";
         String BROADCAST = "BROADCASTMESSAGE";
     }
