@@ -43,8 +43,9 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         //holder.textViewType.setText(type);
 
         if (type.equals("E")) {
-
             holder.textViewMessage.setTextColor(Color.RED);
+        } else {
+            holder.textViewMessage.setTextColor(Color.BLACK);
         }
     }
 
