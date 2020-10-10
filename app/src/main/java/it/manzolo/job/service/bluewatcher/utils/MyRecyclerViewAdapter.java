@@ -49,7 +49,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                 break;
             case Bluelog.logEvents.INFO:
                 holder.textViewMessage.setTextColor(Color.BLACK);
-                holder.imageViewType.setImageResource(android.R.drawable.presence_online);
+                holder.imageViewType.setImageResource(0);
                 break;
             case Bluelog.logEvents.WARNING:
                 holder.textViewMessage.setTextColor(Color.BLACK);

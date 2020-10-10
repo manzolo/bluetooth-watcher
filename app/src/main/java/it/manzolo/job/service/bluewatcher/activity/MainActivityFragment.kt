@@ -25,18 +25,20 @@ class MainActivityFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState == null) {
-            // only create fragment if activity is started for the first time
-            val fileUpdate = File(context?.cacheDir, "app.ava")
-            fileUpdate.delete()
-
-            //buttonUpdate.isEnabled = false
-            startJobService()
-            startWebsendService()
-            startLocationService()
-            startUpdateService()
-            startRebootService()
+        if (savedInstanceState != null) {
+            return
         }
+
+        // only create fragment if activity is started for the first time
+        val fileUpdate = File(context?.cacheDir, "app.ava")
+        fileUpdate.delete()
+
+        //buttonUpdate.isEnabled = false
+        startJobService()
+        startWebsendService()
+        startLocationService()
+        startUpdateService()
+            startRebootService()
 
 
     }
