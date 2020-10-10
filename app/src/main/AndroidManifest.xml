@@ -68,9 +68,10 @@
             android:label="RebootService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="it.manzolo.bluetoothwatcher.provider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

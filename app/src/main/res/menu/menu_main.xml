@@ -13,6 +13,11 @@
         android:title="@string/trigger_bluetooth_service"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_trigger_webservice_send_service"
+        android:orderInCategory="250"
+        android:title="@string/trigger_webservice_send_service"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_dbbackup"
         android:orderInCategory="300"
         android:title="@string/dbbackup"
@@ -26,6 +31,11 @@
         android:id="@+id/action_updateapp"
         android:orderInCategory="400"
         android:title="@string/updateapp"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_trigger_restart_service"
+        android:orderInCategory="250"
+        android:title="@string/trigger_restart_service"
         app:showAsAction="never" />
 
 </menu>

@@ -23,5 +23,7 @@
     <string name="dbrestore">Restore database</string>
     <string name="updateapp">Update App</string>
     <string name="alert_status">Status</string>
-    <string name="trigger_bluetooth_service">Trigger Bluetooth</string>
+    <string name="trigger_bluetooth_service">Trigger Bluetooth Service</string>
+    <string name="trigger_webservice_send_service">Trigger Webservice Send Data</string>
+    <string name="trigger_restart_service">Restart App</string>
 </resources>

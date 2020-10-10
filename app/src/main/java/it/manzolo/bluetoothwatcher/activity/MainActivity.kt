@@ -17,6 +17,9 @@ import it.manzolo.bluetoothwatcher.R
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.DatabaseEvents
 import it.manzolo.bluetoothwatcher.enums.WebserverEvents
+import it.manzolo.bluetoothwatcher.service.BluetoothService
+import it.manzolo.bluetoothwatcher.service.RebootService
+import it.manzolo.bluetoothwatcher.service.WebserviceSendService
 import it.manzolo.bluetoothwatcher.updater.UpdateApp
 import it.manzolo.bluetoothwatcher.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -268,12 +271,27 @@ class MainActivity : AppCompatActivity() {
                 this.startActivity(intent1)
                 return true
             }
+            R.id.action_trigger_bluetooth_service -> {
+                val serviceIntent = Intent(this, BluetoothService::class.java)
+                this.startService(serviceIntent)
+                return true
+            }
+            R.id.action_trigger_webservice_send_service -> {
+                val serviceIntent = Intent(this, WebserviceSendService::class.java)
+                this.startService(serviceIntent)
+                return true
+            }
             R.id.action_dbbackup -> {
                 showBackupDialog()
                 return true
             }
             R.id.action_dbrestore -> {
                 showRestoreDialog()
+                return true
+            }
+            R.id.action_trigger_restart_service -> {
+                val serviceIntent = Intent(this, RebootService::class.java)
+                this.startService(serviceIntent)
                 return true
             }
             R.id.action_updateapp -> {
