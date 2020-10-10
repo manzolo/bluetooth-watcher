@@ -1,11 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="it.manzolo.job.service.bluewatcher.it.manzolo.job.service.bluewatcher.MainActivity">
+    tools:context="it.manzolo.bluetoothwatcher.MainActivity">
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_trigger_bluetooth_service"
+        android:orderInCategory="200"
+        android:title="@string/trigger_bluetooth_service"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_dbbackup"

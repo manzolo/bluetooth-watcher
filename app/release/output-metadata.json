@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "it.manzolo.job.service.bluewatcher",
+  "applicationId": "it.manzolo.service.bluewatcher",
   "variantName": "release",
   "elements": [
     {

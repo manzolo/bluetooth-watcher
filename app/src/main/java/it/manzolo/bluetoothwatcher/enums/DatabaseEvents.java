@@ -1,4 +1,4 @@
-package it.manzolo.job.service.enums;
+package it.manzolo.bluetoothwatcher.enums;
 
 public interface DatabaseEvents {
 

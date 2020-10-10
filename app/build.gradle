@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "it.manzolo.job.service.bluewatcher"
+        applicationId "it.manzolo.service.bluewatcher"
         minSdkVersion 22
         versionCode 1
         versionName "1.2.16"
