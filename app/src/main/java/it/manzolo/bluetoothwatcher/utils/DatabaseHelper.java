@@ -56,7 +56,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     src.close();
                     dst.close();
                     Toast.makeText(this.context, "Backup is successful to SD card", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this.context, currentDB + " not exists ", Toast.LENGTH_LONG).show();
                 }
+            } else {
+                Toast.makeText(this.context, "Unable to write to : " + sd, Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
             Toast.makeText(this.context, "Backup error: " + e.getMessage(), Toast.LENGTH_LONG).show();
