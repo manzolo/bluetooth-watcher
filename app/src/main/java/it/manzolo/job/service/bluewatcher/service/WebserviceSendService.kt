@@ -13,9 +13,9 @@ import it.manzolo.job.service.bluewatcher.utils.WebserverSender
 import it.manzolo.job.service.enums.WebserverEvents
 
 
-class WebsendService : Service() {
+class WebserviceSendService : Service() {
     companion object {
-        val TAG: String = WebsendService::class.java.simpleName
+        val TAG: String = WebserviceSendService::class.java.simpleName
     }
 
     override fun onCreate() {

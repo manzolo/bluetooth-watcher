@@ -87,6 +87,11 @@
             app:title="Auto app update" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
+            app:key="auto_app_restart"
+            app:summary="Click to switch on or off"
+            app:title="Auto app restart" />
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
             app:key="debug"
             app:summary="Click to switch on or off"
             app:title="Debug" />

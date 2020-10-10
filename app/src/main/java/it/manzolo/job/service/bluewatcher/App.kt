@@ -37,7 +37,7 @@ class App : Application() {
                 Toast.makeText(context, "Start websend service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
-            val serviceIntent = Intent(context, WebsendService::class.java)
+            val serviceIntent = Intent(context, WebserviceSendService::class.java)
             if (seconds != null) {
                 cron(context, serviceIntent, seconds)
             }
