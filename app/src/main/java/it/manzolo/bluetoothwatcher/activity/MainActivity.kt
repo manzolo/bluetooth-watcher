@@ -269,8 +269,8 @@ class MainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings -> {
-                val intent1 = Intent(this, SettingsActivity::class.java)
-                this.startActivity(intent1)
+                val intentSettings = Intent(this, SettingsActivity::class.java)
+                this.startActivity(intentSettings)
                 return true
             }
             R.id.action_trigger_bluetooth_service -> {
