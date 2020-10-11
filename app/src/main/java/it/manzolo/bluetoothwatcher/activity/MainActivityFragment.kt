@@ -25,26 +25,24 @@ class MainActivityFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState != null) {
-            return
+        if (savedInstanceState == null) {
+            // only create fragment if activity is started for the first time
+            val fileUpdate = File(context?.cacheDir, "app.ava")
+            fileUpdate.delete()
+
+            //buttonUpdate.isEnabled = false
+            startBluetoothService()
+            startWebserviceSendService()
+            startLocationService()
+            startUpdateService()
+            startRebootService()
+
         }
-
-        // only create fragment if activity is started for the first time
-        val fileUpdate = File(context?.cacheDir, "app.ava")
-        fileUpdate.delete()
-
-        //buttonUpdate.isEnabled = false
-        startJobService()
-        startWebsendService()
-        startLocationService()
-        startUpdateService()
-        startRebootService()
-
 
     }
 
-    private fun startJobService() {
-        Log.d(TAG, "startJobService")
+    private fun startBluetoothService() {
+        Log.d(TAG, "startBluetoothService")
         App.scheduleWatcherService(activity as Context)
 
         //activity.run { editText.append("$now Service started\n") }
@@ -57,8 +55,8 @@ class MainActivityFragment : Fragment() {
         //activity.run { editText.append("$now Service update started\n") }
     }
 
-    private fun startWebsendService() {
-        Log.d(TAG, "startWebsendService")
+    private fun startWebserviceSendService() {
+        Log.d(TAG, "startWebserviceSendService")
         App.scheduleWebsendService(activity as Context)
 
         //val now = DateUtils.now()

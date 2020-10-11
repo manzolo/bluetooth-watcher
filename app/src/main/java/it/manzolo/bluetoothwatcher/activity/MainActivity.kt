@@ -27,7 +27,10 @@ import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
-    val TAG = "MainActivity"
+    companion object {
+        val TAG: String = MainActivity::class.java.simpleName
+    }
+
     private val mLogs: ArrayList<Bluelog> = ArrayList()
     private var mRecyclerView: RecyclerView? = null
     val myRecyclerViewAdapter = MyRecyclerViewAdapter(mLogs)
@@ -50,7 +53,16 @@ class MainActivity : AppCompatActivity() {
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLogMessagesIntentFilter())
 
             Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
-            logUiInit()
+
+            //Reference of RecyclerView
+            mRecyclerView = findViewById(R.id.myRecyclerView)
+            //Linear Layout Manager
+            val linearLayoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
+            //Set Layout Manager to RecyclerView
+            mRecyclerView!!.layoutManager = linearLayoutManager
+            //Set adapter to RecyclerView
+            mRecyclerView!!.adapter = myRecyclerViewAdapter
+
             mLogs.add(0, Bluelog(DateUtils.now(), "Service started", Bluelog.logEvents.INFO))
             if (BuildConfig.DEBUG) {
                 // do something for a debug build
@@ -64,17 +76,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    }
-
-    private fun logUiInit() {
-        //Reference of RecyclerView
-        mRecyclerView = findViewById(R.id.myRecyclerView)
-        //Linear Layout Manager
-        val linearLayoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
-        //Set Layout Manager to RecyclerView
-        mRecyclerView!!.layoutManager = linearLayoutManager
-        //Set adapter to RecyclerView
-        mRecyclerView!!.adapter = myRecyclerViewAdapter
     }
 
     private val localBroadcastReceiver = object : BroadcastReceiver() {
@@ -300,17 +301,17 @@ class MainActivity : AppCompatActivity() {
                 val file = File(applicationContext.cacheDir, "app.apk")
                 val photoURI = applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.packageName + ".provider", file) }
 
-                val updateapp = UpdateApp()
-                updateapp.setContext(applicationContext)
+                val updateApp = UpdateApp()
+                updateApp.setContext(applicationContext)
                 //Log.i("manzolo", file.toString())
                 val outputDir = photoURI.toString()
                 //Log.e(TAG, session.updateApkUrl)
                 //Log.e(TAG, outputDir)
-                if (session.updateApkUrl.length == 0) {
-                    val githubup = GithubUpdater()
-                    githubup.checkUpdate(applicationContext)
+                if (session.updateApkUrl.isEmpty()) {
+                    val githubUpdater = GithubUpdater()
+                    githubUpdater.checkUpdate(applicationContext)
                 } else {
-                    updateapp.execute(session.updateApkUrl, outputDir)
+                    updateApp.execute(session.updateApkUrl, outputDir)
                 }
                 return true
             }
@@ -328,7 +329,7 @@ class MainActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
 
         // Set a title for alert dialog
-        builder.setTitle("Are you sure")
+        builder.setTitle("Are you sure?")
 
         // On click listener for dialog buttons
         val dialogClickListener = DialogInterface.OnClickListener { _, which ->
@@ -363,7 +364,7 @@ class MainActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
 
         // Set a title for alert dialog
-        builder.setTitle("Are you sure")
+        builder.setTitle("Are you sure?")
 
         // On click listener for dialog buttons
         val dialogClickListener = DialogInterface.OnClickListener { _, which ->

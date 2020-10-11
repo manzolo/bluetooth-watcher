@@ -35,10 +35,17 @@
             app:title="Webserver password" />
 
         <EditTextPreference
+            app:dialogTitle="Select devices address"
+            app:key="devices"
+            app:summary="Select device to watch, comma separated values"
+            app:title="Devices address" />
+
+        <EditTextPreference
             app:dialogTitle="Select duration"
             app:key="bluetooth_service_every_seconds"
             app:summary="Set every seconds bluetooth service start"
             app:title="Bluetooth start every seconds" />
+
         <EditTextPreference
             app:dialogTitle="Select duration"
             app:key="webservice_service_every_seconds"
@@ -59,12 +66,6 @@
             app:key="restart_app_service_every_seconds"
             app:summary="Set every seconds restart app service start"
             app:title="Restart app service start every seconds" />
-
-        <EditTextPreference
-            app:dialogTitle="Select devices address"
-            app:key="devices"
-            app:summary="Select device to watch, comma separated values"
-            app:title="Devices address" />
 
     </PreferenceCategory>
 
