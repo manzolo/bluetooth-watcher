@@ -85,7 +85,6 @@ public class DbVoltwatcherAdapter {
         c.moveToFirst();
         c.close();
         return true;
-
     }
 
     // delete
@@ -96,7 +95,16 @@ public class DbVoltwatcherAdapter {
         c.moveToFirst();
         c.close();
         return true;
+    }
 
+    // delete
+    public boolean deleteOldSent() {
+        String deleteQuery = "delete from voltwatcher where sent = 1 and data < datetime('now','-1 day','localtime')";
+        Log.d("TAG", deleteQuery);
+        Cursor c = database.rawQuery(deleteQuery, null);
+        c.moveToFirst();
+        c.close();
+        return true;
     }
 
     // delete a contact

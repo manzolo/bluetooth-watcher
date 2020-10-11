@@ -18,35 +18,34 @@ import java.net.URL;
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents;
 import it.manzolo.bluetoothwatcher.enums.WebserverEvents;
 
-public class WebserverSender {
+public class WebserviceSender {
 
-    public static final String TAG = "WebserverSender";
+    public static final String TAG = "WebserviceSender";
 
     private Context context;
     private String webserviceUrl;
     private String webserviceUsername;
     private String webservicePassword;
 
-    public WebserverSender(Context context, String webserviceUrl, String webserviceUsername, String webservicePassword) {
+    public WebserviceSender(Context context, String webserviceUrl, String webserviceUsername, String webservicePassword) {
         this.context = context;
         this.webserviceUrl = webserviceUrl;
         this.webserviceUsername = webserviceUsername;
         this.webservicePassword = webservicePassword;
     }
 
-
     public void send() {
         new HTTPAsyncTask().execute();
     }
 
     private String httpPost() throws IOException {
-        URL loginUrl = new URL(this.webserviceUrl + HttpUtils.loginUrl);
+
         URL url = new URL(this.webserviceUrl + HttpUtils.sendVoltUrl);
         boolean sendSuccessfully = false;
 
         DbVoltwatcherAdapter dbVoltwatcherAdapter = new DbVoltwatcherAdapter(context);
         dbVoltwatcherAdapter.open();
-        dbVoltwatcherAdapter.deleteSent();
+        dbVoltwatcherAdapter.deleteOldSent();
         Cursor cursor = dbVoltwatcherAdapter.fetchRowsNotSent();
         int cursorCount = cursor.getCount();
         Log.d(TAG, "Found " + cursorCount + " rows to send");
@@ -54,23 +53,9 @@ public class WebserverSender {
             Log.d(TAG, "Try connecting to " + this.webserviceUrl);
             try {
                 while (cursor.moveToNext()) {
-
                     // 1. create HttpURLConnection
+                    HttpURLConnection loginConn = HttpUtils.loginWebservice(this.webserviceUrl, this.webserviceUsername, this.webservicePassword);
 
-                    HttpURLConnection loginConn = (HttpURLConnection) loginUrl.openConnection();
-                    loginConn.setUseCaches(false);
-                    loginConn.setAllowUserInteraction(false);
-                    loginConn.setConnectTimeout(HttpUtils.connectionTimeout);
-                    loginConn.setReadTimeout(HttpUtils.connectionTimeout);
-                    loginConn.setRequestMethod("POST");
-                    loginConn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-
-                    // 3. add JSON content to POST request body
-
-                    new HttpUtils().setPostRequestContent(loginConn, buidLoginJsonObject());
-
-                    // 4. make POST request to the given URL
-                    loginConn.connect();
                     if (loginConn.getResponseCode() >= 200 && loginConn.getResponseCode() < 400) {
                         JSONObject tokenObject = new JSONObject(new HttpUtils().convertStreamToString(loginConn.getInputStream()));
                         String token = tokenObject.getString("token");
@@ -104,7 +89,6 @@ public class WebserverSender {
                         // 4. make POST request to the given URL
                         conn.connect();
 
-
                         if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400) {
                             JSONObject jsonResponseObject = new JSONObject(new HttpUtils().convertStreamToString(conn.getInputStream()));
                             if (jsonResponseObject.get("errcode").equals(0)) {
@@ -129,7 +113,6 @@ public class WebserverSender {
                         intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode());
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     }
-
                 }
                 if (cursorCount > 0 && sendSuccessfully) {
                     Log.d(TAG, "Data sent");
@@ -175,15 +158,6 @@ public class WebserverSender {
         jsonObject.put("batteryperc", detectorbattery);
         jsonObject.put("longitude", longitude);
         jsonObject.put("latitude", latitude);
-        return jsonObject;
-    }
-
-    private JSONObject buidLoginJsonObject() throws JSONException {
-
-        JSONObject jsonObject = new JSONObject();
-
-        jsonObject.put("username", this.webserviceUsername);
-        jsonObject.put("password", this.webservicePassword);
         return jsonObject;
     }
 

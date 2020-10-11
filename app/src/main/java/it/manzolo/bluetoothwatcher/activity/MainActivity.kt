@@ -56,7 +56,8 @@ class MainActivity : AppCompatActivity() {
                 // do something for a debug build
                 val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
                 dbVoltwatcherAdapter.open()
-                dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "12.99", "30", DateUtils.now(), "1.1", "2.2", "50")
+                //dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "12.99", "30", DateUtils.now(), "1.1", "2.2", "0")
+                dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "24.00", "30", "2000-01-01 00:00:00", "1.1", "2.2", "0")
                 dbVoltwatcherAdapter.close()
                 mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set", Bluelog.logEvents.WARNING))
                 //mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set long message string set long message string set long message string set long message string set long message string set long message string ", Bluelog.logEvents.WARNING))

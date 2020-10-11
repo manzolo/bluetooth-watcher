@@ -1,5 +1,6 @@
 package it.manzolo.bluetoothwatcher.utils;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -10,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class HttpUtils {
@@ -20,10 +22,8 @@ public class HttpUtils {
 
 
     public String convertStreamToString(InputStream is) {
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
-
         String line;
         try {
             while ((line = reader.readLine()) != null) {
@@ -50,5 +50,25 @@ public class HttpUtils {
         os.close();
     }
 
+    public static HttpURLConnection loginWebservice(String url, String username, String password) throws IOException, JSONException {
+        URL loginUrl = new URL(url + HttpUtils.loginUrl);
+        HttpURLConnection loginConn = (HttpURLConnection) loginUrl.openConnection();
+        loginConn.setUseCaches(false);
+        loginConn.setAllowUserInteraction(false);
+        loginConn.setConnectTimeout(HttpUtils.connectionTimeout);
+        loginConn.setReadTimeout(HttpUtils.connectionTimeout);
+        loginConn.setRequestMethod("POST");
+        loginConn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("username", username);
+        jsonObject.put("password", password);
+        // 3. add JSON content to POST request body
+        new HttpUtils().setPostRequestContent(loginConn, jsonObject);
+        // 4. make POST request to the given URL
+        loginConn.connect();
+        return loginConn;
+    }
 
 }

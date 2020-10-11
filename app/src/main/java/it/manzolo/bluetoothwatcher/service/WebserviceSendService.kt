@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserverEvents
-import it.manzolo.bluetoothwatcher.utils.WebserverSender
+import it.manzolo.bluetoothwatcher.utils.WebserviceSender
 
 
 class WebserviceSendService : Service() {
@@ -50,7 +50,7 @@ class WebserviceSendService : Service() {
 
         try {
             if (isNetworkAvailable()) {
-                val sender = WebserverSender(applicationContext, url, username, password)
+                val sender = WebserviceSender(applicationContext, url, username, password)
                 sender.send()
             } else {
                 val intent = Intent(WebserverEvents.ERROR)

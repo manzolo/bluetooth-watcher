@@ -23,7 +23,6 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-
             val webserviceUrlPreference: EditTextPreference? = findPreference("webserviceurl")
 
             webserviceUrlPreference?.setOnBindEditTextListener { editText ->
@@ -62,7 +61,6 @@ class SettingsActivity : AppCompatActivity() {
             restartAppEverySecondsPreference?.setOnBindEditTextListener { editText ->
                 editText.inputType = InputType.TYPE_CLASS_NUMBER
             }
-
 
         }
     }

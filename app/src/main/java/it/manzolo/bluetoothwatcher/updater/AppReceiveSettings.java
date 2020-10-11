@@ -37,24 +37,11 @@ public class AppReceiveSettings {
     }
 
     private String httpGet() throws IOException, JSONException {
-        URL loginUrl = new URL(this.webserviceUrl + HttpUtils.loginUrl);
         URL url = new URL(this.webserviceUrl + HttpUtils.getSettingsUrl);
 
         // 1. create HttpURLConnection
+        HttpURLConnection loginConn = HttpUtils.loginWebservice(this.webserviceUrl, this.webserviceUsername, this.webservicePassword);
 
-        HttpURLConnection loginConn = (HttpURLConnection) loginUrl.openConnection();
-        loginConn.setUseCaches(false);
-        loginConn.setAllowUserInteraction(false);
-        loginConn.setConnectTimeout(HttpUtils.connectionTimeout);
-        loginConn.setReadTimeout(HttpUtils.connectionTimeout);
-        loginConn.setRequestMethod("POST");
-        loginConn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-        JSONObject jsonLoginObject = buidLoginJsonObject();
-        // 3. add JSON content to POST request body
-        new HttpUtils().setPostRequestContent(loginConn, jsonLoginObject);
-
-        // 4. make POST request to the given URL
-        loginConn.connect();
         if (loginConn.getResponseCode() >= 200 && loginConn.getResponseCode() < 400) {
             JSONObject tokenObject = new JSONObject(new HttpUtils().convertStreamToString(loginConn.getInputStream()));
             String token = tokenObject.getString("token");
