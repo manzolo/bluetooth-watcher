@@ -43,7 +43,7 @@ class MainActivityFragment : Fragment() {
 
     private fun startBluetoothService() {
         Log.d(TAG, "startBluetoothService")
-        App.scheduleWatcherService(activity as Context)
+        App.scheduleBluetoothService(activity as Context)
 
         //activity.run { editText.append("$now Service started\n") }
     }
@@ -57,7 +57,7 @@ class MainActivityFragment : Fragment() {
 
     private fun startWebserviceSendService() {
         Log.d(TAG, "startWebserviceSendService")
-        App.scheduleWebsendService(activity as Context)
+        App.scheduleWebserviceSendService(activity as Context)
 
         //val now = DateUtils.now()
         //activity.run { editText.append("$now Service websender started\n") }

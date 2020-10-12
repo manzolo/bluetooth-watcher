@@ -13,7 +13,7 @@ import java.util.*
 class App : Application() {
     companion object {
 
-        fun scheduleWatcherService(context: Context) {
+        fun scheduleBluetoothService(context: Context) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("bluetooth_service_every_seconds", "90")
             val debug = preferences.getBoolean("debug", false)
@@ -21,13 +21,12 @@ class App : Application() {
                 Toast.makeText(context, "Start bluetooth service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
-            val serviceIntent = Intent(context, BluetoothService::class.java)
             if (seconds != null) {
-                cron(context, serviceIntent, seconds)
+                cron(context, BluetoothService::class.java, seconds)
             }
         }
 
-        fun scheduleWebsendService(context: Context) {
+        fun scheduleWebserviceSendService(context: Context) {
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("webservice_service_every_seconds", "120")
@@ -36,9 +35,8 @@ class App : Application() {
                 Toast.makeText(context, "Start websend service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
-            val serviceIntent = Intent(context, WebserviceSendService::class.java)
             if (seconds != null) {
-                cron(context, serviceIntent, seconds)
+                cron(context, WebserviceSendService::class.java, seconds)
             }
         }
 
@@ -51,9 +49,8 @@ class App : Application() {
                 Toast.makeText(context, "Start location service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
-            val serviceIntent = Intent(context, LocationService::class.java)
             if (seconds != null) {
-                cron(context, serviceIntent, seconds)
+                cron(context, LocationService::class.java, seconds)
             }
 
         }
@@ -66,9 +63,8 @@ class App : Application() {
                 Toast.makeText(context, "Start update service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
-            val serviceIntent = Intent(context, UpdateService::class.java)
             if (seconds != null) {
-                cron(context, serviceIntent, seconds)
+                cron(context, UpdateService::class.java, seconds)
             }
         }
 
@@ -76,15 +72,15 @@ class App : Application() {
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("restart_app_service_every_seconds", "43200")
-            val serviceIntent = Intent(context, RebootService::class.java)
+
             if (seconds != null) {
-                cron(context, serviceIntent, seconds)
+                cron(context, RebootService::class.java, seconds)
             }
         }
 
-        private fun cron(context: Context, intent: Intent, seconds: String) {
-
-            val pendingIntent = PendingIntent.getService(context, 0, intent, 0)
+        private fun cron(context: Context, serviceClass: Class<*>, seconds: String) {
+            val serviceIntent = Intent(context, serviceClass)
+            val pendingIntent = PendingIntent.getService(context, 0, serviceIntent, 0)
             val time: Calendar = Calendar.getInstance()
             time.timeInMillis = System.currentTimeMillis()
             time.add(Calendar.SECOND, seconds.toInt()) // first time
