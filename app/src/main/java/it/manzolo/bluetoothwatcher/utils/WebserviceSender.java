@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents;
 import it.manzolo.bluetoothwatcher.enums.WebserverEvents;
@@ -110,7 +111,7 @@ public class WebserviceSender {
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     } else {
                         Intent intentWs = new Intent(WebserverEvents.ERROR);
-                        intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode());
+                        intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode() + " " + loginConn.getResponseMessage());
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
                     }
                 }
@@ -169,7 +170,7 @@ public class WebserviceSender {
                 return httpPost();
             } catch (IOException e) {
                 //e.printStackTrace();
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                 Intent intent = new Intent(BluetoothEvents.ERROR);
                 // You can also include some extra data.
                 intent.putExtra("message", e.getMessage());
@@ -181,7 +182,7 @@ public class WebserviceSender {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Log.d(TAG, "Webserver response: " + result);
+            Log.d(TAG, "Webservice response: " + result);
         }
     }
 

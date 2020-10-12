@@ -105,7 +105,7 @@ public class AppReceiveSettings {
             return conn.getResponseMessage() + "";
         } else {
             Intent intentWs = new Intent(WebserverEvents.ERROR);
-            intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode());
+            intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode() + " " + loginConn.getResponseMessage());
             LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
         }
         Log.e(TAG, "Unable to update settings");
