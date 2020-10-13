@@ -12,7 +12,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import it.manzolo.bluetoothwatcher.BuildConfig
 import it.manzolo.bluetoothwatcher.R
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.DatabaseEvents
@@ -64,16 +63,7 @@ class MainActivity : AppCompatActivity() {
             mRecyclerView!!.adapter = myRecyclerViewAdapter
 
             mLogs.add(0, Bluelog(DateUtils.now(), "Service started", Bluelog.logEvents.INFO))
-            if (BuildConfig.DEBUG) {
-                // do something for a debug build
-                val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
-                dbVoltwatcherAdapter.open()
-                //dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "12.99", "30", DateUtils.now(), "1.1", "2.2", "0")
-                dbVoltwatcherAdapter.createRow("44:44:09:04:01:CC", "24.00", "30", "2000-01-01 00:00:00", "1.1", "2.2", "0")
-                dbVoltwatcherAdapter.close()
-                mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set", Bluelog.logEvents.WARNING))
-                //mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set long message string set long message string set long message string set long message string set long message string set long message string ", Bluelog.logEvents.WARNING))
-            }
+
         }
 
     }

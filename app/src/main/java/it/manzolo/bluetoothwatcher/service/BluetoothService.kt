@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
@@ -13,6 +14,9 @@ import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.WebserverEvents
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.utils.BluetoothClient
+import it.manzolo.bluetoothwatcher.utils.DateUtils
+import it.manzolo.bluetoothwatcher.utils.DbVoltwatcherAdapter
+import it.manzolo.bluetoothwatcher.utils.Session
 
 
 class BluetoothService : Service() {
@@ -30,18 +34,49 @@ class BluetoothService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onWebserverStartJob")
-        startWatcherTask()
+        Log.d(TAG, "onBluetoothStartJob")
+        if (Build.FINGERPRINT.contains("generic")) {
+            // Dummy reading volt for emulator
+            val session = Session(applicationContext)
+            val dbVoltWatcherAdapter = DbVoltwatcherAdapter(applicationContext)
+            val dummyDevice = "00:00:00:00:00:00"
+            val dummyVolt = "18.99"
+            val dummyTemperatureC = "30"
+            val dummyTemperatureF = "100"
+            val dummyAmpere = "1"
+            val dummyDate = DateUtils.now()
+            dbVoltWatcherAdapter.open()
+            dbVoltWatcherAdapter.createRow(dummyDevice, dummyVolt, dummyTemperatureC, dummyDate, session.getlongitude(), session.getlatitude(), "0")
+            dbVoltWatcherAdapter.close()
+            val intentBt = Intent(BluetoothEvents.DATA_RETRIEVED)
+
+            intentBt.putExtra("device", dummyDevice)
+            intentBt.putExtra("volt", dummyVolt)
+            intentBt.putExtra("data", dummyDate)
+            intentBt.putExtra("tempC", dummyTemperatureC)
+            intentBt.putExtra("tempF", dummyTemperatureF)
+            intentBt.putExtra("amp", dummyAmpere)
+
+            intentBt.putExtra("message", dummyDevice + " " + dummyVolt + "v " + dummyTemperatureC + "°")
+            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intentBt)
+
+            val intent = Intent(BluetoothEvents.CLOSECONNECTION)
+            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+
+            //mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set", Bluelog.logEvents.WARNING))
+            //mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set long message string set long message string set long message string set long message string set long message string set long message string ", Bluelog.logEvents.WARNING))
+        } else {
+            startBluetoothTask()
+        }
         return START_NOT_STICKY
     }
-
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
     }
 
-    private fun startWatcherTask() {
+    private fun startBluetoothTask() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
         val url = preferences.getString("webserviceurl", "")
         val debug = preferences.getBoolean("debug", false)
