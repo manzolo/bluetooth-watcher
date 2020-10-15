@@ -72,7 +72,7 @@ class MainActivityFragment : Fragment() {
 
     private fun startRebootService() {
         Log.d(TAG, "startRebootService")
-        App.scheduleRebootService(activity as Context)
+        App.scheduleRestartAppService(activity as Context)
 
         //val now = DateUtils.now()
         //activity.run { editText.append("$now Service reboot started\n") }

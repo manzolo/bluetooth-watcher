@@ -23,10 +23,10 @@ public class WebserviceSender {
 
     public static final String TAG = "WebserviceSender";
 
-    private Context context;
-    private String webserviceUrl;
-    private String webserviceUsername;
-    private String webservicePassword;
+    private final Context context;
+    private final String webserviceUrl;
+    private final String webserviceUsername;
+    private final String webservicePassword;
 
     public WebserviceSender(Context context, String webserviceUrl, String webserviceUsername, String webservicePassword) {
         this.context = context;
@@ -44,10 +44,10 @@ public class WebserviceSender {
         URL url = new URL(this.webserviceUrl + HttpUtils.sendVoltUrl);
         boolean sendSuccessfully = false;
 
-        DbVoltwatcherAdapter dbVoltwatcherAdapter = new DbVoltwatcherAdapter(context);
-        dbVoltwatcherAdapter.open();
-        dbVoltwatcherAdapter.deleteOldSent();
-        Cursor cursor = dbVoltwatcherAdapter.fetchRowsNotSent();
+        DatabaseVoltwatcher databaseVoltwatcher = new DatabaseVoltwatcher(context);
+        databaseVoltwatcher.open();
+        databaseVoltwatcher.deleteOldSent();
+        Cursor cursor = databaseVoltwatcher.fetchRowsNotSent();
         int cursorCount = cursor.getCount();
         Log.d(TAG, "Found " + cursorCount + " rows to send");
         if (cursorCount > 0) {
@@ -72,13 +72,13 @@ public class WebserviceSender {
 
                         //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE)));
                         //Log.e("TAG",cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DATA)));
-                        String device = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DEVICE));
+                        String device = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_DEVICE));
                         String data = cursor.getString(cursor.getColumnIndex("grData"));
                         String volt = cursor.getString(cursor.getColumnIndex("volts"));
                         String temp = cursor.getString(cursor.getColumnIndex("temps"));
-                        String detectorBattery = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_DETECTOR_BATTERY));
-                        String longitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LONGITUDE));
-                        String latitude = cursor.getString(cursor.getColumnIndex(DbVoltwatcherAdapter.KEY_LATITUDE));
+                        String detectorBattery = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_DETECTOR_BATTERY));
+                        String longitude = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_LONGITUDE));
+                        String latitude = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_LATITUDE));
                         // 2. build JSON object
                         JSONObject jsonObject = buidJsonObject(device, data + ":00", volt, temp, detectorBattery, longitude, latitude);
 
@@ -93,7 +93,7 @@ public class WebserviceSender {
                         if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 400) {
                             JSONObject jsonResponseObject = new JSONObject(new HttpUtils().convertStreamToString(conn.getInputStream()));
                             if (jsonResponseObject.get("errcode").equals(0)) {
-                                dbVoltwatcherAdapter.updateSent(device, data);
+                                databaseVoltwatcher.updateSent(device, data);
                                 Log.d(TAG, "Updated records sent");
                                 sendSuccessfully = true;
                             } else {
@@ -128,7 +128,7 @@ public class WebserviceSender {
             } finally {
                 cursor.close();
             }
-            dbVoltwatcherAdapter.close();
+            databaseVoltwatcher.close();
 
             //Log.d(TAG, conn.getResponseMessage());
             // 5. return response message

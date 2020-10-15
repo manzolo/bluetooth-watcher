@@ -15,8 +15,6 @@ import it.manzolo.bluetoothwatcher.enums.WebserverEvents
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.utils.BluetoothClient
 import it.manzolo.bluetoothwatcher.utils.DateUtils
-import it.manzolo.bluetoothwatcher.utils.DbVoltwatcherAdapter
-import it.manzolo.bluetoothwatcher.utils.Session
 
 
 class BluetoothService : Service() {
@@ -37,17 +35,12 @@ class BluetoothService : Service() {
         Log.d(TAG, "onBluetoothStartJob")
         if (Build.FINGERPRINT.contains("generic")) {
             // Dummy reading volt for emulator
-            val session = Session(applicationContext)
-            val dbVoltWatcherAdapter = DbVoltwatcherAdapter(applicationContext)
             val dummyDevice = "00:00:00:00:00:00"
             val dummyVolt = "18.99"
             val dummyTemperatureC = "30"
             val dummyTemperatureF = "100"
             val dummyAmpere = "1"
             val dummyDate = DateUtils.now()
-            dbVoltWatcherAdapter.open()
-            dbVoltWatcherAdapter.createRow(dummyDevice, dummyVolt, dummyTemperatureC, dummyDate, session.getlongitude(), session.getlatitude(), "0")
-            dbVoltWatcherAdapter.close()
             val intentBt = Intent(BluetoothEvents.DATA_RETRIEVED)
 
             intentBt.putExtra("device", dummyDevice)
@@ -60,8 +53,8 @@ class BluetoothService : Service() {
             intentBt.putExtra("message", dummyDevice + " " + dummyVolt + "v " + dummyTemperatureC + "°")
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intentBt)
 
-            val intent = Intent(BluetoothEvents.CLOSECONNECTION)
-            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+            val intentBluetoothCloseConnection = Intent(BluetoothEvents.CLOSECONNECTION)
+            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intentBluetoothCloseConnection)
 
             //mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set", Bluelog.logEvents.WARNING))
             //mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set long message string set long message string set long message string set long message string set long message string set long message string ", Bluelog.logEvents.WARNING))
@@ -118,7 +111,7 @@ class BluetoothService : Service() {
                         btTask().execute(this.applicationContext)
                     } catch (e: InterruptedException) {
                         //e.printStackTrace()
-                        Log.e(TAG, e.message)
+                        Log.e(TAG, e.message.toString())
                         //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
                     }
                 } else {
@@ -164,7 +157,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
             true
         } catch (e: Exception) {
             //e.printStackTrace()
-            Log.e(BluetoothService.TAG, e.message)
+            Log.e(BluetoothService.TAG, e.message.toString())
             val intent = Intent(BluetoothEvents.ERROR)
             // You can also include some extra data.
             intent.putExtra("message", e.message)

@@ -14,10 +14,11 @@ import java.nio.channels.FileChannel;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "voltwatcher.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     // Lo statement SQL di creazione del database
-    private static final String DB_CREATE = "create table voltwatcher (_id integer primary key autoincrement, device text not null, data text not null, volts text not null, temps text not null, longitude text not null, latitude text not null, detectorbattery integer ,sent integer);";
-    private Context context;
+    private static final String DB_CREATE_VOLTWATCHER = "create table voltwatcher (_id integer primary key autoincrement, device text not null, data text not null, volts text not null, temps text not null, longitude text not null, latitude text not null, detectorbattery integer ,sent integer);";
+    private static final String DB_CREATE_LOG = "create table log (_id integer primary key autoincrement, data text not null, message text not null, type text);";
+    private final Context context;
 
     // Costruttore
     public DatabaseHelper(Context context) {
@@ -28,14 +29,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Questo metodo viene chiamato durante la creazione del database
     @Override
     public void onCreate(SQLiteDatabase database) {
-        database.execSQL(DB_CREATE);
+
+        database.execSQL(DB_CREATE_VOLTWATCHER);
+        database.execSQL(DB_CREATE_LOG);
     }
 
     // Questo metodo viene chiamato durante l'upgrade del database, ad esempio quando viene incrementato il numero di versione
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-
         database.execSQL("DROP TABLE IF EXISTS voltwatcher");
+        database.execSQL("DROP TABLE IF EXISTS log");
         onCreate(database);
     }
 

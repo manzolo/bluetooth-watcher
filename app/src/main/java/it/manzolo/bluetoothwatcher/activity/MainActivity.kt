@@ -73,31 +73,38 @@ class MainActivity : AppCompatActivity() {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
             val now = DateUtils.now()
+            val dbLog = DatabaseLog(applicationContext)
+            dbLog.open()
 
             when (intent?.action) {
                 Bluelog.logEvents.BROADCAST -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
+                    dbLog.createRow(now, intent.getStringExtra("message"), intent.getStringExtra("type"))
                 }
                 BluetoothEvents.ERROR -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
+                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.ERROR -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
+                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.INFO -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
+                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO)
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
                 BluetoothEvents.DATA_RETRIEVED -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
+                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO)
 
                     val device = intent.getStringExtra("device")
                     val data = intent.getStringExtra("data")
@@ -108,21 +115,23 @@ class MainActivity : AppCompatActivity() {
                         val bp = getBatteryPercentage(applicationContext)
                         val session = Session(context)
 
-                        val dbVoltwatcherAdapter = DbVoltwatcherAdapter(applicationContext)
-                        dbVoltwatcherAdapter.open()
-                        dbVoltwatcherAdapter.createRow(device, volt, temp, data, session.getlongitude(), session.getlatitude(), bp.toString())
-                        dbVoltwatcherAdapter.close()
+                        val db = DatabaseVoltwatcher(applicationContext)
+                        db.open()
+                        db.createRow(device, volt, temp, data, session.getlongitude(), session.getlatitude(), bp.toString())
+                        db.close()
                     } catch (e: Exception) {
                         //Log.e(TAG, e.message)
                         val dbIntent = Intent(DatabaseEvents.ERROR)
                         // You can also include some extra data.
                         dbIntent.putExtra("message", e.message)
+                        dbLog.createRow(now, e.message, Bluelog.logEvents.ERROR)
                         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(dbIntent)
                     }
 
                 }
                 WebserverEvents.DATA_SENT -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
+                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO)
                     // You can also include some extra data.
                     if (debug) {
                         Toast.makeText(context, "Data sent " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
@@ -130,6 +139,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 WebserverEvents.DEBUG -> {
                     Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.DEBUG)
                 }
 
                 WebserverEvents.APP_UPDATE -> {
@@ -143,10 +153,12 @@ class MainActivity : AppCompatActivity() {
                         }
                         val apk = Apk()
                         apk.installApk(applicationContext, apkfile)
+                        dbLog.createRow(now, "App Updated", "I")
                         //install(applicationContext,applicationContext.packageName,file)
                         val fileupdate = File(applicationContext.cacheDir, "app.ava")
                         fileupdate.delete()
                     } else {
+                        dbLog.createRow(now, "Update file not found", Bluelog.logEvents.WARNING)
                         if (debug) {
                             Toast.makeText(context, "Update file not found", Toast.LENGTH_LONG).show()
                         }
@@ -157,25 +169,30 @@ class MainActivity : AppCompatActivity() {
                     val updateUrl = intent.getStringExtra("message")
                     session.updateApkUrl = updateUrl
                     mLogs.add(0, Bluelog(now, "Update available at " + updateUrl, Bluelog.logEvents.WARNING))
+                    dbLog.createRow(now, "Update available at " + updateUrl, Bluelog.logEvents.WARNING)
                     if (debug) {
                         Toast.makeText(context, "Update available at " + updateUrl, Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.APP_CHECK_UPDATE -> {
                     mLogs.add(0, Bluelog(now, "Check for app update", Bluelog.logEvents.INFO))
+                    dbLog.createRow(now, "Check for app update", Bluelog.logEvents.INFO)
                     if (debug) {
                         Toast.makeText(context, "Check for app update", Toast.LENGTH_LONG).show()
                     }
                 }
                 WebserverEvents.APP_NO_AVAILABLE_UPDATE -> {
                     mLogs.add(0, Bluelog(now, "No available update", Bluelog.logEvents.INFO))
+                    dbLog.createRow(now, "No available update", Bluelog.logEvents.INFO)
                     Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
                 }
                 DatabaseEvents.ERROR -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
+                    //dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
                     Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                 }
             }
+            dbLog.close()
             myRecyclerViewAdapter.notifyDataSetChanged()
 
         }

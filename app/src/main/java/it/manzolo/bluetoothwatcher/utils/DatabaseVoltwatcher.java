@@ -7,7 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class DbVoltwatcherAdapter {
+public class DatabaseVoltwatcher {
     public static final String KEY_ID = "_id";
     public static final String KEY_DEVICE = "device";
     public static final String KEY_VOLT = "volts";
@@ -17,18 +17,18 @@ public class DbVoltwatcherAdapter {
     public static final String KEY_LONGITUDE = "longitude";
     public static final String KEY_LATITUDE = "latitude";
     public static final String KEY_SENT = "sent";
-    private static final String LOG_TAG = DbVoltwatcherAdapter.class.getSimpleName();
+    private static final String LOG_TAG = DatabaseVoltwatcher.class.getSimpleName();
     // Database fields
     private static final String DATABASE_TABLE = "voltwatcher";
-    private Context context;
+    private final Context context;
     private SQLiteDatabase database;
     private DatabaseHelper dbHelper;
 
-    public DbVoltwatcherAdapter(Context context) {
+    public DatabaseVoltwatcher(Context context) {
         this.context = context;
     }
 
-    public DbVoltwatcherAdapter open() throws SQLException {
+    public DatabaseVoltwatcher open() throws SQLException {
         dbHelper = new DatabaseHelper(context);
         database = dbHelper.getWritableDatabase();
         return this;
@@ -135,7 +135,7 @@ public class DbVoltwatcherAdapter {
         String query = "select device as device ,substr(data,1,15)||'0' as grData, round(avg(volts),2) as volts, round(avg(temps),2) as temps, round(avg(detectorbattery),2) as detectorbattery, avg(longitude) as longitude, avg(latitude) as latitude "
                 + "from voltwatcher "
                 + "where sent=0 "
-                + "and data <= DATETIME('now', '-10 minutes', 'localtime') "
+                + "and substr(data,1,15)||'0' <= DATETIME('now', '-10 minutes', 'localtime') "
                 + "group by device,grData";
         Log.d("TAG", query);
         return database.rawQuery(query, null);

@@ -8,6 +8,8 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.service.*
+import it.manzolo.bluetoothwatcher.utils.DatabaseLog
+import it.manzolo.bluetoothwatcher.utils.DateUtils
 import java.util.*
 
 class App : Application() {
@@ -20,6 +22,10 @@ class App : Application() {
             if (debug) {
                 Toast.makeText(context, "Start bluetooth service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
+            val db = DatabaseLog(context)
+            db.open()
+            db.createRow(DateUtils.now(), "Start bluetooth service every $seconds seconds", "I")
+            db.close()
 
             if (seconds != null) {
                 cron(context, BluetoothService::class.java, seconds)
@@ -35,6 +41,10 @@ class App : Application() {
                 Toast.makeText(context, "Start websend service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
+            val db = DatabaseLog(context)
+            db.open()
+            db.createRow(DateUtils.now(), "Start webserviceSend service every $seconds seconds", "I")
+            db.close()
             if (seconds != null) {
                 cron(context, WebserviceSendService::class.java, seconds)
             }
@@ -48,6 +58,10 @@ class App : Application() {
             if (debug) {
                 Toast.makeText(context, "Start location service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
+            val db = DatabaseLog(context)
+            db.open()
+            db.createRow(DateUtils.now(), "Start location service every $seconds seconds", "I")
+            db.close()
 
             if (seconds != null) {
                 cron(context, LocationService::class.java, seconds)
@@ -62,16 +76,24 @@ class App : Application() {
             if (debug) {
                 Toast.makeText(context, "Start update service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
+            val db = DatabaseLog(context)
+            db.open()
+            db.createRow(DateUtils.now(), "Start update service every $seconds seconds", "I")
+            db.close()
 
             if (seconds != null) {
                 cron(context, UpdateService::class.java, seconds)
             }
         }
 
-        fun scheduleRebootService(context: Context) {
+        fun scheduleRestartAppService(context: Context) {
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("restart_app_service_every_seconds", "43200")
+            val db = DatabaseLog(context)
+            db.open()
+            db.createRow(DateUtils.now(), "Start restart app service every $seconds seconds", "I")
+            db.close()
 
             if (seconds != null) {
                 cron(context, RebootService::class.java, seconds)
