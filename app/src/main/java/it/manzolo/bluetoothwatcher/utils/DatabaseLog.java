@@ -2,8 +2,10 @@ package it.manzolo.bluetoothwatcher.utils;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DatabaseLog {
     public static final String KEY_ID = "_id";
@@ -46,4 +48,11 @@ public class DatabaseLog {
         return database.insertOrThrow(DATABASE_TABLE, null, initialValues);
     }
 
+    public void clean() {
+        String deleteQuery = "delete from log";
+        Log.d("TAG", deleteQuery);
+        Cursor c = database.rawQuery(deleteQuery, null);
+        c.moveToFirst();
+        c.close();
+    }
 }

@@ -322,6 +322,15 @@ class MainActivity : AppCompatActivity() {
                 }
                 return true
             }
+            R.id.action_clear_log -> {
+                mLogs.clear()
+                val db = DatabaseLog(applicationContext)
+                db.open()
+                db.clean()
+                db.close()
+                myRecyclerViewAdapter.notifyDataSetChanged()
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
