@@ -65,6 +65,7 @@ public class UpdateApp extends AsyncTask<String, Void, Void> {
             intent.putExtra("file", file.getAbsolutePath());
             LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
 
+
         } catch (Exception e) {
             //e.printStackTrace();
             Log.e("UpdateAPP", "Update error! " + e.getMessage());

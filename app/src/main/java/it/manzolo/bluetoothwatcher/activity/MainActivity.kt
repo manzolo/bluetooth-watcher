@@ -163,8 +163,10 @@ class MainActivity : AppCompatActivity() {
                         apk.installApk(applicationContext, apkfile)
                         dbLog.createRow(now, "App Updated", "I")
                         //install(applicationContext,applicationContext.packageName,file)
-                        val fileupdate = File(applicationContext.cacheDir, "app.ava")
-                        fileupdate.delete()
+                        val fileUpdate = File(applicationContext.cacheDir, "app.ava")
+                        fileUpdate.delete()
+                        val session = Session(applicationContext)
+                        session.updateApkUrl = ""
                     } else {
                         dbLog.createRow(now, "Update file not found", Bluelog.logEvents.WARNING)
                         if (debug) {
@@ -208,90 +210,6 @@ class MainActivity : AppCompatActivity() {
             myRecyclerViewAdapter.notifyDataSetChanged()
 
         }
-    }
-
-    private fun getUpgradeLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.APP_UPDATE)
-        return iFilter
-    }
-
-    private fun getUpdateErrorLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.APP_UPDATE_ERROR)
-        return iFilter
-    }
-
-    private fun getLogMessagesIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(Bluelog.logEvents.BROADCAST)
-        return iFilter
-    }
-
-    private fun getCheckUpdateLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.APP_CHECK_UPDATE)
-        return iFilter
-    }
-
-    private fun getNoUpdateLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.APP_NO_AVAILABLE_UPDATE)
-        return iFilter
-    }
-
-    private fun getUpdateavailableLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.APP_AVAILABLE)
-        return iFilter
-    }
-
-    private fun getConnectionErrorLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(BluetoothEvents.ERROR)
-        return iFilter
-    }
-
-    private fun getConnectionOkLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(BluetoothEvents.DATA_RETRIEVED)
-        return iFilter
-    }
-
-    private fun getWebserviceErrorDataSentLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.ERROR)
-        return iFilter
-    }
-
-    private fun getWebserviceInfoDataSentLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.INFO)
-        return iFilter
-    }
-
-    private fun getWebserviceDataSentLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.DATA_SENT)
-        return iFilter
-    }
-
-    private fun getWebserviceDebugLocalIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.DEBUG)
-        return iFilter
-    }
-
-    private fun getDatabaseErrorIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(DatabaseEvents.ERROR)
-        return iFilter
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -428,29 +346,88 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    /*fun install(context: Context, packageName: String, apkPath: File) {
+    private fun getUpgradeLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.APP_UPDATE)
+        return iFilter
+    }
 
-        // PackageManager provides an instance of PackageInstaller
-        val packageInstaller = context.packageManager.packageInstaller
+    private fun getUpdateErrorLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.APP_UPDATE_ERROR)
+        return iFilter
+    }
 
-        // Prepare params for installing one APK file with MODE_FULL_INSTALL
-        // We could use MODE_INHERIT_EXISTING to install multiple split APKs
-        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-        params.setAppPackageName(packageName)
+    private fun getLogMessagesIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(Bluelog.logEvents.BROADCAST)
+        return iFilter
+    }
 
-        // Get a PackageInstaller.Session for performing the actual update
-        val sessionId = packageInstaller.createSession(params)
-        val session = packageInstaller.openSession(sessionId)
+    private fun getCheckUpdateLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.APP_CHECK_UPDATE)
+        return iFilter
+    }
 
-        // Copy APK file bytes into OutputStream provided by install Session
-        val out = session.openWrite(packageName, 0, -1)
-        val fis = apkPath.inputStream()
-        fis.copyTo(out)
-        session.fsync(out)
-        out.close()
+    private fun getNoUpdateLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.APP_NO_AVAILABLE_UPDATE)
+        return iFilter
+    }
 
-        // The app gets killed after installation session commit
-        session.commit(PendingIntent.getBroadcast(context, sessionId,
-                Intent("android.intent.action.MAIN"), 0).intentSender)
-    }*/
+    private fun getUpdateavailableLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.APP_AVAILABLE)
+        return iFilter
+    }
+
+    private fun getConnectionErrorLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(BluetoothEvents.ERROR)
+        return iFilter
+    }
+
+    private fun getConnectionOkLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(BluetoothEvents.DATA_RETRIEVED)
+        return iFilter
+    }
+
+    private fun getWebserviceErrorDataSentLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.ERROR)
+        return iFilter
+    }
+
+    private fun getWebserviceInfoDataSentLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.INFO)
+        return iFilter
+    }
+
+    private fun getWebserviceDataSentLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.DATA_SENT)
+        return iFilter
+    }
+
+    private fun getWebserviceDebugLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.DEBUG)
+        return iFilter
+    }
+
+    private fun getDatabaseErrorIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(DatabaseEvents.ERROR)
+        return iFilter
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
 }
