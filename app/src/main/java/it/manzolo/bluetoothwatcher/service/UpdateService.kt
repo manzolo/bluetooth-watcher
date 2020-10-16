@@ -6,7 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import it.manzolo.bluetoothwatcher.enums.WebserverEvents
+import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.utils.GithubUpdater
 
 class UpdateService : Service() {
@@ -40,7 +40,7 @@ class UpdateService : Service() {
         val autoAppUpdate = preferences.getBoolean("auto_app_update", false)
         if (autoAppUpdate) {
             Log.d(TAG, "checkForUpdate")
-            val intent = Intent(WebserverEvents.APP_CHECK_UPDATE)
+            val intent = Intent(WebserviceEvents.APP_CHECK_UPDATE)
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
 
             val githubup = GithubUpdater()

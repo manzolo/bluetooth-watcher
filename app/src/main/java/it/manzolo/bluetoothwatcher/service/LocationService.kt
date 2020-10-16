@@ -84,8 +84,8 @@ class LocationService : Service() {
             //GPS
             Log.d(TAG, location.longitude.toString())
             Log.d(TAG, location.latitude.toString())
-            session.setlongitude(location.longitude.toString())
-            session.setlatitude(location.latitude.toString())
+            session.longitude = location.longitude.toString()
+            session.latitude = location.latitude.toString()
 
         }
 

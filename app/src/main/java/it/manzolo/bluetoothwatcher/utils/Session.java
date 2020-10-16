@@ -7,26 +7,34 @@ import androidx.preference.PreferenceManager;
 
 public class Session {
 
-    private SharedPreferences prefs;
+    private final SharedPreferences prefs;
 
     public Session(Context cntx) {
         prefs = PreferenceManager.getDefaultSharedPreferences(cntx);
     }
 
-    public void setlongitude(String longitude) {
-        prefs.edit().putString("longitude", longitude).apply();
+    public String getWebserviceToken() {
+        return prefs.getString("token", "");
     }
 
-    public void setlatitude(String latitude) {
-        prefs.edit().putString("latitude", latitude).apply();
+    public void setWebserviceToken(String token) {
+        prefs.edit().putString("token", token).apply();
     }
 
-    public String getlongitude() {
+    public String getLongitude() {
         return prefs.getString("longitude", "");
     }
 
-    public String getlatitude() {
+    public void setLongitude(String longitude) {
+        prefs.edit().putString("longitude", longitude).apply();
+    }
+
+    public String getLatitude() {
         return prefs.getString("latitude", "");
+    }
+
+    public void setLatitude(String latitude) {
+        prefs.edit().putString("latitude", latitude).apply();
     }
 
     public String getUpdateApkUrl() {

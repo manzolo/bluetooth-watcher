@@ -8,7 +8,7 @@ import com.github.javiersantos.appupdater.AppUpdaterUtils
 import com.github.javiersantos.appupdater.enums.AppUpdaterError
 import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.github.javiersantos.appupdater.objects.Update
-import it.manzolo.bluetoothwatcher.enums.WebserverEvents
+import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import java.io.File
 
 class GithubUpdater {
@@ -28,11 +28,11 @@ class GithubUpdater {
                                 val updateFile = File(context.cacheDir, "app.ava")
                                 updateFile.createNewFile()
 
-                                val intent = Intent(WebserverEvents.APP_AVAILABLE)
+                                val intent = Intent(WebserviceEvents.APP_AVAILABLE)
                                 intent.putExtra("message", update.urlToDownload.toString() + "/download/app-release.apk")
                                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                             } else {
-                                val intent = Intent(WebserverEvents.APP_NO_AVAILABLE_UPDATE)
+                                val intent = Intent(WebserviceEvents.APP_NO_AVAILABLE_UPDATE)
                                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                             }
                         }

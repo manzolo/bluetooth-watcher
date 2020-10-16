@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import it.manzolo.bluetoothwatcher.R
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.DatabaseEvents
-import it.manzolo.bluetoothwatcher.enums.WebserverEvents
+import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.service.BluetoothService
 import it.manzolo.bluetoothwatcher.service.RebootService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService
@@ -41,15 +41,21 @@ class MainActivity : AppCompatActivity() {
             setSupportActionBar(toolbar)
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionOkLocalIntentFilter())
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionErrorLocalIntentFilter())
-            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverDataSentLocalIntentFilter())
-            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverErrorDataSentLocalIntentFilter())
-            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserverInfoDataSentLocalIntentFilter())
+
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceDataSentLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceErrorDataSentLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceInfoDataSentLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceDebugLocalIntentFilter())
+
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpgradeLocalIntentFilter())
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateavailableLocalIntentFilter())
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getCheckUpdateLocalIntentFilter())
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateErrorLocalIntentFilter())
+
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLogMessagesIntentFilter())
+
 
             Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
 
@@ -88,14 +94,14 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
-                WebserverEvents.ERROR -> {
+                WebserviceEvents.ERROR -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
                     dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
-                WebserverEvents.INFO -> {
+                WebserviceEvents.INFO -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
                     dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO)
                     if (debug) {
@@ -117,7 +123,7 @@ class MainActivity : AppCompatActivity() {
 
                         val db = DatabaseVoltwatcher(applicationContext)
                         db.open()
-                        db.createRow(device, volt, temp, data, session.getlongitude(), session.getlatitude(), bp.toString())
+                        db.createRow(device, volt, temp, data, session.longitude, session.latitude, bp.toString())
                         db.close()
                     } catch (e: Exception) {
                         //Log.e(TAG, e.message)
@@ -129,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 }
-                WebserverEvents.DATA_SENT -> {
+                WebserviceEvents.DATA_SENT -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
                     dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO)
                     // You can also include some extra data.
@@ -137,12 +143,14 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(context, "Data sent " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
                 }
-                WebserverEvents.DEBUG -> {
-                    Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
-                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.DEBUG)
+                WebserviceEvents.DEBUG -> {
+                    if (debug) {
+                        Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                        dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.DEBUG)
+                    }
                 }
 
-                WebserverEvents.APP_UPDATE -> {
+                WebserviceEvents.APP_UPDATE -> {
 
                     //val filepath = intent.getStringExtra("file")
                     val file = File(applicationContext.cacheDir, "app.apk")
@@ -164,7 +172,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
-                WebserverEvents.APP_AVAILABLE -> {
+                WebserviceEvents.APP_AVAILABLE -> {
                     val session = Session(context)
                     val updateUrl = intent.getStringExtra("message")
                     session.updateApkUrl = updateUrl
@@ -174,14 +182,18 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(context, "Update available at " + updateUrl, Toast.LENGTH_LONG).show()
                     }
                 }
-                WebserverEvents.APP_CHECK_UPDATE -> {
+                WebserviceEvents.APP_CHECK_UPDATE -> {
                     mLogs.add(0, Bluelog(now, "Check for app update", Bluelog.logEvents.INFO))
                     dbLog.createRow(now, "Check for app update", Bluelog.logEvents.INFO)
                     if (debug) {
                         Toast.makeText(context, "Check for app update", Toast.LENGTH_LONG).show()
                     }
                 }
-                WebserverEvents.APP_NO_AVAILABLE_UPDATE -> {
+                WebserviceEvents.APP_UPDATE_ERROR -> {
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
+                    dbLog.createRow(now, intent.getStringExtra("message"), intent.getStringExtra("type"))
+                }
+                WebserviceEvents.APP_NO_AVAILABLE_UPDATE -> {
                     mLogs.add(0, Bluelog(now, "No available update", Bluelog.logEvents.INFO))
                     dbLog.createRow(now, "No available update", Bluelog.logEvents.INFO)
                     Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
@@ -200,7 +212,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun getUpgradeLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserverEvents.APP_UPDATE)
+        iFilter.addAction(WebserviceEvents.APP_UPDATE)
+        return iFilter
+    }
+
+    private fun getUpdateErrorLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.APP_UPDATE_ERROR)
         return iFilter
     }
 
@@ -212,19 +230,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun getCheckUpdateLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserverEvents.APP_CHECK_UPDATE)
+        iFilter.addAction(WebserviceEvents.APP_CHECK_UPDATE)
         return iFilter
     }
 
     private fun getNoUpdateLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserverEvents.APP_NO_AVAILABLE_UPDATE)
+        iFilter.addAction(WebserviceEvents.APP_NO_AVAILABLE_UPDATE)
         return iFilter
     }
 
     private fun getUpdateavailableLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserverEvents.APP_AVAILABLE)
+        iFilter.addAction(WebserviceEvents.APP_AVAILABLE)
         return iFilter
     }
 
@@ -240,21 +258,27 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
-    private fun getWebserverErrorDataSentLocalIntentFilter(): IntentFilter {
+    private fun getWebserviceErrorDataSentLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserverEvents.ERROR)
+        iFilter.addAction(WebserviceEvents.ERROR)
         return iFilter
     }
 
-    private fun getWebserverInfoDataSentLocalIntentFilter(): IntentFilter {
+    private fun getWebserviceInfoDataSentLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserverEvents.INFO)
+        iFilter.addAction(WebserviceEvents.INFO)
         return iFilter
     }
 
-    private fun getWebserverDataSentLocalIntentFilter(): IntentFilter {
+    private fun getWebserviceDataSentLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserverEvents.DATA_SENT)
+        iFilter.addAction(WebserviceEvents.DATA_SENT)
+        return iFilter
+    }
+
+    private fun getWebserviceDebugLocalIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(WebserviceEvents.DEBUG)
         return iFilter
     }
 
@@ -308,8 +332,7 @@ class MainActivity : AppCompatActivity() {
                 val file = File(applicationContext.cacheDir, "app.apk")
                 val photoURI = applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.packageName + ".provider", file) }
 
-                val updateApp = UpdateApp()
-                updateApp.setContext(applicationContext)
+                val updateApp = UpdateApp(applicationContext)
                 //Log.i("manzolo", file.toString())
                 val outputDir = photoURI.toString()
                 //Log.e(TAG, session.updateApkUrl)

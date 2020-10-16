@@ -17,17 +17,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents;
-import it.manzolo.bluetoothwatcher.enums.WebserverEvents;
+import it.manzolo.bluetoothwatcher.enums.WebserviceEvents;
 import it.manzolo.bluetoothwatcher.utils.HttpUtils;
 
 public class AppReceiveSettings {
 
     private static final String TAG = "AppReceiveSettings";
 
-    private Context context;
-    private String webserviceUrl;
-    private String webserviceUsername;
-    private String webservicePassword;
+    private final Context context;
+    private final String webserviceUrl;
+    private final String webserviceUsername;
+    private final String webservicePassword;
 
     public AppReceiveSettings(Context context, String webserviceUrl, String webserviceUsername, String webservicePassword) {
         this.context = context;
@@ -90,11 +90,7 @@ public class AppReceiveSettings {
                 Log.w(TAG, "devices setting not found");
             }
             try {
-                if (jsonObject.get("enabled").toString().equals("1")) {
-                    editor.putBoolean("enabled", true);
-                } else {
-                    editor.putBoolean("enabled", false);
-                }
+                editor.putBoolean("enabled", jsonObject.get("enabled").toString().equals("1"));
             } catch (JSONException e) {
                 Log.w(TAG, "enabled service setting not found");
             }
@@ -104,7 +100,7 @@ public class AppReceiveSettings {
             Log.d(TAG, "Settings updated");
             return conn.getResponseMessage() + "";
         } else {
-            Intent intentWs = new Intent(WebserverEvents.ERROR);
+            Intent intentWs = new Intent(WebserviceEvents.ERROR);
             intentWs.putExtra("message", "Server login response: " + loginConn.getResponseCode() + " " + loginConn.getResponseMessage());
             LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs);
         }

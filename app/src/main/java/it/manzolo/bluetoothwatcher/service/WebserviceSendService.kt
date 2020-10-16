@@ -9,7 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import it.manzolo.bluetoothwatcher.enums.WebserverEvents
+import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.utils.WebserviceSender
 
 
@@ -53,7 +53,7 @@ class WebserviceSendService : Service() {
                 val sender = WebserviceSender(applicationContext, url, username, password)
                 sender.send()
             } else {
-                val intent = Intent(WebserverEvents.ERROR)
+                val intent = Intent(WebserviceEvents.ERROR)
                 // You can also include some extra data.
                 intent.putExtra("message", "No internet connection")
                 LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
@@ -65,8 +65,8 @@ class WebserviceSendService : Service() {
 
         } catch (e: Exception) {
             //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-            Log.e(TAG, e.message)
-            val intent = Intent(WebserverEvents.ERROR)
+            Log.e(TAG, e.message.toString())
+            val intent = Intent(WebserviceEvents.ERROR)
             // You can also include some extra data.
             intent.putExtra("message", e.message)
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)

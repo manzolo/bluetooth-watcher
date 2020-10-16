@@ -1,5 +1,8 @@
 package it.manzolo.bluetoothwatcher.utils;
 
+import android.content.Context;
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,5 +73,37 @@ public class HttpUtils {
         loginConn.connect();
         return loginConn;
     }
+
+    public static String getWebserviceToken(Context context, String url, String username, String password) throws Exception {
+        Session sessionPreferences = new Session(context);
+        String lastToken = sessionPreferences.getWebserviceToken();
+        if (lastToken.isEmpty()) {
+            Log.d("TOKEN", "Try to get new token");
+            lastToken = HttpUtils.getNewWebserviceToken(context, url, username, password);
+        } else {
+            Log.d("TOKEN", "Used last token");
+        }
+        return lastToken;
+    }
+
+    public static String getNewWebserviceToken(Context context, String url, String username, String password) throws Exception {
+        Session sessionPreferences = new Session(context);
+        String token;
+        HttpURLConnection loginConn = HttpUtils.loginWebservice(url, username, password);
+        int responseCode = loginConn.getResponseCode();
+        String responseMessage = loginConn.getResponseMessage();
+
+        if (responseCode >= 200 && responseCode < 400) {
+            JSONObject tokenObject = new JSONObject(new HttpUtils().convertStreamToString(loginConn.getInputStream()));
+            token = tokenObject.getString("token");
+            Log.d("TOKEN", token);
+            sessionPreferences.setWebserviceToken(token);
+        } else {
+            Log.e("TOKEN", "Unable to retrieve token");
+            throw new Exception(responseCode + " " + responseMessage + ", unable to retrieve token from " + url);
+        }
+        return token;
+    }
+
 
 }

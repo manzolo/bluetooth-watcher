@@ -13,13 +13,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import it.manzolo.bluetoothwatcher.enums.WebserverEvents;
+import it.manzolo.bluetoothwatcher.enums.WebserviceEvents;
+import it.manzolo.bluetoothwatcher.utils.Bluelog;
 
 public class UpdateApp extends AsyncTask<String, Void, Void> {
-    private Context context;
+    private final Context context;
 
-    public void setContext(Context contextf) {
-        context = contextf;
+    public UpdateApp(Context context) {
+        this.context = context;
     }
 
     @Override
@@ -34,9 +35,16 @@ public class UpdateApp extends AsyncTask<String, Void, Void> {
             c.setRequestMethod("GET");
             c.connect();
 
-            File file = new File(context.getCacheDir(), "app.apk");
+            File file = new File(this.context.getCacheDir(), "app.apk");
             if (file.exists()) {
-                file.delete();
+                if (!file.delete()) {
+                    Intent intent = new Intent(WebserviceEvents.APP_UPDATE_ERROR);
+                    // You can also include some extra data.
+                    intent.putExtra("message", "Unable to delete " + file.getAbsolutePath());
+                    intent.putExtra("type", Bluelog.logEvents.ERROR);
+                    LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
+                    return null;
+                }
             }
             FileOutputStream fos = new FileOutputStream(file);
 
@@ -51,15 +59,20 @@ public class UpdateApp extends AsyncTask<String, Void, Void> {
             is.close();
 
             Log.i("ManzoloUpdate", "Download complete");
-            Intent intent = new Intent(WebserverEvents.APP_UPDATE);
+            Intent intent = new Intent(WebserviceEvents.APP_UPDATE);
             // You can also include some extra data.
             intent.putExtra("message", "Download complete");
             intent.putExtra("file", file.getAbsolutePath());
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+            LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             Log.e("UpdateAPP", "Update error! " + e.getMessage());
+            Intent intent = new Intent(WebserviceEvents.APP_UPDATE_ERROR);
+            // You can also include some extra data.
+            intent.putExtra("message", e.getMessage());
+            intent.putExtra("type", Bluelog.logEvents.ERROR);
+            LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
         }
         return null;
     }
