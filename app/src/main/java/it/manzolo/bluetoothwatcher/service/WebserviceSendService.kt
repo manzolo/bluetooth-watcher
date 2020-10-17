@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
+import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.utils.Network
 import it.manzolo.bluetoothwatcher.webservice.WebserviceSender
 
@@ -19,7 +20,7 @@ class WebserviceSendService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "onWebsendCreate")
+        Log.d(TAG, "onWebserviceCreate")
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -27,29 +28,36 @@ class WebserviceSendService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onWebsendStartJob")
-        startWebsendTask()
-        //App.scheduleWebsendService(this)
+        Log.d(TAG, "onWebserviceStartJob")
+        startWebserviceTask()
+        //App.scheduleWebserviceService(this)
         return START_NOT_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onWebsendDestroy")
+        Log.d(TAG, "onWebserviceDestroy")
     }
 
-    private fun startWebsendTask() {
+    private fun startWebserviceTask() {
 
-        Log.d(TAG, "WebsendStart")
+        Log.d(TAG, "WebserviceStart")
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val debug = preferences.getBoolean("debug", false)
-        val url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt").toString()
-        val username = preferences.getString("webserviceusername", "username").toString()
-        val password = preferences.getString("webservicepassword", "password").toString()
+        val webserviceUrl = preferences.getString("webserviceurl", "http://localhost:8080").toString()
+        val webserviceUsername = preferences.getString("webserviceusername", "username").toString()
+        val webservicePassword = preferences.getString("webservicepassword", "password").toString()
 
         try {
             if (Network().isNetworkAvailable(applicationContext)) {
-                val sender = WebserviceSender(applicationContext, url, username, password)
+                val autoSettingsUpdate = preferences.getBoolean("auto_settings_update", true)
+                if (autoSettingsUpdate) {
+                    val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
+                    appSettings.receive()
+                    //Log.d(TAG, "Settings updated")
+                }
+
+                val sender = WebserviceSender(applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
                 sender.send()
             } else {
                 val intent = Intent(WebserviceEvents.ERROR)
@@ -74,46 +82,7 @@ class WebserviceSendService : Service() {
 
     }
 
-    /*private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetworkInfo = connectivityManager.activeNetworkInfo
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected
 
-
-    }*/
-
-    /*
-    private fun isNetworkAvailable(context: Context): Boolean {
-        var result = false
-        val connectivityManager =
-                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val actNw =
-                    connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-            result = when {
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
-        } else {
-            connectivityManager.run {
-                connectivityManager.activeNetworkInfo?.run {
-                    result = when (type) {
-                        ConnectivityManager.TYPE_WIFI -> true
-                        ConnectivityManager.TYPE_MOBILE -> true
-                        ConnectivityManager.TYPE_ETHERNET -> true
-                        else -> false
-                    }
-
-                }
-            }
-        }
-
-        return result
-    }
-    */
 }
 
 

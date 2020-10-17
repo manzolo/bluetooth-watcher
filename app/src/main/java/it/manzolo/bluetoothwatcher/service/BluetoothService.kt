@@ -13,7 +13,6 @@ import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.bluetooth.BluetoothClient
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
-import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.utils.Date
 
 
@@ -85,16 +84,6 @@ class BluetoothService : Service() {
             intent.putExtra("message", "Web server in setting not set")
             LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
         } else {
-            val autoSettingsUpdate = preferences.getBoolean("auto_settings_update", true)
-            val webserverurl = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt").toString()
-            val username = preferences.getString("webserviceusername", "username").toString()
-            val password = preferences.getString("webservicepassword", "password").toString()
-
-            if (autoSettingsUpdate) {
-                val appsettings = AppReceiveSettings(this.applicationContext, webserverurl, username, password)
-                appsettings.receive()
-                //Log.d(TAG, "Settings updated")
-            }
             val enabled = preferences.getBoolean("enabled", true)
             val address = preferences.getString("devices", "")
 
