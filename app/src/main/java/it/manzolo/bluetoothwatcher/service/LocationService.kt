@@ -9,7 +9,6 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.bluetoothwatcher.enums.LocationEvents
@@ -26,17 +25,17 @@ class LocationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onLocationStartJob")
+        //Log.d(TAG, "onLocationStartJob")
         startLocationTask()
         return START_NOT_STICKY
     }
 
     fun startLocationTask() {
-        Log.d(TAG, "onStartCommand")
+        //Log.d(TAG, "onStartCommand")
     }
 
     override fun onCreate() {
-        Log.d(TAG, "onCreate")
+        //Log.d(TAG, "onCreate")
         initializeLocationManager()
         try {
             mLocationManager!!.requestLocationUpdates(
@@ -46,14 +45,14 @@ class LocationService : Service() {
                     mLocationListeners[0]
             )
         } catch (ex: SecurityException) {
-            Log.i(TAG, "fail to request location update, ignore", ex)
+            //Log.i(TAG, "fail to request location update, ignore", ex)
         } catch (ex: IllegalArgumentException) {
-            Log.d(TAG, "network provider does not exist, " + ex.message)
+            //Log.d(TAG, "network provider does not exist, " + ex.message)
         }
     }
 
     override fun onDestroy() {
-        Log.d(TAG, "onDestroy")
+        //Log.d(TAG, "onDestroy")
         super.onDestroy()
         if (mLocationManager != null) {
             for (i in mLocationListeners.indices) {
@@ -63,14 +62,14 @@ class LocationService : Service() {
                     }
                     mLocationManager!!.removeUpdates(mLocationListeners[i])
                 } catch (ex: Exception) {
-                    Log.i(TAG, "fail to remove location listener, ignore", ex)
+                    //Log.i(TAG, "fail to remove location listener, ignore", ex)
                 }
             }
         }
     }
 
     private fun initializeLocationManager() {
-        Log.d(TAG, "initializeLocationManager - LOCATION_INTERVAL: $LOCATION_INTERVAL LOCATION_DISTANCE: $LOCATION_DISTANCE")
+        //Log.d(TAG, "initializeLocationManager - LOCATION_INTERVAL: $LOCATION_INTERVAL LOCATION_DISTANCE: $LOCATION_DISTANCE")
         if (mLocationManager == null) {
             mLocationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         }
@@ -79,13 +78,13 @@ class LocationService : Service() {
     inner class LocationListener(provider: String) : android.location.LocationListener {
         var mLastLocation: Location
         override fun onLocationChanged(location: Location) {
-            Log.d(TAG, "onLocationChanged: $location")
+            //Log.d(TAG, "onLocationChanged: $location")
             mLastLocation.set(location)
             val session = Session(applicationContext)
 
             //GPS
-            Log.d(TAG, location.longitude.toString())
-            Log.d(TAG, location.latitude.toString())
+            //Log.d(TAG, location.longitude.toString())
+            //Log.d(TAG, location.latitude.toString())
             session.longitude = location.longitude.toString()
             session.latitude = location.latitude.toString()
 
@@ -98,19 +97,19 @@ class LocationService : Service() {
         }
 
         override fun onProviderDisabled(provider: String) {
-            Log.d(TAG, "onProviderDisabled: $provider")
+            //Log.d(TAG, "onProviderDisabled: $provider")
         }
 
         override fun onProviderEnabled(provider: String) {
-            Log.d(TAG, "onProviderEnabled: $provider")
+            //Log.d(TAG, "onProviderEnabled: $provider")
         }
 
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
-            Log.d(TAG, "onStatusChanged: $provider")
+            //Log.d(TAG, "onStatusChanged: $provider")
         }
 
         init {
-            Log.d(TAG, "LocationListener $provider")
+            //Log.d(TAG, "LocationListener $provider")
             mLastLocation = Location(provider)
         }
     }
