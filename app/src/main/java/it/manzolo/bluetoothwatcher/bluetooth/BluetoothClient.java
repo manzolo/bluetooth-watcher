@@ -1,4 +1,4 @@
-package it.manzolo.bluetoothwatcher.utils;
+package it.manzolo.bluetoothwatcher.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -14,9 +14,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.UUID;
 
+import it.manzolo.bluetoothwatcher.device.DeviceInfo;
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents;
+import it.manzolo.bluetoothwatcher.utils.Date;
 
 public final class BluetoothClient {
     public static final String TAG = "BluetoothClient";
@@ -205,16 +208,16 @@ public final class BluetoothClient {
                             Log.d(TAG, deviceInfo.getTempC() + "°");
                             Log.d(TAG, deviceInfo.getTempF() + "°F");
 
-                            String now = DateUtils.now();
+                            String now = Date.now();
 
                             Intent intentBt = new Intent(BluetoothEvents.DATA_RETRIEVED);
 
                             intentBt.putExtra("device", deviceInfo.getAddress());
-                            intentBt.putExtra("volt", deviceInfo.getVolt().toString());
+                            intentBt.putExtra("volt", Objects.requireNonNull(deviceInfo.getVolt()).toString());
                             intentBt.putExtra("data", now);
-                            intentBt.putExtra("tempC", deviceInfo.getTempC().toString());
-                            intentBt.putExtra("tempF", deviceInfo.getTempF().toString());
-                            intentBt.putExtra("amp", deviceInfo.getAmp().toString());
+                            intentBt.putExtra("tempC", Objects.requireNonNull(deviceInfo.getTempC()).toString());
+                            intentBt.putExtra("tempF", Objects.requireNonNull(deviceInfo.getTempF()).toString());
+                            intentBt.putExtra("amp", Objects.requireNonNull(deviceInfo.getAmp()).toString());
 
                             intentBt.putExtra("message", deviceInfo.getAddress() + " " + deviceInfo.getVolt().toString() + "v " + deviceInfo.getTempC().toString() + "°");
                             LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);

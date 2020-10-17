@@ -1,4 +1,4 @@
-package it.manzolo.bluetoothwatcher.utils;
+package it.manzolo.bluetoothwatcher.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 

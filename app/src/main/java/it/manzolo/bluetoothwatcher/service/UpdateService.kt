@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
-import it.manzolo.bluetoothwatcher.utils.GithubUpdater
+import it.manzolo.bluetoothwatcher.network.GithubUpdater
 
 class UpdateService : Service() {
     companion object {

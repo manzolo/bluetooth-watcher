@@ -1,4 +1,4 @@
-package it.manzolo.bluetoothwatcher.utils
+package it.manzolo.bluetoothwatcher.device
 
 import android.content.Context
 import android.content.Intent

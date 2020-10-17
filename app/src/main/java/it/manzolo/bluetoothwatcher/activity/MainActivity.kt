@@ -13,14 +13,24 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import it.manzolo.bluetoothwatcher.R
+import it.manzolo.bluetoothwatcher.database.DatabaseHelper
+import it.manzolo.bluetoothwatcher.database.DatabaseLog
+import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
+import it.manzolo.bluetoothwatcher.device.getBatteryPercentage
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.DatabaseEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
+import it.manzolo.bluetoothwatcher.error.UnCaughtExceptionHandler
+import it.manzolo.bluetoothwatcher.log.Bluelog
+import it.manzolo.bluetoothwatcher.log.MyRecyclerViewAdapter
+import it.manzolo.bluetoothwatcher.network.GithubUpdater
 import it.manzolo.bluetoothwatcher.service.BluetoothService
 import it.manzolo.bluetoothwatcher.service.RebootService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService
+import it.manzolo.bluetoothwatcher.updater.Apk
 import it.manzolo.bluetoothwatcher.updater.UpdateApp
-import it.manzolo.bluetoothwatcher.utils.*
+import it.manzolo.bluetoothwatcher.utils.Date
+import it.manzolo.bluetoothwatcher.utils.Session
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
@@ -68,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             //Set adapter to RecyclerView
             mRecyclerView!!.adapter = myRecyclerViewAdapter
 
-            mLogs.add(0, Bluelog(DateUtils.now(), "Service started", Bluelog.logEvents.INFO))
+            mLogs.add(0, Bluelog(Date.now(), "Service started", Bluelog.logEvents.INFO))
 
         }
 
@@ -78,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debug", false)
-            val now = DateUtils.now()
+            val now = Date.now()
             val dbLog = DatabaseLog(applicationContext)
             dbLog.open()
 
@@ -256,7 +266,7 @@ class MainActivity : AppCompatActivity() {
                 val outputDir = photoURI.toString()
                 //Log.e(TAG, session.updateApkUrl)
                 //Log.e(TAG, outputDir)
-                if (session.updateApkUrl.isEmpty()) {
+                if (session.updateApkUrl?.isEmpty()!!) {
                     val githubUpdater = GithubUpdater()
                     githubUpdater.checkUpdate(applicationContext)
                 } else {

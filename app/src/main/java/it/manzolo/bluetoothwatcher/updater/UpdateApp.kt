@@ -6,7 +6,7 @@ import android.os.AsyncTask
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
-import it.manzolo.bluetoothwatcher.utils.Bluelog
+import it.manzolo.bluetoothwatcher.log.Bluelog
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection

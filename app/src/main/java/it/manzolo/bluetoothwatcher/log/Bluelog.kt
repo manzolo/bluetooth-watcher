@@ -1,4 +1,4 @@
-package it.manzolo.bluetoothwatcher.utils
+package it.manzolo.bluetoothwatcher.log
 
 class Bluelog(val data: String, val message: String, val type: String) {
 

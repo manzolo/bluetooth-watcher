@@ -10,11 +10,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
+import it.manzolo.bluetoothwatcher.bluetooth.BluetoothClient
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
-import it.manzolo.bluetoothwatcher.utils.BluetoothClient
-import it.manzolo.bluetoothwatcher.utils.DateUtils
+import it.manzolo.bluetoothwatcher.utils.Date
 
 
 class BluetoothService : Service() {
@@ -40,7 +40,7 @@ class BluetoothService : Service() {
             val dummyTemperatureC = "30"
             val dummyTemperatureF = "100"
             val dummyAmpere = "1"
-            val dummyDate = DateUtils.now()
+            val dummyDate = Date.now()
             //val dummyDate = "2000-01-01 00:00:00"
             val intentBt = Intent(BluetoothEvents.DATA_RETRIEVED)
 

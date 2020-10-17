@@ -1,13 +1,15 @@
-package it.manzolo.bluetoothwatcher.utils
+package it.manzolo.bluetoothwatcher.webservice
 
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceResponse
+import it.manzolo.bluetoothwatcher.utils.Http
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -26,18 +28,18 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
         conn.requestMethod = "PUT"
         conn.useCaches = false
         conn.allowUserInteraction = false
-        conn.connectTimeout = HttpUtils.connectionTimeout
-        conn.readTimeout = HttpUtils.connectionTimeout
+        conn.connectTimeout = Http.connectionTimeout
+        conn.readTimeout = Http.connectionTimeout
         conn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
         conn.setRequestProperty("Authorization", "Bearer $token")
 
         // 3. add JSON content to POST request body
-        HttpUtils().setPostRequestContent(conn, jsonObject)
+        Http().setPostRequestContent(conn, jsonObject)
 
         // 4. make POST request to the given URL
         conn.connect()
         return if (conn.responseCode >= 200 && conn.responseCode < 400) {
-            val jsonResponseObject = JSONObject(HttpUtils().convertStreamToString(conn.inputStream))
+            val jsonResponseObject = JSONObject(Http().convertStreamToString(conn.inputStream))
             if (jsonResponseObject["errcode"] == 0) {
                 val intentWebserviceSent = Intent(WebserviceEvents.INFO)
                 intentWebserviceSent.putExtra("message", jsonObject.toString())
@@ -67,7 +69,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
 
     @Throws(IOException::class)
     private fun httpWebserviceSendData(): String {
-        val url = URL(webserviceUrl + HttpUtils.sendVoltUrl)
+        val url = URL(webserviceUrl + Http.sendVoltUrl)
         var sendSuccessfully = false
         val databaseVoltwatcher = DatabaseVoltwatcher(context)
         databaseVoltwatcher.open()
@@ -80,7 +82,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
             try {
                 while (cursor.moveToNext()) {
                     // 1. create HttpURLConnection
-                    var token = HttpUtils.getWebserviceToken(context, webserviceUrl, webserviceUsername, webservicePassword)
+                    var token = Http.getWebserviceToken(context, webserviceUrl, webserviceUsername, webservicePassword)
                     val device = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_DEVICE))
                     val data = cursor.getString(cursor.getColumnIndex("grData"))
                     val volt = cursor.getString(cursor.getColumnIndex("volts"))
@@ -100,7 +102,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                             sendSuccessfully = true
                         }
                         WebserviceResponse.TOKEN_EXPIRED -> {
-                            token = HttpUtils.getNewWebserviceToken(context, webserviceUrl, webserviceUsername, webservicePassword)
+                            token = Http.getNewWebserviceToken(context, webserviceUrl, webserviceUsername, webservicePassword)
                             if (sendData(url, token, jsonObject) == WebserviceResponse.OK) {
                                 databaseVoltwatcher.updateSent(device, data)
                                 Log.d(TAG, "Updated record sent")

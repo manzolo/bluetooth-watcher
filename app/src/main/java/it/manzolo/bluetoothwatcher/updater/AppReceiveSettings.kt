@@ -8,7 +8,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
-import it.manzolo.bluetoothwatcher.utils.HttpUtils
+import it.manzolo.bluetoothwatcher.utils.Http
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -18,23 +18,23 @@ import java.net.URL
 class AppReceiveSettings(private val context: Context, private val webserviceUrl: String, private val webserviceUsername: String, private val webservicePassword: String) {
     @Throws(IOException::class, JSONException::class)
     private fun httpGet(): String {
-        val url = URL(webserviceUrl + HttpUtils.getSettingsUrl)
+        val url = URL(webserviceUrl + Http.getSettingsUrl)
 
         // 1. create HttpURLConnection
-        val loginConn = HttpUtils.loginWebservice(webserviceUrl, webserviceUsername, webservicePassword)
+        val loginConn = Http.loginWebservice(webserviceUrl, webserviceUsername, webservicePassword)
         if (loginConn.responseCode >= 200 && loginConn.responseCode < 400) {
-            val tokenObject = JSONObject(HttpUtils().convertStreamToString(loginConn.inputStream))
+            val tokenObject = JSONObject(Http().convertStreamToString(loginConn.inputStream))
             val token = tokenObject.getString("token")
             Log.d("TOKEN", token)
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
             conn.useCaches = false
             conn.allowUserInteraction = false
-            conn.connectTimeout = HttpUtils.connectionTimeout
-            conn.readTimeout = HttpUtils.connectionTimeout
+            conn.connectTimeout = Http.connectionTimeout
+            conn.readTimeout = Http.connectionTimeout
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
             conn.setRequestProperty("Authorization", "Bearer $token")
-            val jsonObject = JSONObject(HttpUtils().convertStreamToString(conn.inputStream))
+            val jsonObject = JSONObject(Http().convertStreamToString(conn.inputStream))
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val editor = preferences.edit()
             try {

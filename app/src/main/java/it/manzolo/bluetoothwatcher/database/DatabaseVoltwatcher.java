@@ -1,4 +1,4 @@
-package it.manzolo.bluetoothwatcher.utils;
+package it.manzolo.bluetoothwatcher.database;
 
 import android.content.ContentValues;
 import android.content.Context;

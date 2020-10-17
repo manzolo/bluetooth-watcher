@@ -1,4 +1,4 @@
-package it.manzolo.bluetoothwatcher.utils
+package it.manzolo.bluetoothwatcher.network
 
 import android.content.Context
 import android.content.Intent
@@ -9,10 +9,12 @@ import com.github.javiersantos.appupdater.enums.AppUpdaterError
 import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.github.javiersantos.appupdater.objects.Update
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
+import it.manzolo.bluetoothwatcher.utils.Network
+import it.manzolo.bluetoothwatcher.utils.Session
 
 class GithubUpdater {
     fun checkUpdate(context: Context) {
-        if (NetworkUtils().isNetworkAvailable(context)) {
+        if (Network().isNetworkAvailable(context)) {
             val session = Session(context)
             //val fileupdate = File(context.cacheDir, "app.ava")
             if (!session.isAvailableUpdate) {

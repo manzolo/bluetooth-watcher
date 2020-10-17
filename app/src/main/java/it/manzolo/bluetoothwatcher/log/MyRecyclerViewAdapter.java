@@ -1,4 +1,4 @@
-package it.manzolo.bluetoothwatcher.utils;
+package it.manzolo.bluetoothwatcher.log;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;

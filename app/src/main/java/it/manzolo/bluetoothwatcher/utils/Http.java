@@ -17,7 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-public class HttpUtils {
+public class Http {
     final public static String loginUrl = "/api/login_check";
     final public static String sendVoltUrl = "/api/volt/record.json";
     final public static String getSettingsUrl = "/api/get/settings/app.json";
@@ -54,12 +54,12 @@ public class HttpUtils {
     }
 
     public static HttpURLConnection loginWebservice(String url, String username, String password) throws IOException, JSONException {
-        URL loginUrl = new URL(url + HttpUtils.loginUrl);
+        URL loginUrl = new URL(url + Http.loginUrl);
         HttpURLConnection loginConn = (HttpURLConnection) loginUrl.openConnection();
         loginConn.setUseCaches(false);
         loginConn.setAllowUserInteraction(false);
-        loginConn.setConnectTimeout(HttpUtils.connectionTimeout);
-        loginConn.setReadTimeout(HttpUtils.connectionTimeout);
+        loginConn.setConnectTimeout(Http.connectionTimeout);
+        loginConn.setReadTimeout(Http.connectionTimeout);
         loginConn.setRequestMethod("POST");
         loginConn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 
@@ -68,7 +68,7 @@ public class HttpUtils {
         jsonObject.put("username", username);
         jsonObject.put("password", password);
         // 3. add JSON content to POST request body
-        new HttpUtils().setPostRequestContent(loginConn, jsonObject);
+        new Http().setPostRequestContent(loginConn, jsonObject);
         // 4. make POST request to the given URL
         loginConn.connect();
         return loginConn;
@@ -77,9 +77,10 @@ public class HttpUtils {
     public static String getWebserviceToken(Context context, String url, String username, String password) throws Exception {
         Session sessionPreferences = new Session(context);
         String lastToken = sessionPreferences.getWebserviceToken();
+        assert lastToken != null;
         if (lastToken.isEmpty()) {
             Log.d("TOKEN", "Try to get new token");
-            lastToken = HttpUtils.getNewWebserviceToken(context, url, username, password);
+            lastToken = Http.getNewWebserviceToken(context, url, username, password);
         } else {
             Log.d("TOKEN", "Used last token");
         }
@@ -89,12 +90,12 @@ public class HttpUtils {
     public static String getNewWebserviceToken(Context context, String url, String username, String password) throws Exception {
         Session sessionPreferences = new Session(context);
         String token;
-        HttpURLConnection loginConn = HttpUtils.loginWebservice(url, username, password);
+        HttpURLConnection loginConn = Http.loginWebservice(url, username, password);
         int responseCode = loginConn.getResponseCode();
         String responseMessage = loginConn.getResponseMessage();
 
         if (responseCode >= 200 && responseCode < 400) {
-            JSONObject tokenObject = new JSONObject(new HttpUtils().convertStreamToString(loginConn.getInputStream()));
+            JSONObject tokenObject = new JSONObject(new Http().convertStreamToString(loginConn.getInputStream()));
             token = tokenObject.getString("token");
             Log.d("TOKEN", token);
             sessionPreferences.setWebserviceToken(token);

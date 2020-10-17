@@ -7,9 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.preference.PreferenceManager
+import it.manzolo.bluetoothwatcher.database.DatabaseLog
 import it.manzolo.bluetoothwatcher.service.*
-import it.manzolo.bluetoothwatcher.utils.DatabaseLog
-import it.manzolo.bluetoothwatcher.utils.DateUtils
+import it.manzolo.bluetoothwatcher.utils.Date
 import java.util.*
 
 class App : Application() {
@@ -24,7 +24,7 @@ class App : Application() {
             }
             val db = DatabaseLog(context)
             db.open()
-            db.createRow(DateUtils.now(), "Start bluetooth service every $seconds seconds", "I")
+            db.createRow(Date.now(), "Start bluetooth service every $seconds seconds", "I")
             db.close()
 
             if (seconds != null) {
@@ -43,7 +43,7 @@ class App : Application() {
 
             val db = DatabaseLog(context)
             db.open()
-            db.createRow(DateUtils.now(), "Start webserviceSend service every $seconds seconds", "I")
+            db.createRow(Date.now(), "Start webserviceSend service every $seconds seconds", "I")
             db.close()
             if (seconds != null) {
                 cron(context, WebserviceSendService::class.java, seconds)
@@ -60,7 +60,7 @@ class App : Application() {
             }
             val db = DatabaseLog(context)
             db.open()
-            db.createRow(DateUtils.now(), "Start location service every $seconds seconds", "I")
+            db.createRow(Date.now(), "Start location service every $seconds seconds", "I")
             db.close()
 
             if (seconds != null) {
@@ -78,7 +78,7 @@ class App : Application() {
             }
             val db = DatabaseLog(context)
             db.open()
-            db.createRow(DateUtils.now(), "Start update service every $seconds seconds", "I")
+            db.createRow(Date.now(), "Start update service every $seconds seconds", "I")
             db.close()
 
             if (seconds != null) {
@@ -92,7 +92,7 @@ class App : Application() {
             val seconds = preferences.getString("restart_app_service_every_seconds", "43200")
             val db = DatabaseLog(context)
             db.open()
-            db.createRow(DateUtils.now(), "Start restart app service every $seconds seconds", "I")
+            db.createRow(Date.now(), "Start restart app service every $seconds seconds", "I")
             db.close()
 
             if (seconds != null) {

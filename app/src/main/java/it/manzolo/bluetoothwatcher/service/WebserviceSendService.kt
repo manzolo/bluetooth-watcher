@@ -8,8 +8,8 @@ import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
-import it.manzolo.bluetoothwatcher.utils.NetworkUtils
-import it.manzolo.bluetoothwatcher.utils.WebserviceSender
+import it.manzolo.bluetoothwatcher.utils.Network
+import it.manzolo.bluetoothwatcher.webservice.WebserviceSender
 
 
 class WebserviceSendService : Service() {
@@ -48,7 +48,7 @@ class WebserviceSendService : Service() {
         val password = preferences.getString("webservicepassword", "password").toString()
 
         try {
-            if (NetworkUtils().isNetworkAvailable(applicationContext)) {
+            if (Network().isNetworkAvailable(applicationContext)) {
                 val sender = WebserviceSender(applicationContext, url, username, password)
                 sender.send()
             } else {

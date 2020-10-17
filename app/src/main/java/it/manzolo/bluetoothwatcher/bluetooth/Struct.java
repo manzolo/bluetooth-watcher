@@ -1,13 +1,13 @@
-package it.manzolo.bluetoothwatcher.utils;
-/**
- * JStruct:  The python struct library's port to java for reading and writing binary data as in python —  Copyright (C) 2016 Sohan Basak
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation, version 3 of the license
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with this program.
- * if not, see http://www.gnu.org/licenses/.
+package it.manzolo.bluetoothwatcher.bluetooth;
+/*
+  JStruct:  The python struct library's port to java for reading and writing binary data as in python —  Copyright (C) 2016 Sohan Basak
+  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation, version 3 of the license
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License along with this program.
+  if not, see http://www.gnu.org/licenses/.
  */
 
 import java.io.ByteArrayInputStream;
@@ -22,7 +22,7 @@ public class Struct {
     private short byteOrder;
     private final short nativeByteOrder;
 
-    Struct() {
+    public Struct() {
         ByteOrder x = ByteOrder.nativeOrder();
         if (x == ByteOrder.LITTLE_ENDIAN)
             nativeByteOrder = LittleEndian;
@@ -61,7 +61,7 @@ public class Struct {
         }
 
         if (byteOrder == BigEndian) {
-            bx = reverseBytes(bx);
+            reverseBytes(bx);
         }
 
         return bx;
@@ -72,14 +72,11 @@ public class Struct {
 
         val = val & 0xffff; //truncate
 
-        if (val >= 0) {
-            bx[0] = (byte) (val & 0xff);
-            bx[1] = (byte) ((val >> 8) & 0xff);
-
-        }
+        bx[0] = (byte) (val & 0xff);
+        bx[1] = (byte) ((val >> 8) & 0xff);
 
         if (byteOrder == BigEndian) {
-            bx = reverseBytes(bx);
+            reverseBytes(bx);
         }
 
         return bx;
@@ -106,7 +103,7 @@ public class Struct {
         }
 
         if (byteOrder == BigEndian) {
-            bx = reverseBytes(bx);
+            reverseBytes(bx);
         }
 
         return bx;
@@ -114,8 +111,6 @@ public class Struct {
 
     private byte[] packRaw_u32b(long val) {
         byte[] bx = new byte[4];
-
-        val = val & 0xffffffff;
 
         if (val >= 0) {
             bx[0] = (byte) (val & 0xff);
@@ -126,7 +121,7 @@ public class Struct {
         }
 
         if (byteOrder == BigEndian) {
-            bx = reverseBytes(bx);
+            reverseBytes(bx);
         }
         return bx;
     }
@@ -146,7 +141,7 @@ public class Struct {
 
 
             case 'i':
-                int ival = (int) (val & 0xffffffff);
+                int ival = (int) (val);
                 bx = packRaw_32b(ival);
                 break;
 
@@ -181,8 +176,7 @@ public class Struct {
                     byteOrder = LittleEndian;
                 else if (c == '!')
                     byteOrder = BigEndian;
-                else if (c == '@')
-                    byteOrder = nativeByteOrder;
+                else byteOrder = nativeByteOrder;
             } else if ((c != '>') && (c != '<') && (c != '@') && (c != '!')) {
 
                 bx = pack_single_data(c, val);
@@ -209,7 +203,7 @@ public class Struct {
         if (len != vals.length)
             throw new Exception("format length and values aren't equal");
 
-        len = lenEst(fmt);
+        lenEst(fmt);
 
         byte[] bxx = new byte[0];
         byte[] bx;
@@ -224,8 +218,7 @@ public class Struct {
                     byteOrder = LittleEndian;
                 else if (c == '!')
                     byteOrder = BigEndian;
-                else if (c == '@')
-                    byteOrder = nativeByteOrder;
+                else byteOrder = nativeByteOrder;
             } else if ((c != '>') && (c != '<') && (c != '@') && (c != '!')) {
                 if ((c0 == '@') || (c0 == '>') || (c0 == '<') || (c0 == '!')) {
                     bx = pack(Character.toString(c), vals[i - 1]);
@@ -329,7 +322,6 @@ public class Struct {
     private int lenEst(String fmt) {
         int counter = 0;
         char x;
-        x = '\0';
         for (int i = 0; i < fmt.length(); i++) {
             x = fmt.charAt(i);
             if (x == 'i' || x == 'I')
