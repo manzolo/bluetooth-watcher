@@ -91,7 +91,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                     val longitude = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_LONGITUDE))
                     val latitude = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_LATITUDE))
                     // 2. build JSON object
-                    val jsonObject = buidJsonObject(device, "$data:00", volt, temp, detectorBattery, longitude, latitude)
+                    val jsonObject = buildJsonObject(device, "$data:00", volt, temp, detectorBattery, longitude, latitude)
                     Log.d(TAG, "Build sending data=$jsonObject")
                     when (sendData(url, token, jsonObject)) {
                         WebserviceResponse.ERROR -> {
@@ -136,6 +136,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
             }
         } else {
             cursor.close()
+            databaseVoltwatcher.close()
             val intentWs = Intent(WebserviceEvents.DEBUG)
             intentWs.putExtra("message", "No data found to send")
             LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs)
@@ -144,7 +145,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
     }
 
     @Throws(JSONException::class)
-    private fun buidJsonObject(device: String, data: String, volt: String, temp: String, detectorbattery: String, longitude: String, latitude: String): JSONObject {
+    private fun buildJsonObject(device: String, data: String, volt: String, temp: String, detectorbattery: String, longitude: String, latitude: String): JSONObject {
         val jsonObject = JSONObject()
         jsonObject.put("device", device)
         jsonObject.put("data", data)
