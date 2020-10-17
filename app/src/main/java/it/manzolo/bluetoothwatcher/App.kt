@@ -1,16 +1,14 @@
 package it.manzolo.bluetoothwatcher
 
-import android.app.AlarmManager
 import android.app.Application
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.database.DatabaseLog
 import it.manzolo.bluetoothwatcher.service.*
 import it.manzolo.bluetoothwatcher.utils.Date
-import java.util.*
 
 class App : Application() {
     companion object {
@@ -101,7 +99,18 @@ class App : Application() {
         }
 
         private fun cron(context: Context, serviceClass: Class<*>, seconds: String) {
-            val serviceIntent = Intent(context, serviceClass)
+            val handler = Handler()
+            val frequency = seconds.toInt() * 1000.toLong() // in ms
+            handler.postDelayed(object : Runnable {
+                override fun run() {
+                    val intent = Intent(context, serviceClass)
+                    context.startService(intent)
+                    handler.postDelayed(this, frequency) //now is every 2 minutes
+                }
+            }, frequency) //Every 120000 ms (2 minutes)
+
+
+            /*val serviceIntent = Intent(context, serviceClass)
             val pendingIntent = PendingIntent.getService(context, 0, serviceIntent, 0)
             val time: Calendar = Calendar.getInstance()
             time.timeInMillis = System.currentTimeMillis()
@@ -110,7 +119,7 @@ class App : Application() {
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarmManager.cancel(pendingIntent)
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, time.timeInMillis, frequency, pendingIntent)
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, time.timeInMillis, frequency, pendingIntent)*/
 
 
             /*val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
