@@ -86,9 +86,9 @@ class BluetoothService : Service() {
             LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
         } else {
             val autoSettingsUpdate = preferences.getBoolean("auto_settings_update", true)
-            val webserverurl = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
-            val username = preferences.getString("webserviceusername", "username")
-            val password = preferences.getString("webservicepassword", "password")
+            val webserverurl = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt").toString()
+            val username = preferences.getString("webserviceusername", "username").toString()
+            val password = preferences.getString("webservicepassword", "password").toString()
 
             if (autoSettingsUpdate) {
                 val appsettings = AppReceiveSettings(this.applicationContext, webserverurl, username, password)

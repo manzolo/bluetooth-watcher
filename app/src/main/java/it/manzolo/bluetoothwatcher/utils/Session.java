@@ -45,4 +45,12 @@ public class Session {
         prefs.edit().putString("updateapkurl", updateapkurl).apply();
     }
 
+    public boolean getIsAvailableUpdate() {
+        return prefs.getBoolean("availableUpdate", false);
+    }
+
+    public void setIsAvailableUpdate(boolean isAvailableUpdate) {
+        prefs.edit().putBoolean("availableUpdate", isAvailableUpdate).apply();
+    }
+
 }

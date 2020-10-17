@@ -153,19 +153,20 @@ class MainActivity : AppCompatActivity() {
                 WebserviceEvents.APP_UPDATE -> {
 
                     //val filepath = intent.getStringExtra("file")
+                    val session = Session(applicationContext)
                     val file = File(applicationContext.cacheDir, "app.apk")
-                    val apkfile = applicationContext.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.applicationContext.packageName + ".provider", file) }
+                    val apkFile = applicationContext.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.applicationContext.packageName + ".provider", file) }
                     if (file.exists()) {
                         if (debug) {
                             Toast.makeText(context, "Install update", Toast.LENGTH_LONG).show()
                         }
                         val apk = Apk()
-                        apk.installApk(applicationContext, apkfile)
+                        apk.installApk(applicationContext, apkFile)
                         dbLog.createRow(now, "App Updated", "I")
                         //install(applicationContext,applicationContext.packageName,file)
-                        val fileUpdate = File(applicationContext.cacheDir, "app.ava")
-                        fileUpdate.delete()
-                        val session = Session(applicationContext)
+                        //val fileUpdate = File(applicationContext.cacheDir, "app.ava")
+                        //fileUpdate.delete()
+                        session.isAvailableUpdate = false
                         session.updateApkUrl = ""
                     } else {
                         dbLog.createRow(now, "Update file not found", Bluelog.logEvents.WARNING)

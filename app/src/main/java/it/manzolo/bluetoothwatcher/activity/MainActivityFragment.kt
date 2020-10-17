@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import it.manzolo.bluetoothwatcher.App
 import it.manzolo.bluetoothwatcher.R
-import java.io.File
 
 
 class MainActivityFragment : Fragment() {
@@ -27,8 +26,8 @@ class MainActivityFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState == null) {
             // only create fragment if activity is started for the first time
-            val fileUpdate = File(context?.cacheDir, "app.ava")
-            fileUpdate.delete()
+            //val fileUpdate = File(context?.cacheDir, "app.ava")
+            //fileUpdate.delete()
 
             //buttonUpdate.isEnabled = false
             startBluetoothService()

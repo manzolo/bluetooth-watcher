@@ -1,15 +1,14 @@
 package it.manzolo.bluetoothwatcher.service
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
+import it.manzolo.bluetoothwatcher.utils.NetworkUtils
 import it.manzolo.bluetoothwatcher.utils.WebserviceSender
 
 
@@ -44,12 +43,12 @@ class WebserviceSendService : Service() {
         Log.d(TAG, "WebsendStart")
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val debug = preferences.getBoolean("debug", false)
-        val url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt")
-        val username = preferences.getString("webserviceusername", "username")
-        val password = preferences.getString("webservicepassword", "password")
+        val url = preferences.getString("webserviceurl", "http://localhost:8080/api/sendvolt").toString()
+        val username = preferences.getString("webserviceusername", "username").toString()
+        val password = preferences.getString("webservicepassword", "password").toString()
 
         try {
-            if (isNetworkAvailable()) {
+            if (NetworkUtils().isNetworkAvailable(applicationContext)) {
                 val sender = WebserviceSender(applicationContext, url, username, password)
                 sender.send()
             } else {
@@ -75,11 +74,13 @@ class WebserviceSendService : Service() {
 
     }
 
-    private fun isNetworkAvailable(): Boolean {
+    /*private fun isNetworkAvailable(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         return activeNetworkInfo != null && activeNetworkInfo.isConnected
-    }
+
+
+    }*/
 
     /*
     private fun isNetworkAvailable(context: Context): Boolean {
