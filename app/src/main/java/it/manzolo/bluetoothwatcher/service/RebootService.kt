@@ -6,6 +6,9 @@ import android.os.IBinder
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.jakewharton.processphoenix.ProcessPhoenix
+import it.manzolo.bluetoothwatcher.database.DatabaseLog
+import it.manzolo.bluetoothwatcher.log.Bluelog
+import it.manzolo.bluetoothwatcher.utils.Date
 
 
 class RebootService : Service() {
@@ -16,7 +19,7 @@ class RebootService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        TODO("Not yet implemented")
+        return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -30,6 +33,10 @@ class RebootService : Service() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
         val autoAppRestart = preferences.getBoolean("auto_app_restart", false)
         if (autoAppRestart) {
+            val dbLog = DatabaseLog(this.applicationContext)
+            dbLog.open()
+            dbLog.createRow(Date.now(), "Restart App", Bluelog.logEvents.INFO)
+            dbLog.close()
             //Only for system app
             //val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
             //pm.reboot(null)
