@@ -2,6 +2,7 @@ package it.manzolo.bluetoothwatcher.activity
 
 import android.content.*
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -156,6 +157,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 WebserviceEvents.DEBUG -> {
+                    Log.d(TAG, intent.getStringExtra("message"))
                     if (debug) {
                         Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                         dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.DEBUG)
@@ -174,7 +176,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         val apk = Apk()
                         apk.installApk(applicationContext, apkFile)
-                        dbLog.createRow(now, "App Updated", "I")
+                        dbLog.createRow(now, "App Updated", Bluelog.logEvents.INFO)
                         //install(applicationContext,applicationContext.packageName,file)
                         //val fileUpdate = File(applicationContext.cacheDir, "app.ava")
                         //fileUpdate.delete()
