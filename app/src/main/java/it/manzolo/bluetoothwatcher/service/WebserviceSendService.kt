@@ -54,7 +54,6 @@ class WebserviceSendService : Service() {
                 if (autoSettingsUpdate) {
                     val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
                     appSettings.receive()
-                    //Log.d(TAG, "Settings updated")
                 }
 
                 val sender = WebserviceSender(applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
@@ -72,12 +71,10 @@ class WebserviceSendService : Service() {
 
         } catch (e: Exception) {
             //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-            Log.e(TAG, e.message.toString())
+            //Log.e(TAG, e.message.toString())
             val intent = Intent(WebserviceEvents.ERROR)
-            // You can also include some extra data.
             intent.putExtra("message", e.message)
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
-            //e.printStackTrace();
         }
 
     }
