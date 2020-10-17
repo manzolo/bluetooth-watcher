@@ -16,7 +16,7 @@ import it.manzolo.bluetoothwatcher.R
 import it.manzolo.bluetoothwatcher.database.DatabaseHelper
 import it.manzolo.bluetoothwatcher.database.DatabaseLog
 import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
-import it.manzolo.bluetoothwatcher.device.getBatteryPercentage
+import it.manzolo.bluetoothwatcher.device.getDeviceBatteryPercentage
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.DatabaseEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                     val temp = intent.getStringExtra("tempC")
 
                     try {
-                        val bp = getBatteryPercentage(applicationContext)
+                        val bp = getDeviceBatteryPercentage(applicationContext)
                         val session = Session(context)
 
                         val db = DatabaseVoltwatcher(applicationContext)

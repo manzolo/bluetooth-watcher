@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 
-fun getBatteryPercentage(context: Context): Int {
+fun getDeviceBatteryPercentage(context: Context): Int {
 
     val iFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
     val batteryStatus = context.registerReceiver(null, iFilter)

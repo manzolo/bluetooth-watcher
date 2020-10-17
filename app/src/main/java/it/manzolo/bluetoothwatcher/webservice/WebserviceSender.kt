@@ -39,7 +39,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
         // 4. make POST request to the given URL
         conn.connect()
         return if (conn.responseCode >= 200 && conn.responseCode < 400) {
-            val jsonResponseObject = JSONObject(Http().convertStreamToString(conn.inputStream))
+            val jsonResponseObject = JSONObject(Http().streamToString(conn.inputStream))
             if (jsonResponseObject["errcode"] == 0) {
                 val intentWebserviceSent = Intent(WebserviceEvents.INFO)
                 intentWebserviceSent.putExtra("message", jsonObject.toString())

@@ -23,7 +23,7 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
         // 1. create HttpURLConnection
         val loginConn = Http.loginWebservice(webserviceUrl, webserviceUsername, webservicePassword)
         if (loginConn.responseCode >= 200 && loginConn.responseCode < 400) {
-            val tokenObject = JSONObject(Http().convertStreamToString(loginConn.inputStream))
+            val tokenObject = JSONObject(Http().streamToString(loginConn.inputStream))
             val token = tokenObject.getString("token")
             Log.d("TOKEN", token)
             val conn = url.openConnection() as HttpURLConnection
@@ -34,7 +34,7 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
             conn.readTimeout = Http.connectionTimeout
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
             conn.setRequestProperty("Authorization", "Bearer $token")
-            val jsonObject = JSONObject(Http().convertStreamToString(conn.inputStream))
+            val jsonObject = JSONObject(Http().streamToString(conn.inputStream))
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val editor = preferences.edit()
             try {

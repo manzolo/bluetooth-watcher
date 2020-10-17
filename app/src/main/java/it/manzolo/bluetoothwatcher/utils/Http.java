@@ -21,27 +21,25 @@ public class Http {
     final public static String loginUrl = "/api/login_check";
     final public static String sendVoltUrl = "/api/volt/record.json";
     final public static String getSettingsUrl = "/api/get/settings/app.json";
-    final public static int connectionTimeout = 30000;
+    final public static int connectionTimeout = 15000;
 
+    public static String getNewWebserviceToken(Context context, String url, String username, String password) throws Exception {
+        Session sessionPreferences = new Session(context);
+        String token;
+        HttpURLConnection loginConn = Http.loginWebservice(url, username, password);
+        int responseCode = loginConn.getResponseCode();
+        String responseMessage = loginConn.getResponseMessage();
 
-    public String convertStreamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (responseCode >= 200 && responseCode < 400) {
+            JSONObject tokenObject = new JSONObject(new Http().streamToString(loginConn.getInputStream()));
+            token = tokenObject.getString("token");
+            Log.d("TOKEN", token);
+            sessionPreferences.setWebserviceToken(token);
+        } else {
+            Log.e("TOKEN", "Unable to retrieve token");
+            throw new Exception(responseCode + " " + responseMessage + ", unable to retrieve token from " + url);
         }
-        return sb.toString();
+        return token;
     }
 
     public void setPostRequestContent(HttpURLConnection conn, JSONObject jsonObject) throws IOException {
@@ -87,23 +85,24 @@ public class Http {
         return lastToken;
     }
 
-    public static String getNewWebserviceToken(Context context, String url, String username, String password) throws Exception {
-        Session sessionPreferences = new Session(context);
-        String token;
-        HttpURLConnection loginConn = Http.loginWebservice(url, username, password);
-        int responseCode = loginConn.getResponseCode();
-        String responseMessage = loginConn.getResponseMessage();
-
-        if (responseCode >= 200 && responseCode < 400) {
-            JSONObject tokenObject = new JSONObject(new Http().convertStreamToString(loginConn.getInputStream()));
-            token = tokenObject.getString("token");
-            Log.d("TOKEN", token);
-            sessionPreferences.setWebserviceToken(token);
-        } else {
-            Log.e("TOKEN", "Unable to retrieve token");
-            throw new Exception(responseCode + " " + responseMessage + ", unable to retrieve token from " + url);
+    public String streamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return token;
+        return sb.toString();
     }
 
 
