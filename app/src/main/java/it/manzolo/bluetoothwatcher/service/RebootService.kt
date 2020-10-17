@@ -1,12 +1,11 @@
 package it.manzolo.bluetoothwatcher.service
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.os.PowerManager
 import android.util.Log
 import androidx.preference.PreferenceManager
+import com.jakewharton.processphoenix.ProcessPhoenix
 
 
 class RebootService : Service() {
@@ -31,9 +30,10 @@ class RebootService : Service() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
         val autoAppRestart = preferences.getBoolean("auto_app_restart", false)
         if (autoAppRestart) {
-            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-            pm.reboot(null)
-            //ProcessPhoenix.triggerRebirth(this.applicationContext)
+            //Only for system app
+            //val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+            //pm.reboot(null)
+            ProcessPhoenix.triggerRebirth(this.applicationContext)
         } else {
             Log.w(TAG, "auto_app_restart set to false")
         }

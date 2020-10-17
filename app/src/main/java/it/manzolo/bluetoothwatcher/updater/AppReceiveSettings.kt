@@ -72,6 +72,26 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
             } catch (e: JSONException) {
                 Log.w(TAG, "enabled service setting not found")
             }
+            try {
+                editor.putBoolean("auto_settings_update", jsonObject["auto_settings_update"].toString() == "1")
+            } catch (e: JSONException) {
+                Log.w(TAG, "auto_settings_update service setting not found")
+            }
+            try {
+                editor.putBoolean("auto_app_update", jsonObject["auto_app_update"].toString() == "1")
+            } catch (e: JSONException) {
+                Log.w(TAG, "auto_app_update service setting not found")
+            }
+            try {
+                editor.putBoolean("auto_app_restart", jsonObject["auto_app_restart"].toString() == "1")
+            } catch (e: JSONException) {
+                Log.w(TAG, "auto_app_restart service setting not found")
+            }
+            try {
+                editor.putBoolean("debug", jsonObject["debug"].toString() == "1")
+            } catch (e: JSONException) {
+                Log.w(TAG, "debug service setting not found")
+            }
             editor.apply()
             Log.d(TAG, "Settings updated")
             return conn.responseMessage + ""
