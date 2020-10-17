@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import it.manzolo.bluetoothwatcher.R;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> {
-    private ArrayList<Bluelog> mLogs;
+    private final ArrayList<Bluelog> mLogs;
 
     public MyRecyclerViewAdapter(ArrayList<Bluelog> log) {
         this.mLogs = log;
@@ -74,9 +74,9 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     //RecyclerView View Holder
     class MyViewHolder extends RecyclerView.ViewHolder {
-        private TextView textViewData;
-        private TextView textViewMessage;
-        private ImageView imageViewType;
+        private final TextView textViewData;
+        private final TextView textViewMessage;
+        private final ImageView imageViewType;
 
         MyViewHolder(@NonNull View itemView) {
             super(itemView);

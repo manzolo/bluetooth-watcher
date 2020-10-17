@@ -3,8 +3,8 @@ package it.manzolo.bluetoothwatcher.utils;
 import java.util.Arrays;
 
 public class DeviceInfo {
-    private String address;
-    private byte[] data;
+    private final String address;
+    private final byte[] data;
 
     private Double volt;
     private Double amp;

@@ -27,7 +27,7 @@ interface BluetoothSocketWrapper {
 
 public class FallbackBluetoothSocket extends NativeBluetoothSocket {
 
-    private BluetoothSocket fallbackSocket;
+    private final BluetoothSocket fallbackSocket;
 
     public FallbackBluetoothSocket(BluetoothSocket fallbackBluetoothSocket) throws FallbackException {
         super(fallbackBluetoothSocket);
@@ -67,7 +67,7 @@ public class FallbackBluetoothSocket extends NativeBluetoothSocket {
 
 class NativeBluetoothSocket implements BluetoothSocketWrapper {
 
-    private BluetoothSocket socket;
+    private final BluetoothSocket socket;
 
     public NativeBluetoothSocket(BluetoothSocket tmp) {
         this.socket = tmp;

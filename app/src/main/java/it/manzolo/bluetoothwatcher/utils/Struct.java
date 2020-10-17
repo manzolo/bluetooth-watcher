@@ -17,10 +17,10 @@ import java.util.Arrays;
 import static java.lang.Math.abs;
 
 public class Struct {
-    private short BigEndian = 0;
-    private short LittleEndian = 1;
+    private final short BigEndian = 0;
+    private final short LittleEndian = 1;
     private short byteOrder;
-    private short nativeByteOrder;
+    private final short nativeByteOrder;
 
     Struct() {
         ByteOrder x = ByteOrder.nativeOrder();

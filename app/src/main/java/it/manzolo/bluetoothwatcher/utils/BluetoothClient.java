@@ -21,7 +21,7 @@ import it.manzolo.bluetoothwatcher.enums.BluetoothEvents;
 public final class BluetoothClient {
     public static final String TAG = "BluetoothClient";
     volatile boolean stopWorker;
-    private Context context;
+    private final Context context;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothSocketWrapper bluetoothSocketWrapper;
     private BluetoothSocket bluetoothSocket;
@@ -31,8 +31,8 @@ public final class BluetoothClient {
     private Thread workerThread;
     private int readBufferPosition;
     private byte[] readBuffer;
-    private String deviceAddress;
-    private BroadcastReceiver closeBluetoothReceiver = new BroadcastReceiver() {
+    private final String deviceAddress;
+    private final BroadcastReceiver closeBluetoothReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent

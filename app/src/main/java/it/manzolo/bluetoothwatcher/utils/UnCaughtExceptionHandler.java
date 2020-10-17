@@ -7,7 +7,7 @@ import com.jakewharton.processphoenix.ProcessPhoenix;
 import org.jetbrains.annotations.NotNull;
 
 public class UnCaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
-    private Activity activity;
+    private final Activity activity;
 
     public UnCaughtExceptionHandler(Activity a) {
         activity = a;
