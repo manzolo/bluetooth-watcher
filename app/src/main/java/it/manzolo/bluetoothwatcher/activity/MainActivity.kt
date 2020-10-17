@@ -19,6 +19,7 @@ import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
 import it.manzolo.bluetoothwatcher.device.getDeviceBatteryPercentage
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.DatabaseEvents
+import it.manzolo.bluetoothwatcher.enums.LocationEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.error.UnCaughtExceptionHandler
 import it.manzolo.bluetoothwatcher.log.Bluelog
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity() {
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLogMessagesIntentFilter())
 
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLocationChangedIntentFilter())
 
             Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
 
@@ -210,6 +212,14 @@ class MainActivity : AppCompatActivity() {
                     mLogs.add(0, Bluelog(now, "No available update", Bluelog.logEvents.INFO))
                     dbLog.createRow(now, "No available update", Bluelog.logEvents.INFO)
                     Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
+                }
+                LocationEvents.LOCATION_CHANGED -> {
+                    var locationLog = "Obtain longitude:" + intent.getStringExtra("longitude") + " latitude:" + intent.getStringExtra("latitude")
+                    mLogs.add(0, Bluelog(now, locationLog, Bluelog.logEvents.INFO))
+                    dbLog.createRow(now, locationLog, Bluelog.logEvents.INFO)
+                    if (debug) {
+                        Toast.makeText(context, locationLog, Toast.LENGTH_LONG).show()
+                    }
                 }
                 DatabaseEvents.ERROR -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
@@ -435,10 +445,18 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
+    private fun getLocationChangedIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(LocationEvents.LOCATION_CHANGED)
+        return iFilter
+    }
+
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
+
 
 }
