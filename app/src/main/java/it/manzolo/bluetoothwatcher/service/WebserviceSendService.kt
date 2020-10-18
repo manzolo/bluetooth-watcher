@@ -43,14 +43,14 @@ class WebserviceSendService : Service() {
 
         Log.d(TAG, "WebserviceStart")
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val debug = preferences.getBoolean("debug", false)
-        val webserviceUrl = preferences.getString("webserviceurl", "http://localhost:8080").toString()
-        val webserviceUsername = preferences.getString("webserviceusername", "username").toString()
-        val webservicePassword = preferences.getString("webservicepassword", "password").toString()
+        val debug = preferences.getBoolean("debugApp", false)
+        val webserviceUrl = preferences.getString("webserviceUrl", "http://localhost:8080").toString()
+        val webserviceUsername = preferences.getString("webserviceUsername", "username").toString()
+        val webservicePassword = preferences.getString("webservicePassword", "password").toString()
 
         try {
             if (Network().isNetworkAvailable(applicationContext)) {
-                val autoSettingsUpdate = preferences.getBoolean("auto_settings_update", true)
+                val autoSettingsUpdate = preferences.getBoolean("autoSettingsUpdate", true)
                 if (autoSettingsUpdate) {
                     val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
                     appSettings.receive()

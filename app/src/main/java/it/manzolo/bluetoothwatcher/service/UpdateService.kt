@@ -37,7 +37,7 @@ class UpdateService : Service() {
 
     private fun startUpdateTask() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
-        val autoAppUpdate = preferences.getBoolean("auto_app_update", false)
+        val autoAppUpdate = preferences.getBoolean("autoAppUpdate", false)
         if (autoAppUpdate) {
             Log.d(TAG, "checkForUpdate")
             val intent = Intent(WebserviceEvents.APP_CHECK_UPDATE)

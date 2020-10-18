@@ -15,17 +15,11 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent arg1) {
         this.context = context;
         this.arg1 = arg1;
-        // TODO Auto-generated method stub
         Log.w("boot_broadcast_poc", "starting service...");
 
         PackageManager pm = context.getPackageManager();
-        Intent launchIntent = pm.getLaunchIntentForPackage("it.manzolo.service.bluewatcher");
+        Intent launchIntent = pm.getLaunchIntentForPackage("it.manzolo.bluetoothwatcher");
         context.startActivity(launchIntent);
-
-        //context.startService(new Intent(context, MainService.class));
-        //context.startService(new Intent(context, UpdateService.class));
-        //context.startService(new Intent(context, WebsendService.class));
-        //context.startService(new Intent(context, LocationService.class));
     }
 
 }

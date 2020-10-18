@@ -72,8 +72,8 @@ class BluetoothService : Service() {
 
     private fun startBluetoothTask() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
-        val url = preferences.getString("webserviceurl", "")
-        val debug = preferences.getBoolean("debug", false)
+        val url = preferences.getString("webserviceUrl", "")
+        val debug = preferences.getBoolean("debugApp", false)
         if (url!!.replace("\\s".toRegex(), "").isEmpty()) {
             if (debug) {
                 Toast.makeText(this, "Web server in setting not set", Toast.LENGTH_LONG).show()

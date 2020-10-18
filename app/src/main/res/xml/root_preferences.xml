@@ -19,19 +19,19 @@
     <PreferenceCategory app:title="Webservice">
         <EditTextPreference
             app:dialogTitle="Enter a valid url"
-            app:key="webserviceurl"
-            app:summary="Click to show a text entry dialog"
-            app:title="Webserver url" />
+            app:key="webserviceUrl"
+            app:summary="Enter webservice url"
+            app:title="Webservice url" />
         <EditTextPreference
             app:dialogTitle="Enter username"
-            app:key="webserviceusername"
-            app:summary="Click to show a text entry dialog"
-            app:title="Webserver username" />
+            app:key="webserviceUsername"
+            app:summary="Enter webservice username"
+            app:title="Webservice username" />
         <EditTextPreference
             app:dialogTitle="Enter password"
-            app:key="webservicepassword"
-            app:summary="Click to show a text entry dialog"
-            app:title="Webserver password" />
+            app:key="webservicePassword"
+            app:summary="Enter webservice password"
+            app:title="Webservice password" />
 
     </PreferenceCategory>
 
@@ -47,30 +47,30 @@
     <PreferenceCategory app:title="Cron">
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="bluetooth_service_every_seconds"
+            app:key="bluetoothServiceEverySeconds"
             app:summary="Set every seconds bluetooth service start"
-            app:title="Bluetooth start every seconds" />
+            app:title="Bluetooth scan" />
 
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="webservice_service_every_seconds"
+            app:key="webserviceServiceEverySeconds"
             app:summary="Set every seconds service send data to webservice"
-            app:title="Webservice send data every seconds" />
+            app:title="Webservice send data" />
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="location_service_every_seconds"
+            app:key="locationServiceEverySeconds"
             app:summary="Set every seconds location service start"
-            app:title="Location service start every seconds" />
+            app:title="Location" />
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="update_service_every_seconds"
+            app:key="updateServiceEverySeconds"
             app:summary="Set every seconds update service start"
-            app:title="Update service start every seconds" />
+            app:title="Looking for app updates" />
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="restart_app_service_every_seconds"
+            app:key="restartAppServiceEverySeconds"
             app:summary="Set every seconds restart app service start"
-            app:title="Restart app service start every seconds" />
+            app:title="Restart app" />
 
     </PreferenceCategory>
 
@@ -78,27 +78,27 @@
 
         <SwitchPreferenceCompat
             app:defaultValue="true"
-            app:key="enabled"
+            app:key="@string/enabled_setting"
             app:summary="Click to switch on or off"
             app:title="Service enabled" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
-            app:key="auto_settings_update"
+            app:key="autoSettingsUpdate"
             app:summary="Click to switch on or off"
             app:title="Auto settings update from webservice" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="auto_app_update"
+            app:key="autoAppUpdate"
             app:summary="Click to switch on or off"
             app:title="Auto app update" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="auto_app_restart"
+            app:key="autoAppRestart"
             app:summary="Click to switch on or off"
             app:title="Auto app restart" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="debug"
+            app:key="debugApp"
             app:summary="Click to switch on or off"
             app:title="Debug" />
 

@@ -11,10 +11,10 @@ import it.manzolo.bluetoothwatcher.log.Bluelog
 import it.manzolo.bluetoothwatcher.utils.Date
 
 
-class RebootService : Service() {
+class RestartAppService : Service() {
 
     companion object {
-        val TAG: String = RebootService::class.java.simpleName
+        val TAG: String = RestartAppService::class.java.simpleName
 
     }
 
@@ -31,7 +31,7 @@ class RebootService : Service() {
     fun starRebootTask() {
         Log.d(TAG, "onRebootStartCommand")
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
-        val autoAppRestart = preferences.getBoolean("auto_app_restart", false)
+        val autoAppRestart = preferences.getBoolean("autoAppRestart", false)
         if (autoAppRestart) {
             val dbLog = DatabaseLog(this.applicationContext)
             dbLog.open()
@@ -42,7 +42,7 @@ class RebootService : Service() {
             //pm.reboot(null)
             ProcessPhoenix.triggerRebirth(this.applicationContext)
         } else {
-            Log.w(TAG, "auto_app_restart set to false")
+            Log.w(TAG, "autoAppRestart set to false")
         }
     }
 

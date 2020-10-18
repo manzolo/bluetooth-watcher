@@ -22,7 +22,7 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
 
         // 1. create HttpURLConnection
         val loginConn = Http.loginWebservice(webserviceUrl, webserviceUsername, webservicePassword)
-        if (loginConn.responseCode >= 200 && loginConn.responseCode < 400) {
+        if (loginConn.responseCode in 200..399) {
             val tokenObject = JSONObject(Http().streamToString(loginConn.inputStream))
             val token = tokenObject.getString("token")
             Log.d("TOKEN", token)
@@ -38,57 +38,57 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val editor = preferences.edit()
             try {
-                editor.putString("webservice_service_every_seconds", jsonObject["webservice_service_every_seconds"].toString())
+                editor.putString("webserviceServiceEverySeconds", jsonObject["webserviceServiceEverySeconds"].toString())
             } catch (e: JSONException) {
-                Log.w(TAG, "webservice_service_every_seconds setting not found")
+                Log.w(TAG, "webserviceServiceEverySeconds setting not found")
             }
             try {
-                editor.putString("bluetooth_service_every_seconds", jsonObject["bluetooth_service_every_seconds"].toString())
+                editor.putString("bluetoothServiceEverySeconds", jsonObject["bluetoothServiceEverySeconds"].toString())
             } catch (e: JSONException) {
-                Log.w(TAG, "bluetooth_service_every_seconds setting not found")
+                Log.w(TAG, "bluetoothServiceEverySeconds setting not found")
             }
             try {
-                editor.putString("location_service_every_seconds", jsonObject["location_service_every_seconds"].toString())
+                editor.putString("locationServiceEverySeconds", jsonObject["locationServiceEverySeconds"].toString())
             } catch (e: JSONException) {
-                Log.w(TAG, "location_service_every_seconds setting not found")
+                Log.w(TAG, "locationServiceEverySeconds setting not found")
             }
             try {
-                editor.putString("update_service_every_seconds", jsonObject["update_service_every_seconds"].toString())
+                editor.putString("updateServiceEverySeconds", jsonObject["updateServiceEverySeconds"].toString())
             } catch (e: JSONException) {
-                Log.w(TAG, "update_service_every_seconds setting not found")
+                Log.w(TAG, "updateServiceEverySeconds setting not found")
             }
             try {
-                editor.putString("restart_app_service_every_seconds", jsonObject["restart_app_service_every_seconds"].toString())
+                editor.putString("restartAppServiceEverySeconds", jsonObject["restartAppServiceEverySeconds"].toString())
             } catch (e: JSONException) {
-                Log.w(TAG, "restart_app_service_every_seconds setting not found")
+                Log.w(TAG, "restartAppServiceEverySeconds setting not found")
             }
             try {
                 editor.putString("devices", jsonObject["devices"].toString())
             } catch (e: JSONException) {
                 Log.w(TAG, "devices setting not found")
             }
-            try {
+            /*try {
                 editor.putBoolean("enabled", jsonObject["enabled"].toString() == "1")
             } catch (e: JSONException) {
                 Log.w(TAG, "enabled service setting not found")
-            }
+            }*/
             try {
-                editor.putBoolean("auto_settings_update", jsonObject["auto_settings_update"].toString() == "1")
+                editor.putBoolean("autoSettingsUpdate", jsonObject["autoSettingsUpdate"].toString() == "1")
             } catch (e: JSONException) {
-                Log.w(TAG, "auto_settings_update service setting not found")
+                Log.w(TAG, "autoSettingsUpdate service setting not found")
             }
             try {
-                editor.putBoolean("auto_app_update", jsonObject["auto_app_update"].toString() == "1")
+                editor.putBoolean("autoAppUpdate", jsonObject["autoAppUpdate"].toString() == "1")
             } catch (e: JSONException) {
-                Log.w(TAG, "auto_app_update service setting not found")
+                Log.w(TAG, "autoAppUpdate service setting not found")
             }
             try {
-                editor.putBoolean("auto_app_restart", jsonObject["auto_app_restart"].toString() == "1")
+                editor.putBoolean("autoAppRestart", jsonObject["autoAppRestart"].toString() == "1")
             } catch (e: JSONException) {
-                Log.w(TAG, "auto_app_restart service setting not found")
+                Log.w(TAG, "autoAppRestart service setting not found")
             }
             try {
-                editor.putBoolean("debug", jsonObject["debug"].toString() == "1")
+                editor.putBoolean("debugApp", jsonObject["debugApp"].toString() == "1")
             } catch (e: JSONException) {
                 Log.w(TAG, "debug service setting not found")
             }

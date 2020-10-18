@@ -19,16 +19,13 @@ import it.manzolo.bluetoothwatcher.database.DatabaseHelper
 import it.manzolo.bluetoothwatcher.database.DatabaseLog
 import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
 import it.manzolo.bluetoothwatcher.device.getDeviceBatteryPercentage
-import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
-import it.manzolo.bluetoothwatcher.enums.DatabaseEvents
-import it.manzolo.bluetoothwatcher.enums.LocationEvents
-import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
+import it.manzolo.bluetoothwatcher.enums.*
 import it.manzolo.bluetoothwatcher.error.UnCaughtExceptionHandler
 import it.manzolo.bluetoothwatcher.log.Bluelog
 import it.manzolo.bluetoothwatcher.log.MyRecyclerViewAdapter
 import it.manzolo.bluetoothwatcher.network.GithubUpdater
 import it.manzolo.bluetoothwatcher.service.BluetoothService
-import it.manzolo.bluetoothwatcher.service.RebootService
+import it.manzolo.bluetoothwatcher.service.RestartAppService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService
 import it.manzolo.bluetoothwatcher.updater.Apk
 import it.manzolo.bluetoothwatcher.updater.UpdateApp
@@ -82,6 +79,8 @@ class MainActivity : AppCompatActivity() {
 
             LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLocationChangedIntentFilter())
 
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getMainServiceIntentFilter())
+
             Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
 
             //EventViewer
@@ -94,7 +93,10 @@ class MainActivity : AppCompatActivity() {
             //Set adapter to RecyclerView
             mRecyclerView!!.adapter = myRecyclerViewAdapter
 
-            mLogs.add(0, Bluelog(Date.now(), "Service started", Bluelog.logEvents.INFO))
+            mLogs.add(0, Bluelog(Date.now(), "System ready", Bluelog.logEvents.INFO))
+
+            //Service enabled by default
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("enabled", true).apply()
 
         }
 
@@ -103,12 +105,16 @@ class MainActivity : AppCompatActivity() {
     private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val debug = preferences.getBoolean("debug", false)
+            val debug = preferences.getBoolean("debugApp", false)
             val now = Date.now()
             val dbLog = DatabaseLog(applicationContext)
             dbLog.open()
 
             when (intent?.action) {
+                MainEvents.BROADCAST -> {
+                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
+                    dbLog.createRow(now, intent.getStringExtra("message"), intent.getStringExtra("type"))
+                }
                 Bluelog.logEvents.BROADCAST -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
                     dbLog.createRow(now, intent.getStringExtra("message"), intent.getStringExtra("type"))
@@ -229,7 +235,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
                 }
                 LocationEvents.LOCATION_CHANGED -> {
-                    var locationLog = "Obtain longitude:" + intent.getStringExtra("longitude") + " latitude:" + intent.getStringExtra("latitude")
+                    val locationLog = "Obtain longitude:" + intent.getStringExtra("longitude") + " latitude:" + intent.getStringExtra("latitude")
                     mLogs.add(0, Bluelog(now, locationLog, Bluelog.logEvents.INFO))
                     dbLog.createRow(now, locationLog, Bluelog.logEvents.INFO)
                     if (debug) {
@@ -277,7 +283,7 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_trigger_restart_service -> {
-                val serviceIntent = Intent(this, RebootService::class.java)
+                val serviceIntent = Intent(this, RestartAppService::class.java)
                 this.startService(serviceIntent)
                 return true
             }
@@ -466,6 +472,11 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
+    private fun getMainServiceIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(MainEvents.BROADCAST)
+        return iFilter
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

@@ -20,17 +20,17 @@
     <item
         android:id="@+id/action_dbbackup"
         android:orderInCategory="300"
-        android:title="@string/dbbackup"
+        android:title="@string/dbBackup"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_dbrestore"
         android:orderInCategory="400"
-        android:title="@string/dbrestore"
+        android:title="@string/dbRestore"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_updateapp"
         android:orderInCategory="400"
-        android:title="@string/updateapp"
+        android:title="@string/updateApp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_trigger_restart_service"

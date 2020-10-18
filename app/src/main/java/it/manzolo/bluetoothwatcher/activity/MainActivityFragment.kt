@@ -25,57 +25,36 @@ class MainActivityFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState == null) {
-            // only create fragment if activity is started for the first time
-            //val fileUpdate = File(context?.cacheDir, "app.ava")
-            //fileUpdate.delete()
-
-            //buttonUpdate.isEnabled = false
             startBluetoothService()
             startWebserviceSendService()
             startLocationService()
             startUpdateService()
             startRebootService()
-
         }
-
     }
 
     private fun startBluetoothService() {
         Log.d(TAG, "startBluetoothService")
         App.scheduleBluetoothService(activity as Context)
-
-        //activity.run { editText.append("$now Service started\n") }
     }
 
     private fun startUpdateService() {
         Log.d(TAG, "startUpdateService")
         App.scheduleUpdateService(activity as Context)
-        //val now = DateUtils.now()
-        //activity.run { editText.append("$now Service update started\n") }
     }
 
     private fun startWebserviceSendService() {
         Log.d(TAG, "startWebserviceSendService")
         App.scheduleWebserviceSendService(activity as Context)
-
-        //val now = DateUtils.now()
-        //activity.run { editText.append("$now Service websender started\n") }
     }
 
     private fun startLocationService() {
         Log.d(TAG, "startLocationService")
         App.scheduleLocationService(activity as Context)
-        //val now = DateUtils.now()
-        //activity.run { editText.append("$now Service location started\n") }
     }
 
     private fun startRebootService() {
         Log.d(TAG, "startRebootService")
         App.scheduleRestartAppService(activity as Context)
-
-        //val now = DateUtils.now()
-        //activity.run { editText.append("$now Service reboot started\n") }
     }
-
-
 }
