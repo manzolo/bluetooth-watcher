@@ -48,7 +48,7 @@ public class DatabaseLog {
         return database.insertOrThrow(DATABASE_TABLE, null, initialValues);
     }
 
-    public void clean() {
+    public void clear() {
         String deleteQuery = "delete from log";
         Log.d("TAG", deleteQuery);
         Cursor c = database.rawQuery(deleteQuery, null);

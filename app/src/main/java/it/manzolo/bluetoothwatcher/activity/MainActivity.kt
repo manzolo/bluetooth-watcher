@@ -292,7 +292,7 @@ class MainActivity : AppCompatActivity() {
                 mLogs.clear()
                 val db = DatabaseLog(applicationContext)
                 db.open()
-                db.clean()
+                db.clear()
                 db.close()
                 myRecyclerViewAdapter.notifyDataSetChanged()
                 return true
