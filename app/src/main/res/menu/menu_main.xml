@@ -8,39 +8,77 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_trigger_bluetooth_service"
         android:orderInCategory="200"
-        android:title="@string/trigger_bluetooth_service"
-        app:showAsAction="never" />
+        android:title="@string/triggerMenuAction">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/action_trigger_bluetooth_service"
+                    android:orderInCategory="210"
+                    android:title="@string/triggerBluetoothService"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/action_trigger_webservice_send_service"
+                    android:orderInCategory="220"
+                    android:title="@string/triggerWebserviceSendService"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/action_trigger_restart_service"
+                    android:orderInCategory="230"
+                    android:title="@string/triggerRestartService"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
     <item
-        android:id="@+id/action_trigger_webservice_send_service"
-        android:orderInCategory="250"
-        android:title="@string/trigger_webservice_send_service"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_dbbackup"
         android:orderInCategory="300"
-        android:title="@string/dbBackup"
-        app:showAsAction="never" />
+        android:title="@string/databaseMenuAction">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/action_dbbackup"
+                    android:orderInCategory="300"
+                    android:title="@string/dbBackup"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/action_dbrestore"
+                    android:orderInCategory="350"
+                    android:title="@string/dbRestore"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
     <item
-        android:id="@+id/action_dbrestore"
-        android:orderInCategory="400"
-        android:title="@string/dbRestore"
-        app:showAsAction="never" />
+        android:orderInCategory="500"
+        android:title="@string/utilityMenuAction">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/action_clear_log"
+                    android:orderInCategory="500"
+                    android:title="@string/clearLog"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+
     <item
-        android:id="@+id/action_updateapp"
-        android:orderInCategory="400"
-        android:title="@string/updateApp"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_trigger_restart_service"
-        android:orderInCategory="250"
-        android:title="@string/trigger_restart_service"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_clear_log"
-        android:orderInCategory="260"
-        android:title="@string/clear_log"
-        app:showAsAction="never" />
+        android:orderInCategory="900"
+        android:title="@string/updateMenuAction">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/action_updateApp"
+                    android:orderInCategory="900"
+                    android:title="@string/updateApp"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/action_checkForUpdates"
+                    android:orderInCategory="910"
+                    android:title="@string/checkForUpdates"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
 
 </menu>

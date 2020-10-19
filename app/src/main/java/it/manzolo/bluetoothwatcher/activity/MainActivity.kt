@@ -2,7 +2,6 @@ package it.manzolo.bluetoothwatcher.activity
 
 import android.content.*
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -85,43 +84,42 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun captureLog(message: String, type: String) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val debug = preferences.getBoolean("debugApp", false)
+        val dbLog = DatabaseLog(applicationContext)
+        dbLog.open()
+        dbLog.createRow(Date.now(), message, type)
+        mLogs.add(0, Bluelog(Date.now(), message, type))
+        dbLog.close()
+        if (debug) {
+            Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
     private val localBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val debug = preferences.getBoolean("debugApp", false)
-            val now = Date.now()
-            val dbLog = DatabaseLog(applicationContext)
-            dbLog.open()
-
             when (intent?.action) {
                 MainEvents.BROADCAST -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
-                    dbLog.createRow(now, intent.getStringExtra("message"), intent.getStringExtra("type"))
+                    captureLog(intent.getStringExtra("message"), intent.getStringExtra("type"))
+                }
+                MainEvents.INFO -> {
+                    captureLog(intent.getStringExtra("message"), MainEvents.INFO)
+                }
+                MainEvents.ERROR -> {
+                    captureLog(intent.getStringExtra("message"), MainEvents.ERROR)
                 }
                 BluetoothEvents.ERROR -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
-                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
-                    if (debug) {
-                        Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
-                    }
+                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
                 }
                 WebserviceEvents.ERROR -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
-                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
-                    if (debug) {
-                        Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
-                    }
+                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
                 }
                 WebserviceEvents.INFO -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
-                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO)
-                    if (debug) {
-                        Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
-                    }
+                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.INFO)
                 }
                 BluetoothEvents.DATA_RETRIEVED -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
-                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO)
+                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.INFO)
 
                     val device = intent.getStringExtra("device")
                     val data = intent.getStringExtra("data")
@@ -129,8 +127,8 @@ class MainActivity : AppCompatActivity() {
                     val temp = intent.getStringExtra("tempC")
 
                     try {
+                        val session = Session(applicationContext)
                         val bp = getDeviceBatteryPercentage(applicationContext)
-                        val session = Session(context)
 
                         val db = DatabaseVoltwatcher(applicationContext)
                         db.open()
@@ -141,27 +139,13 @@ class MainActivity : AppCompatActivity() {
                         val dbIntent = Intent(DatabaseEvents.ERROR)
                         // You can also include some extra data.
                         dbIntent.putExtra("message", e.message)
-                        dbLog.createRow(now, e.message, Bluelog.logEvents.ERROR)
                         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(dbIntent)
                     }
 
                 }
                 WebserviceEvents.DATA_SENT -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO))
-                    dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.INFO)
-                    // You can also include some extra data.
-                    if (debug) {
-                        Toast.makeText(context, "Data sent " + intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
-                    }
+                    captureLog("Data sent " + intent.getStringExtra("message"), Bluelog.logEvents.INFO)
                 }
-                WebserviceEvents.DEBUG -> {
-                    Log.d(TAG, intent.getStringExtra("message"))
-                    if (debug) {
-                        Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
-                        dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.DEBUG)
-                    }
-                }
-
                 WebserviceEvents.APP_UPDATE -> {
 
                     //val filepath = intent.getStringExtra("file")
@@ -169,65 +153,44 @@ class MainActivity : AppCompatActivity() {
                     val file = File(applicationContext.cacheDir, "app.apk")
                     val apkFile = applicationContext.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.applicationContext.packageName + ".provider", file) }
                     if (file.exists()) {
-                        if (debug) {
-                            Toast.makeText(context, "Install update", Toast.LENGTH_LONG).show()
-                        }
+                        captureLog("Install update", Bluelog.logEvents.WARNING)
                         val apk = Apk()
                         apk.installApk(applicationContext, apkFile)
-                        dbLog.createRow(now, "App Updated", Bluelog.logEvents.INFO)
-                        //install(applicationContext,applicationContext.packageName,file)
-                        //val fileUpdate = File(applicationContext.cacheDir, "app.ava")
-                        //fileUpdate.delete()
+                        captureLog("Start app update", Bluelog.logEvents.INFO)
                         session.isAvailableUpdate = false
                         session.updateApkUrl = ""
                     } else {
-                        dbLog.createRow(now, "Update file not found", Bluelog.logEvents.WARNING)
-                        if (debug) {
-                            Toast.makeText(context, "Update file not found", Toast.LENGTH_LONG).show()
-                        }
+                        captureLog("Update file not found", Bluelog.logEvents.WARNING)
                     }
                 }
                 WebserviceEvents.APP_AVAILABLE -> {
                     val session = Session(context)
                     val updateUrl = intent.getStringExtra("message")
                     session.updateApkUrl = updateUrl
-                    mLogs.add(0, Bluelog(now, "Update available at " + updateUrl, Bluelog.logEvents.WARNING))
-                    dbLog.createRow(now, "Update available at " + updateUrl, Bluelog.logEvents.WARNING)
-                    if (debug) {
-                        Toast.makeText(context, "Update available at " + updateUrl, Toast.LENGTH_LONG).show()
-                    }
+                    captureLog("Update available at " + updateUrl, Bluelog.logEvents.WARNING)
                 }
                 WebserviceEvents.APP_CHECK_UPDATE -> {
-                    mLogs.add(0, Bluelog(now, "Check for app update", Bluelog.logEvents.INFO))
-                    dbLog.createRow(now, "Check for app update", Bluelog.logEvents.INFO)
-                    if (debug) {
-                        Toast.makeText(context, "Check for app update", Toast.LENGTH_LONG).show()
-                    }
+                    captureLog("Check for app update", Bluelog.logEvents.INFO)
                 }
                 WebserviceEvents.APP_UPDATE_ERROR -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
-                    dbLog.createRow(now, intent.getStringExtra("message"), intent.getStringExtra("type"))
+                    captureLog(intent.getStringExtra("message"), intent.getStringExtra("type"))
                 }
                 WebserviceEvents.APP_NO_AVAILABLE_UPDATE -> {
-                    mLogs.add(0, Bluelog(now, "No available update", Bluelog.logEvents.INFO))
-                    dbLog.createRow(now, "No available update", Bluelog.logEvents.INFO)
-                    Toast.makeText(context, "No available update", Toast.LENGTH_SHORT).show()
+                    captureLog("No available update", Bluelog.logEvents.INFO)
                 }
                 LocationEvents.LOCATION_CHANGED -> {
-                    val locationLog = "Obtain longitude:" + intent.getStringExtra("longitude") + " latitude:" + intent.getStringExtra("latitude")
-                    mLogs.add(0, Bluelog(now, locationLog, Bluelog.logEvents.INFO))
-                    dbLog.createRow(now, locationLog, Bluelog.logEvents.INFO)
-                    if (debug) {
-                        Toast.makeText(context, locationLog, Toast.LENGTH_LONG).show()
-                    }
+                    captureLog("Obtain longitude:" + intent.getStringExtra("longitude") + " latitude:" + intent.getStringExtra("latitude"), Bluelog.logEvents.INFO)
                 }
                 DatabaseEvents.ERROR -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
-                    //dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
-                    Toast.makeText(context, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
+                }
+                MainEvents.DEBUG -> {
+                    //saveLog(intent.getStringExtra("message"), Bluelog.logEvents.DEBUG)
+                    if (PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("debugApp", false)) {
+                        Toast.makeText(applicationContext, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
+                    }
                 }
             }
-            dbLog.close()
             myRecyclerViewAdapter.notifyDataSetChanged()
 
         }
@@ -266,19 +229,23 @@ class MainActivity : AppCompatActivity() {
                 this.startService(serviceIntent)
                 return true
             }
-            R.id.action_updateapp -> {
+            R.id.action_updateApp -> {
                 val session = Session(applicationContext)
                 val file = File(applicationContext.cacheDir, "app.apk")
                 val photoURI = applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.packageName + ".provider", file) }
 
                 val updateApp = UpdateApp(applicationContext)
                 val outputDir = photoURI.toString()
-                if (session.updateApkUrl?.isEmpty()!!) {
-                    val githubUpdater = GithubUpdater()
-                    githubUpdater.checkUpdate(applicationContext)
-                } else {
+                if (!session.updateApkUrl?.isEmpty()!!) {
                     updateApp.execute(session.updateApkUrl, outputDir)
+                } else {
+                    Toast.makeText(applicationContext, "No available updates", Toast.LENGTH_SHORT).show()
                 }
+                return true
+            }
+            R.id.action_checkForUpdates -> {
+                val githubUpdater = GithubUpdater()
+                githubUpdater.checkUpdate(applicationContext)
                 return true
             }
             R.id.action_clear_log -> {
@@ -288,6 +255,7 @@ class MainActivity : AppCompatActivity() {
                 db.clear()
                 db.close()
                 myRecyclerViewAdapter.notifyDataSetChanged()
+                Toast.makeText(applicationContext, "Done", Toast.LENGTH_SHORT).show()
                 return true
             }
             else -> super.onOptionsItemSelected(item)
@@ -388,7 +356,7 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
-    private fun getUpdateavailableLocalIntentFilter(): IntentFilter {
+    private fun getUpdateAvailableLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
         iFilter.addAction(WebserviceEvents.APP_AVAILABLE)
         return iFilter
@@ -424,9 +392,9 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
-    private fun getWebserviceDebugLocalIntentFilter(): IntentFilter {
+    private fun getDebugLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
-        iFilter.addAction(WebserviceEvents.DEBUG)
+        iFilter.addAction(MainEvents.DEBUG)
         return iFilter
     }
 
@@ -448,6 +416,18 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
+    private fun getMainServiceInfoIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(MainEvents.INFO)
+        return iFilter
+    }
+
+    private fun getMainServiceErrorIntentFilter(): IntentFilter {
+        val iFilter = IntentFilter()
+        iFilter.addAction(MainEvents.ERROR)
+        return iFilter
+    }
+
     private fun registerLocalBroadcast() {
         //LocalBroadcast
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionOkLocalIntentFilter())
@@ -456,10 +436,10 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceDataSentLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceErrorDataSentLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceInfoDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceDebugLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDebugLocalIntentFilter())
 
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpgradeLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateavailableLocalIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateAvailableLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getCheckUpdateLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateErrorLocalIntentFilter())
@@ -469,6 +449,8 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLocationChangedIntentFilter())
 
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getMainServiceIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getMainServiceInfoIntentFilter())
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getMainServiceErrorIntentFilter())
 
     }
 

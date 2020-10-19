@@ -3,29 +3,31 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="service_name">Bluetooth watcher</string>
-    <string name="start_service">Update APP</string>
-    <string name="dbBackup">Backup database</string>
-    <string name="dbRestore">Restore database</string>
+
+    <string name="dbBackup">Backup</string>
+    <string name="dbRestore">Restore</string>
     <string name="updateApp">Update App</string>
-    <string name="alert_status">Status</string>
-    <string name="trigger_bluetooth_service">Trigger Bluetooth Service</string>
-    <string name="trigger_webservice_send_service">Trigger Webservice Send Data</string>
-    <string name="trigger_restart_service">Restart App</string>
-    <string name="clear_log">Clear Log</string>
-    <string name="enabled_setting">enabled</string>
+
+    <string name="triggerBluetoothService">Bluetooth Service</string>
+    <string name="triggerWebserviceSendService">Webservice Send Data</string>
+    <string name="triggerRestartService">Restart App</string>
+
+    <string name="clearLog">Clear Log</string>
+    <string name="enabledSetting">enabled</string>
+    <string name="checkForUpdates">Check for updates</string>
+
+    <string name="autoSettingsUpdate">autoSettingsUpdate</string>
+    <string name="autoAppUpdate">autoAppUpdate</string>
+    <string name="autoAppRestart">autoAppRestart</string>
+    <string name="debugApp">debugApp</string>
+    <string name="bluetoothServiceEverySeconds">bluetoothServiceEverySeconds</string>
+    <string name="webserviceServiceEverySeconds">webserviceServiceEverySeconds</string>
+    <string name="locationServiceEverySeconds">locationServiceEverySeconds</string>
+    <string name="updateServiceEverySeconds">updateServiceEverySeconds</string>
+    <string name="restartAppServiceEverySeconds">restartAppServiceEverySeconds</string>
+    <string name="triggerMenuAction">Trigger action</string>
+    <string name="databaseMenuAction">Database</string>
+    <string name="utilityMenuAction">Utility</string>
+    <string name="updateMenuAction">Updates</string>
 </resources>

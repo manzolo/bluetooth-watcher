@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
+import it.manzolo.bluetoothwatcher.enums.MainEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceResponse
 import it.manzolo.bluetoothwatcher.utils.Http
@@ -38,7 +39,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
 
         // 4. make POST request to the given URL
         conn.connect()
-        return if (conn.responseCode >= 200 && conn.responseCode < 400) {
+        return if (conn.responseCode in 200..399) {
             val jsonResponseObject = JSONObject(Http().streamToString(conn.inputStream))
             if (jsonResponseObject["errcode"] == 0) {
                 val intentWebserviceSent = Intent(WebserviceEvents.INFO)
@@ -93,7 +94,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                     // 2. build JSON object
                     val jsonObject = buildJsonObject(device, "$data:00", volt, temp, detectorBattery, longitude, latitude)
                     Log.d(TAG, "Build sending data=$jsonObject")
-                    when (sendData(url, token, jsonObject)) {
+                    when (sendData(url, token!!, jsonObject)) {
                         WebserviceResponse.ERROR -> {
                         }
                         WebserviceResponse.OK -> {
@@ -137,7 +138,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
         } else {
             cursor.close()
             databaseVoltwatcher.close()
-            val intentWs = Intent(WebserviceEvents.DEBUG)
+            val intentWs = Intent(MainEvents.DEBUG)
             intentWs.putExtra("message", "No data found to send")
             LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs)
             "No data found to send"

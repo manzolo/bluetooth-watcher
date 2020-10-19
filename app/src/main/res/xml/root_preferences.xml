@@ -47,28 +47,28 @@
     <PreferenceCategory app:title="Cron">
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="bluetoothServiceEverySeconds"
+            app:key="@string/bluetoothServiceEverySeconds"
             app:summary="Set every seconds bluetooth service start"
             app:title="Bluetooth scan" />
 
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="webserviceServiceEverySeconds"
+            app:key="@string/webserviceServiceEverySeconds"
             app:summary="Set every seconds service send data to webservice"
             app:title="Webservice send data" />
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="locationServiceEverySeconds"
+            app:key="@string/locationServiceEverySeconds"
             app:summary="Set every seconds location service start"
             app:title="Location" />
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="updateServiceEverySeconds"
+            app:key="@string/updateServiceEverySeconds"
             app:summary="Set every seconds update service start"
             app:title="Checking for app updates" />
         <EditTextPreference
             app:dialogTitle="Select duration"
-            app:key="restartAppServiceEverySeconds"
+            app:key="@string/restartAppServiceEverySeconds"
             app:summary="Set every seconds restart app service start"
             app:title="Restart app" />
 
@@ -78,27 +78,27 @@
 
         <SwitchPreferenceCompat
             app:defaultValue="true"
-            app:key="@string/enabled_setting"
+            app:key="@string/enabledSetting"
             app:summary="Click to switch on or off"
             app:title="Service enabled" />
         <SwitchPreferenceCompat
             app:defaultValue="true"
-            app:key="autoSettingsUpdate"
+            app:key="@string/autoSettingsUpdate"
             app:summary="Click to switch on or off"
             app:title="Auto settings update from webservice" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="autoAppUpdate"
+            app:key="@string/autoAppUpdate"
             app:summary="Click to switch on or off"
             app:title="Auto app update" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="autoAppRestart"
+            app:key="@string/autoAppRestart"
             app:summary="Click to switch on or off"
             app:title="Auto app restart" />
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="debugApp"
+            app:key="@string/debugApp"
             app:summary="Click to switch on or off"
             app:title="Debug" />
 

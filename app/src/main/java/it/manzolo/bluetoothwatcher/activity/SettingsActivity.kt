@@ -64,7 +64,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-            val enabled = getString(R.string.enabled_setting)
+            val enabled = getString(R.string.enabledSetting)
             when (key) {
                 enabled -> serviceEnabled(sharedPreferences.getBoolean(enabled, false))
                 //else -> Log.d("Settings", "unknown key $key")
