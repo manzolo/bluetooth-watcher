@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import it.manzolo.bluetoothwatcher.enums.MainEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
-import it.manzolo.bluetoothwatcher.log.Bluelog
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -28,7 +28,7 @@ class UpdateApp(private val context: Context) : AsyncTask<String?, Void?, Void?>
                     val intent = Intent(WebserviceEvents.APP_UPDATE_ERROR)
                     // You can also include some extra data.
                     intent.putExtra("message", "Unable to delete " + file.absolutePath)
-                    intent.putExtra("type", Bluelog.logEvents.ERROR)
+                    intent.putExtra("type", MainEvents.ERROR)
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                     return null
                 }
@@ -54,7 +54,7 @@ class UpdateApp(private val context: Context) : AsyncTask<String?, Void?, Void?>
             val intent = Intent(WebserviceEvents.APP_UPDATE_ERROR)
             // You can also include some extra data.
             intent.putExtra("message", e.message)
-            intent.putExtra("type", Bluelog.logEvents.ERROR)
+            intent.putExtra("type", MainEvents.ERROR)
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
         }
         return null

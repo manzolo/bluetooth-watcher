@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import com.jakewharton.processphoenix.ProcessPhoenix
 import it.manzolo.bluetoothwatcher.database.DatabaseLog
-import it.manzolo.bluetoothwatcher.log.Bluelog
+import it.manzolo.bluetoothwatcher.enums.MainEvents
 import it.manzolo.bluetoothwatcher.utils.Date
 
 
@@ -35,7 +35,7 @@ class RestartAppService : Service() {
         if (autoAppRestart) {
             val dbLog = DatabaseLog(this.applicationContext)
             dbLog.open()
-            dbLog.createRow(Date.now(), "Restart App", Bluelog.logEvents.INFO)
+            dbLog.createRow(Date.now(), "Restart App", MainEvents.INFO)
             dbLog.close()
             //Only for system app
             //val pm = getSystemService(Context.POWER_SERVICE) as PowerManager

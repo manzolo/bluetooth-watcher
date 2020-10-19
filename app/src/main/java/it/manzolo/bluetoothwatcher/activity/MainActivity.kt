@@ -20,7 +20,7 @@ import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
 import it.manzolo.bluetoothwatcher.device.getDeviceBatteryPercentage
 import it.manzolo.bluetoothwatcher.enums.*
 import it.manzolo.bluetoothwatcher.error.UnCaughtExceptionHandler
-import it.manzolo.bluetoothwatcher.log.Bluelog
+import it.manzolo.bluetoothwatcher.log.BluetoothWatcherLog
 import it.manzolo.bluetoothwatcher.log.MyRecyclerViewAdapter
 import it.manzolo.bluetoothwatcher.network.GithubUpdater
 import it.manzolo.bluetoothwatcher.service.BluetoothService
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         val TAG: String = MainActivity::class.java.simpleName
     }
 
-    private val mLogs: ArrayList<Bluelog> = ArrayList()
+    private val mLogs: ArrayList<BluetoothWatcherLog> = ArrayList()
     private var mRecyclerView: RecyclerView? = null
     val myRecyclerViewAdapter = MyRecyclerViewAdapter(mLogs)
 
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
             //Set adapter to RecyclerView
             mRecyclerView!!.adapter = myRecyclerViewAdapter
 
-            mLogs.add(0, Bluelog(Date.now(), "System ready", Bluelog.logEvents.INFO))
+            mLogs.add(0, BluetoothWatcherLog(Date.now(), "System ready", MainEvents.INFO))
 
             //Service enabled by default
             PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("enabled", true).apply()
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         val dbLog = DatabaseLog(applicationContext)
         dbLog.open()
         dbLog.createRow(Date.now(), message, type)
-        mLogs.add(0, Bluelog(Date.now(), message, type))
+        mLogs.add(0, BluetoothWatcherLog(Date.now(), message, type))
         dbLog.close()
         if (debug) {
             Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
@@ -102,30 +102,30 @@ class MainActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 MainEvents.BROADCAST -> {
-                    captureLog(intent.getStringExtra("message"), intent.getStringExtra("type"))
+                    captureLog(intent.getStringExtra("message")!!, intent.getStringExtra("type")!!)
                 }
                 MainEvents.INFO -> {
-                    captureLog(intent.getStringExtra("message"), MainEvents.INFO)
+                    captureLog(intent.getStringExtra("message")!!, MainEvents.INFO)
                 }
                 MainEvents.ERROR -> {
-                    captureLog(intent.getStringExtra("message"), MainEvents.ERROR)
+                    captureLog(intent.getStringExtra("message")!!, MainEvents.ERROR)
                 }
                 BluetoothEvents.ERROR -> {
-                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
+                    captureLog(intent.getStringExtra("message")!!, MainEvents.ERROR)
                 }
                 WebserviceEvents.ERROR -> {
-                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
+                    captureLog(intent.getStringExtra("message")!!, MainEvents.ERROR)
                 }
                 WebserviceEvents.INFO -> {
-                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.INFO)
+                    captureLog(intent.getStringExtra("message")!!, MainEvents.INFO)
                 }
                 BluetoothEvents.DATA_RETRIEVED -> {
-                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.INFO)
+                    captureLog(intent.getStringExtra("message")!!, MainEvents.INFO)
 
-                    val device = intent.getStringExtra("device")
-                    val data = intent.getStringExtra("data")
-                    val volt = intent.getStringExtra("volt")
-                    val temp = intent.getStringExtra("tempC")
+                    val device = intent.getStringExtra("device")!!
+                    val data = intent.getStringExtra("data")!!
+                    val volt = intent.getStringExtra("volt")!!
+                    val temp = intent.getStringExtra("tempC")!!
 
                     try {
                         val session = Session(applicationContext)
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity() {
 
                 }
                 WebserviceEvents.DATA_SENT -> {
-                    captureLog("Data sent " + intent.getStringExtra("message"), Bluelog.logEvents.INFO)
+                    captureLog("Data sent " + intent.getStringExtra("message"), MainEvents.INFO)
                 }
                 WebserviceEvents.APP_UPDATE -> {
 
@@ -154,39 +154,39 @@ class MainActivity : AppCompatActivity() {
                     val file = File(applicationContext.cacheDir, "app.apk")
                     val apkFile = applicationContext.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.applicationContext.packageName + ".provider", file) }
                     if (file.exists()) {
-                        captureLog("Install update", Bluelog.logEvents.WARNING)
+                        captureLog("Install update", MainEvents.WARNING)
                         val apk = Apk()
                         apk.installApk(applicationContext, apkFile)
-                        captureLog("Start app update", Bluelog.logEvents.INFO)
+                        captureLog("Start app update", MainEvents.INFO)
                         session.isAvailableUpdate = false
                         session.updateApkUrl = ""
                     } else {
-                        captureLog("Update file not found", Bluelog.logEvents.WARNING)
+                        captureLog("Update file not found", MainEvents.WARNING)
                     }
                 }
                 WebserviceEvents.APP_AVAILABLE -> {
                     val session = Session(context)
-                    val updateUrl = intent.getStringExtra("message")
+                    val updateUrl = intent.getStringExtra("message")!!
                     session.updateApkUrl = updateUrl
-                    captureLog("Update available at " + updateUrl, Bluelog.logEvents.WARNING)
+                    captureLog("Update available at " + updateUrl, MainEvents.WARNING)
                 }
                 WebserviceEvents.APP_CHECK_UPDATE -> {
-                    captureLog("Check for app update", Bluelog.logEvents.INFO)
+                    captureLog("Check for app update", MainEvents.INFO)
                 }
                 WebserviceEvents.APP_UPDATE_ERROR -> {
-                    captureLog(intent.getStringExtra("message"), intent.getStringExtra("type"))
+                    captureLog(intent.getStringExtra("message")!!, intent.getStringExtra("type")!!)
                 }
                 WebserviceEvents.APP_NO_AVAILABLE_UPDATE -> {
-                    captureLog("No available update", Bluelog.logEvents.INFO)
+                    captureLog("No available update", MainEvents.INFO)
                 }
                 LocationEvents.LOCATION_CHANGED -> {
-                    captureLog("Obtain longitude:" + intent.getStringExtra("longitude") + " latitude:" + intent.getStringExtra("latitude"), Bluelog.logEvents.INFO)
+                    captureLog("Obtain longitude:" + intent.getStringExtra("longitude")!! + " latitude:" + intent.getStringExtra("latitude")!!, MainEvents.INFO)
                 }
                 DatabaseEvents.ERROR -> {
-                    captureLog(intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
+                    captureLog(intent.getStringExtra("message")!!, MainEvents.ERROR)
                 }
                 MainEvents.DEBUG -> {
-                    //saveLog(intent.getStringExtra("message"), Bluelog.logEvents.DEBUG)
+                    //saveLog(intent.getStringExtra("message"), MainEvents.DEBUG)
                     if (PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("debugApp", false)) {
                         Toast.makeText(applicationContext, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }

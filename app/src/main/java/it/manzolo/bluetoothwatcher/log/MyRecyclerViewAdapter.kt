@@ -8,10 +8,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import it.manzolo.bluetoothwatcher.R
+import it.manzolo.bluetoothwatcher.enums.MainEvents
 import it.manzolo.bluetoothwatcher.log.MyRecyclerViewAdapter.MyViewHolder
 import java.util.*
 
-class MyRecyclerViewAdapter(private val mLogs: ArrayList<Bluelog>) : RecyclerView.Adapter<MyViewHolder>() {
+class MyRecyclerViewAdapter(private val mLogs: ArrayList<BluetoothWatcherLog>) : RecyclerView.Adapter<MyViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         //Inflate RecyclerView row
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_log, parent, false)
@@ -26,15 +27,15 @@ class MyRecyclerViewAdapter(private val mLogs: ArrayList<Bluelog>) : RecyclerVie
         holder.textViewMessage.text = message
         val type = mLogs[position].type
         when (type) {
-            Bluelog.logEvents.ERROR -> {
+            MainEvents.ERROR -> {
                 holder.textViewMessage.setTextColor(Color.RED)
                 holder.imageViewType.setImageResource(android.R.drawable.presence_busy)
             }
-            Bluelog.logEvents.INFO -> {
+            MainEvents.INFO -> {
                 holder.textViewMessage.setTextColor(Color.BLACK)
                 holder.imageViewType.setImageResource(0)
             }
-            Bluelog.logEvents.WARNING -> {
+            MainEvents.WARNING -> {
                 holder.textViewMessage.setTextColor(Color.BLACK)
                 holder.imageViewType.setImageResource(android.R.drawable.presence_invisible)
             }
