@@ -18,6 +18,14 @@ class App : Application() {
         }
 
         private val handlers: ArrayList<HandlerList> = ArrayList()
+        fun scheduleSentinelService(context: Context) {
+            val intent = Intent(MainEvents.BROADCAST)
+            intent.putExtra("message", "Start sentinel service every 60 seconds")
+            intent.putExtra("type", MainEvents.INFO)
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+            cron(context, SentinelService::class.java, "60")
+        }
+
         fun scheduleBluetoothService(context: Context) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("bluetoothServiceEverySeconds", "90")

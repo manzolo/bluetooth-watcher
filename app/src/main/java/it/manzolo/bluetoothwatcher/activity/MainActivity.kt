@@ -27,6 +27,7 @@ import it.manzolo.bluetoothwatcher.service.BluetoothService
 import it.manzolo.bluetoothwatcher.service.RestartAppService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService
 import it.manzolo.bluetoothwatcher.updater.Apk
+import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.updater.UpdateApp
 import it.manzolo.bluetoothwatcher.utils.Date
 import it.manzolo.bluetoothwatcher.utils.Session
@@ -204,6 +205,24 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> {
                 val intentSettings = Intent(this, SettingsActivity::class.java)
                 this.startActivity(intentSettings)
+                return true
+            }
+            R.id.action_trigger_app_update_settings_service -> {
+                val webserviceUrl = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUrl", "").toString()
+                if (webserviceUrl.isEmpty()) {
+                    val intent = Intent(WebserviceEvents.ERROR)
+                    // You can also include some extra data.
+                    intent.putExtra("message", "No webservice url in settings")
+                    LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+                    return false
+                }
+                val webserviceUsername = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUsername", "username").toString()
+                val webservicePassword = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webservicePassword", "password").toString()
+                val autoSettingsUpdate = PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("autoSettingsUpdate", true)
+                if (autoSettingsUpdate) {
+                    val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
+                    appSettings.receive()
+                }
                 return true
             }
             R.id.action_trigger_bluetooth_service -> {

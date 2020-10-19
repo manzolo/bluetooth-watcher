@@ -13,6 +13,11 @@
         <menu>
             <group>
                 <item
+                    android:id="@+id/action_trigger_app_update_settings_service"
+                    android:orderInCategory="205"
+                    android:title="@string/triggerAppUpdateSettingsService"
+                    app:showAsAction="never" />
+                <item
                     android:id="@+id/action_trigger_bluetooth_service"
                     android:orderInCategory="210"
                     android:title="@string/triggerBluetoothService"

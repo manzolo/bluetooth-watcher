@@ -68,6 +68,10 @@
             android:label="RebootService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <service
+            android:name="it.manzolo.bluetoothwatcher.service.SentinelService"
+            android:label="SentinelService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

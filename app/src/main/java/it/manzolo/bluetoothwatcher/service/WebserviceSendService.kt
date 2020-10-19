@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
-import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.utils.Network
 import it.manzolo.bluetoothwatcher.webservice.WebserviceSender
 
@@ -44,18 +43,19 @@ class WebserviceSendService : Service() {
         Log.d(TAG, "WebserviceStart")
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val debug = preferences.getBoolean("debugApp", false)
-        val webserviceUrl = preferences.getString("webserviceUrl", "http://localhost:8080").toString()
+        val webserviceUrl = preferences.getString("webserviceUrl", "").toString()
         val webserviceUsername = preferences.getString("webserviceUsername", "username").toString()
         val webservicePassword = preferences.getString("webservicePassword", "password").toString()
+        if (webserviceUrl.isEmpty()) {
+            val intent = Intent(WebserviceEvents.ERROR)
+            // You can also include some extra data.
+            intent.putExtra("message", "No webservice url in settings")
+            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+            return
 
+        }
         try {
             if (Network().isNetworkAvailable(applicationContext)) {
-                val autoSettingsUpdate = preferences.getBoolean("autoSettingsUpdate", true)
-                if (autoSettingsUpdate) {
-                    val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
-                    appSettings.receive()
-                }
-
                 val sender = WebserviceSender(applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
                 sender.send()
             } else {

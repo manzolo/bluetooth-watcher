@@ -25,12 +25,18 @@ class MainActivityFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState == null) {
+            startSentinelService()
             startBluetoothService()
             startWebserviceSendService()
             startLocationService()
             startUpdateService()
             startRebootService()
         }
+    }
+
+    private fun startSentinelService() {
+        Log.d(TAG, "startSentinelService")
+        App.scheduleSentinelService(activity as Context)
     }
 
     private fun startBluetoothService() {

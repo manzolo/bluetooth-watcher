@@ -108,14 +108,6 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
         HTTPAsyncTask().execute()
     }
 
-    @Throws(JSONException::class)
-    private fun buidLoginJsonObject(): JSONObject {
-        val jsonObject = JSONObject()
-        jsonObject.put("username", webserviceUsername)
-        jsonObject.put("password", webservicePassword)
-        return jsonObject
-    }
-
     internal inner class HTTPAsyncTask : AsyncTask<String?, Void?, String>() {
         override fun doInBackground(vararg params: String?): String? {
             // params comes from the execute() call: params[0] is the url.
@@ -123,18 +115,18 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
                 try {
                     httpGet()
                 } catch (e: JSONException) {
-                    Log.e(TAG, e.message.toString())
+                    Log.e(TAG, e.message.toString() + " from " + webserviceUrl)
                     //e.printStackTrace();
-                    "Error: " + e.message.toString()
+                    "Error: " + e.message.toString() + " from " + webserviceUrl
                 }
             } catch (e: IOException) {
                 //e.printStackTrace();
                 Log.e(TAG, e.message.toString())
                 val intent = Intent(BluetoothEvents.ERROR)
                 // You can also include some extra data.
-                intent.putExtra("message", e.message.toString())
+                intent.putExtra("message", e.message.toString() + " from " + webserviceUrl)
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                "Unable to retrieve web page: " + e.message.toString()
+                "Unable to retrieve web page: " + e.message.toString() + " from " + webserviceUrl
             }
         }
 
