@@ -276,10 +276,7 @@ class MainActivity : AppCompatActivity() {
                 val photoURI = applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.packageName + ".provider", file) }
 
                 val updateApp = UpdateApp(applicationContext)
-                //Log.i("manzolo", file.toString())
                 val outputDir = photoURI.toString()
-                //Log.e(TAG, session.updateApkUrl)
-                //Log.e(TAG, outputDir)
                 if (session.updateApkUrl?.isEmpty()!!) {
                     val githubUpdater = GithubUpdater()
                     githubUpdater.checkUpdate(applicationContext)

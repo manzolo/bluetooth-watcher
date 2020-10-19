@@ -65,7 +65,7 @@
             app:dialogTitle="Select duration"
             app:key="updateServiceEverySeconds"
             app:summary="Set every seconds update service start"
-            app:title="Looking for app updates" />
+            app:title="Checking for app updates" />
         <EditTextPreference
             app:dialogTitle="Select duration"
             app:key="restartAppServiceEverySeconds"

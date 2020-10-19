@@ -74,7 +74,7 @@ class App : Application() {
 
             if (seconds != null) {
                 val intent = Intent(MainEvents.BROADCAST)
-                intent.putExtra("message", "Start looking for update app service every $seconds seconds")
+                intent.putExtra("message", "Start checking for update app service every $seconds seconds")
                 intent.putExtra("type", MainEvents.INFO)
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                 cron(context, UpdateService::class.java, seconds)
