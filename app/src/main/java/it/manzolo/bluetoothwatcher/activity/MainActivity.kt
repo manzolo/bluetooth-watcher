@@ -98,10 +98,6 @@ class MainActivity : AppCompatActivity() {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
                     dbLog.createRow(now, intent.getStringExtra("message"), intent.getStringExtra("type"))
                 }
-                Bluelog.logEvents.BROADCAST -> {
-                    mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), intent.getStringExtra("type")))
-                    dbLog.createRow(now, intent.getStringExtra("message"), intent.getStringExtra("type"))
-                }
                 BluetoothEvents.ERROR -> {
                     mLogs.add(0, Bluelog(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR))
                     dbLog.createRow(now, intent.getStringExtra("message"), Bluelog.logEvents.ERROR)
@@ -380,12 +376,6 @@ class MainActivity : AppCompatActivity() {
         return iFilter
     }
 
-    private fun getLogMessagesIntentFilter(): IntentFilter {
-        val iFilter = IntentFilter()
-        iFilter.addAction(Bluelog.logEvents.BROADCAST)
-        return iFilter
-    }
-
     private fun getCheckUpdateLocalIntentFilter(): IntentFilter {
         val iFilter = IntentFilter()
         iFilter.addAction(WebserviceEvents.APP_CHECK_UPDATE)
@@ -475,7 +465,6 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateErrorLocalIntentFilter())
 
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLogMessagesIntentFilter())
 
         LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLocationChangedIntentFilter())
 

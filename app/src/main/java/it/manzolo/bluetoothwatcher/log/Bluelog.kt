@@ -8,7 +8,6 @@ class Bluelog(val data: String, val message: String, val type: String) {
             const val ERROR = "E"
             const val WARNING = "W"
             const val INFO = "I"
-            const val BROADCAST = "BROADCASTMESSAGE"
         }
     }
 }
