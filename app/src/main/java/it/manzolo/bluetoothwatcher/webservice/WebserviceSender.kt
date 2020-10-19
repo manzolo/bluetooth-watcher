@@ -6,7 +6,6 @@ import android.os.AsyncTask
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
-import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.MainEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceResponse
@@ -34,10 +33,10 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
         conn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
         conn.setRequestProperty("Authorization", "Bearer $token")
 
-        // 3. add JSON content to POST request body
+        // add JSON content to POST request body
         Http().setPostRequestContent(conn, jsonObject)
 
-        // 4. make POST request to the given URL
+        // make POST request to the given URL
         conn.connect()
         return if (conn.responseCode in 200..399) {
             val jsonResponseObject = JSONObject(Http().streamToString(conn.inputStream))
@@ -53,13 +52,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                 WebserviceResponse.ERROR
             }
         } else if (conn.responseCode == 401) {
-            //String response = new HttpUtils().convertStreamToString(conn.getInputStream());
-            //JSONObject jsonResponseObject = new JSONObject(response);
-            //if (jsonResponseObject.get("code").equals(401) && jsonResponseObject.get("message").equals("Expired JWT Token")){
             WebserviceResponse.TOKEN_EXPIRED
-            //}else{
-            //    return WebserviceResponse.ERROR;
-            //}
         } else {
             val intentWs = Intent(WebserviceEvents.ERROR)
             intentWs.putExtra("message", conn.responseCode.toString() + " " + conn.responseMessage)
@@ -82,7 +75,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
             Log.d(TAG, "Try connecting to " + webserviceUrl)
             try {
                 while (cursor.moveToNext()) {
-                    // 1. create HttpURLConnection
+                    // create HttpURLConnection
                     var token = Http.getWebserviceToken(context, webserviceUrl, webserviceUsername, webservicePassword)
                     val device = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_DEVICE))
                     val data = cursor.getString(cursor.getColumnIndex("grData"))
@@ -91,7 +84,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                     val detectorBattery = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_DETECTOR_BATTERY))
                     val longitude = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_LONGITUDE))
                     val latitude = cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_LATITUDE))
-                    // 2. build JSON object
+                    // build JSON object
                     val jsonObject = buildJsonObject(device, "$data:00", volt, temp, detectorBattery, longitude, latitude)
                     Log.d(TAG, "Build sending data=$jsonObject")
                     when (sendData(url, token!!, jsonObject)) {
@@ -128,8 +121,6 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                 databaseVoltwatcher.close()
             }
 
-            //Log.d(TAG, conn.getResponseMessage());
-            // 5. return response message
             if (sendSuccessfully) {
                 "OK"
             } else {
@@ -166,7 +157,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
             } catch (e: IOException) {
                 //e.printStackTrace();
                 Log.e(TAG, Objects.requireNonNull(e.message.toString()))
-                val intent = Intent(BluetoothEvents.ERROR)
+                val intent = Intent(MainEvents.ERROR)
                 // You can also include some extra data.
                 intent.putExtra("message", e.message)
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
