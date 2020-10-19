@@ -11,7 +11,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, arg1: Intent) {
         this.context = context
         this.arg1 = arg1
-        Log.w("boot_broadcast_poc", "starting service...")
+        Log.w("boot_broadcast_poc", "starting service")
         val pm = context.packageManager
         val launchIntent = pm.getLaunchIntentForPackage("it.manzolo.bluetoothwatcher")
         context.startActivity(launchIntent)
