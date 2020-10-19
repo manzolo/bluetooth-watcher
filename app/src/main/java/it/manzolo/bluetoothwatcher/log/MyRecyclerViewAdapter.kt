@@ -1,0 +1,68 @@
+package it.manzolo.bluetoothwatcher.log
+
+import android.graphics.Color
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import it.manzolo.bluetoothwatcher.R
+import it.manzolo.bluetoothwatcher.log.MyRecyclerViewAdapter.MyViewHolder
+import java.util.*
+
+class MyRecyclerViewAdapter(private val mLogs: ArrayList<Bluelog>) : RecyclerView.Adapter<MyViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+        //Inflate RecyclerView row
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_log, parent, false)
+
+        //Create View Holder
+        return MyViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        holder.textViewData.text = mLogs[position].data
+        val message = mLogs[position].message
+        holder.textViewMessage.text = message
+        val type = mLogs[position].type
+        when (type) {
+            Bluelog.logEvents.ERROR -> {
+                holder.textViewMessage.setTextColor(Color.RED)
+                holder.imageViewType.setImageResource(android.R.drawable.presence_busy)
+            }
+            Bluelog.logEvents.INFO -> {
+                holder.textViewMessage.setTextColor(Color.BLACK)
+                holder.imageViewType.setImageResource(0)
+            }
+            Bluelog.logEvents.WARNING -> {
+                holder.textViewMessage.setTextColor(Color.BLACK)
+                holder.imageViewType.setImageResource(android.R.drawable.presence_invisible)
+            }
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return mLogs.size
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    //RecyclerView View Holder
+    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val textViewData: TextView
+        val textViewMessage: TextView
+        val imageViewType: ImageView
+
+        init {
+            textViewData = itemView.findViewById(R.id.logData)
+            textViewMessage = itemView.findViewById(R.id.logMessage)
+            imageViewType = itemView.findViewById(R.id.logstatus)
+        }
+    }
+}
