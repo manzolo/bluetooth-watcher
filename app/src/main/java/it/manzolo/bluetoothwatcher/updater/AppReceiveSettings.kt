@@ -33,7 +33,6 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
                         httpGet(context, webserviceUrl, webserviceUsername, webservicePassword)
                     } catch (e: JSONException) {
                         Log.e(TAG, e.message.toString() + " from " + webserviceUrl)
-                        //e.printStackTrace();
                         "Error: " + e.message.toString() + " from " + webserviceUrl
                 }
             } catch (e: IOException) {
