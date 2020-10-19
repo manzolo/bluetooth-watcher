@@ -27,7 +27,7 @@ class SentinelService : Service() {
         return START_NOT_STICKY
     }
 
-    fun starSentinelTask() {
+    private fun starSentinelTask() {
         Log.d(TAG, "onSentinelStartCommand")
         val webserviceUrl = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUrl", "").toString()
         if (webserviceUrl.isEmpty()) {
@@ -44,7 +44,6 @@ class SentinelService : Service() {
             val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
             appSettings.receive()
         }
-
     }
 
     override fun onCreate() {
