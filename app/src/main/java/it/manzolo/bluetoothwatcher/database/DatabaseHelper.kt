@@ -55,7 +55,7 @@ class DatabaseHelper     // Costruttore
         try {
             val sd = Environment.getExternalStorageDirectory()
             val data = Environment.getDataDirectory()
-            if (sd.canWrite()) {
+            if (sd.canRead()) {
                 val currentDBPath = "//data/" + context.packageName + "/databases/" + DATABASE_NAME
                 val currentDB = File(data, currentDBPath)
                 val backupDB = File(sd, DATABASE_NAME)

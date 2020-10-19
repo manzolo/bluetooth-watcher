@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
 
                         val db = DatabaseVoltwatcher(applicationContext)
                         db.open()
-                        db.createRow(device, volt, temp, data, session.longitude, session.latitude, bp.toString())
+                        db.createRow(device, volt, temp, data, session.longitude!!, session.latitude!!, bp.toString())
                         db.close()
                     } catch (e: Exception) {
                         //Log.e(TAG, e.message)
