@@ -84,7 +84,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey)
+            setPreferencesFromResource(R.xml.settings_preferences, rootKey)
 
             val webserviceUrlPreference: EditTextPreference? = findPreference("webserviceUrl")
 
