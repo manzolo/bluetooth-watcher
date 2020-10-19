@@ -40,9 +40,9 @@ class MainActivity : AppCompatActivity() {
         val TAG: String = MainActivity::class.java.simpleName
     }
 
-    private val mLogs: ArrayList<BluetoothWatcherLog> = ArrayList()
-    private var mRecyclerView: RecyclerView? = null
-    val myRecyclerViewAdapter = MyRecyclerViewAdapter(mLogs)
+    private val logList: ArrayList<BluetoothWatcherLog> = ArrayList()
+    private var recyclerView: RecyclerView? = null
+    val logViewAdapter = MyRecyclerViewAdapter(logList)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
@@ -64,19 +64,17 @@ class MainActivity : AppCompatActivity() {
             )
             ActivityCompat.requestPermissions(this, permissions, 0)
 
-
-
             //EventViewer
             //Reference of RecyclerView
-            mRecyclerView = findViewById(R.id.myRecyclerView)
+            recyclerView = findViewById(R.id.myRecyclerView)
             //Linear Layout Manager
             val linearLayoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
             //Set Layout Manager to RecyclerView
-            mRecyclerView!!.layoutManager = linearLayoutManager
+            recyclerView!!.layoutManager = linearLayoutManager
             //Set adapter to RecyclerView
-            mRecyclerView!!.adapter = myRecyclerViewAdapter
+            recyclerView!!.adapter = logViewAdapter
 
-            mLogs.add(0, BluetoothWatcherLog(Date.now(), "System ready", MainEvents.INFO))
+            logList.add(0, BluetoothWatcherLog(Date.now(), "System ready", MainEvents.INFO))
 
             //Service enabled by default
             PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("enabled", true).apply()
@@ -85,17 +83,10 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun captureLog(message: String, type: String) {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val debug = preferences.getBoolean("debugApp", false)
-        val dbLog = DatabaseLog(applicationContext)
-        dbLog.open()
-        dbLog.createRow(Date.now(), message, type)
-        mLogs.add(0, BluetoothWatcherLog(Date.now(), message, type))
-        dbLog.close()
-        if (debug) {
-            Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
-        }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
     }
 
     private val localBroadcastReceiver = object : BroadcastReceiver() {
@@ -142,14 +133,11 @@ class MainActivity : AppCompatActivity() {
                         dbIntent.putExtra("message", e.message)
                         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(dbIntent)
                     }
-
                 }
                 WebserviceEvents.DATA_SENT -> {
                     captureLog("Data sent " + intent.getStringExtra("message"), MainEvents.INFO)
                 }
                 WebserviceEvents.APP_UPDATE -> {
-
-                    //val filepath = intent.getStringExtra("file")
                     val session = Session(applicationContext)
                     val file = File(applicationContext.cacheDir, "app.apk")
                     val apkFile = applicationContext.applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.applicationContext.packageName + ".provider", file) }
@@ -192,16 +180,16 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-            myRecyclerViewAdapter.notifyDataSetChanged()
+            logViewAdapter.notifyDataSetChanged()
 
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
+        return when (menuItem.itemId) {
             R.id.action_settings -> {
                 val intentSettings = Intent(this, SettingsActivity::class.java)
                 this.startActivity(intentSettings)
@@ -268,20 +256,19 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_clear_log -> {
-                mLogs.clear()
+                logList.clear()
                 val db = DatabaseLog(applicationContext)
                 db.open()
                 db.clear()
                 db.close()
-                myRecyclerViewAdapter.notifyDataSetChanged()
+                logViewAdapter.notifyDataSetChanged()
                 Toast.makeText(applicationContext, "Done", Toast.LENGTH_SHORT).show()
                 return true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(menuItem)
         }
     }
 
-    // Method to show an alert dialog with yes, no and cancel button
     private fun showBackupDialog() {
         // Late initialize an alert dialog object
         lateinit var dialog: AlertDialog
@@ -316,7 +303,6 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    // Method to show an alert dialog with yes, no and cancel button
     private fun showRestoreDialog() {
         // Late initialize an alert dialog object
         lateinit var dialog: AlertDialog
@@ -473,11 +459,16 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
+    private fun captureLog(message: String, type: String) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val debug = preferences.getBoolean("debugApp", false)
+        val dbLog = DatabaseLog(applicationContext)
+        dbLog.open()
+        dbLog.createRow(Date.now(), message, type)
+        logList.add(0, BluetoothWatcherLog(Date.now(), message, type))
+        dbLog.close()
+        if (debug) {
+            Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+        }
     }
-
-
 }
