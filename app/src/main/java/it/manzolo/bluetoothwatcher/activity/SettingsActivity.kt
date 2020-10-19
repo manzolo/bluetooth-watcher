@@ -41,17 +41,20 @@ class SettingsActivity : AppCompatActivity() {
                 intent.putExtra("type", MainEvents.INFO)
                 //bluetoothService?.handler?.postDelayed(bluetoothService.runnable, frequencyBluetoothService);
             } else {
-                val bluetoothService = App.findHandler(BluetoothService::class.java, App.getHandlers())
-                val webserviceSendService = App.findHandler(WebserviceSendService::class.java, App.getHandlers())
-                val locationService = App.findHandler(LocationService::class.java, App.getHandlers())
-                val updateService = App.findHandler(UpdateService::class.java, App.getHandlers())
-                val restartService = App.findHandler(RestartAppService::class.java, App.getHandlers())
+                val handlersList = App.getHandlers()
+                val bluetoothService = App.findHandler(BluetoothService::class.java, handlersList)
+                val webserviceSendService = App.findHandler(WebserviceSendService::class.java, handlersList)
+                val locationService = App.findHandler(LocationService::class.java, handlersList)
+                val updateService = App.findHandler(UpdateService::class.java, handlersList)
+                val restartService = App.findHandler(RestartAppService::class.java, handlersList)
 
                 bluetoothService?.handler?.removeCallbacks(bluetoothService.runnable)
                 webserviceSendService?.handler?.removeCallbacks(webserviceSendService.runnable)
                 locationService?.handler?.removeCallbacks(locationService.runnable)
                 updateService?.handler?.removeCallbacks(updateService.runnable)
                 restartService?.handler?.removeCallbacks(restartService.runnable)
+
+                handlersList.clear()
 
                 intent.putExtra("message", "Services have been stopped from settings")
                 intent.putExtra("type", MainEvents.INFO)

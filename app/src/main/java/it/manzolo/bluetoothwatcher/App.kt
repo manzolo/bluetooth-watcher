@@ -5,11 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import it.manzolo.bluetoothwatcher.database.DatabaseLog
 import it.manzolo.bluetoothwatcher.enums.MainEvents
 import it.manzolo.bluetoothwatcher.service.*
-import it.manzolo.bluetoothwatcher.utils.Date
 import it.manzolo.bluetoothwatcher.utils.HandlerList
 
 class App : Application() {
@@ -27,12 +26,11 @@ class App : Application() {
                 Toast.makeText(context, "Start bluetooth service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
-            val db = DatabaseLog(context)
-            db.open()
-            db.createRow(Date.now(), "Start bluetooth service every $seconds seconds", MainEvents.INFO)
-            db.close()
-
             if (seconds != null) {
+                val intent = Intent(MainEvents.BROADCAST)
+                intent.putExtra("message", "Start bluetooth service every $seconds seconds")
+                intent.putExtra("type", MainEvents.INFO)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                 cron(context, BluetoothService::class.java, seconds)
             }
         }
@@ -46,11 +44,11 @@ class App : Application() {
                 Toast.makeText(context, "Start websend service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
-            val db = DatabaseLog(context)
-            db.open()
-            db.createRow(Date.now(), "Start webserviceSend service every $seconds seconds", "I")
-            db.close()
             if (seconds != null) {
+                val intent = Intent(MainEvents.BROADCAST)
+                intent.putExtra("message", "Start webserviceSend service every $seconds seconds")
+                intent.putExtra("type", MainEvents.INFO)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                 cron(context, WebserviceSendService::class.java, seconds)
             }
         }
@@ -59,16 +57,12 @@ class App : Application() {
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("locationServiceEverySeconds", "600")
-            val debug = preferences.getBoolean("debugApp", false)
-            if (debug) {
-                Toast.makeText(context, "Start location service every $seconds seconds", Toast.LENGTH_SHORT).show()
-            }
-            val db = DatabaseLog(context)
-            db.open()
-            db.createRow(Date.now(), "Start location service every $seconds seconds", "I")
-            db.close()
 
             if (seconds != null) {
+                val intent = Intent(MainEvents.BROADCAST)
+                intent.putExtra("message", "Start location service every $seconds seconds")
+                intent.putExtra("type", MainEvents.INFO)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                 cron(context, LocationService::class.java, seconds)
             }
 
@@ -77,16 +71,12 @@ class App : Application() {
         fun scheduleUpdateService(context: Context) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("updateServiceEverySeconds", "25200")
-            val debug = preferences.getBoolean("debugApp", false)
-            if (debug) {
-                Toast.makeText(context, "Start update service every $seconds seconds", Toast.LENGTH_SHORT).show()
-            }
-            val db = DatabaseLog(context)
-            db.open()
-            db.createRow(Date.now(), "Start update service every $seconds seconds", "I")
-            db.close()
 
             if (seconds != null) {
+                val intent = Intent(MainEvents.BROADCAST)
+                intent.putExtra("message", "Start looking for update app service every $seconds seconds")
+                intent.putExtra("type", MainEvents.INFO)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                 cron(context, UpdateService::class.java, seconds)
             }
         }
@@ -95,12 +85,12 @@ class App : Application() {
 
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seconds = preferences.getString("restartAppServiceEverySeconds", "43200")
-            val db = DatabaseLog(context)
-            db.open()
-            db.createRow(Date.now(), "Start restart app service every $seconds seconds", "I")
-            db.close()
 
             if (seconds != null) {
+                val intent = Intent(MainEvents.BROADCAST)
+                intent.putExtra("message", "Start restart app service every $seconds seconds")
+                intent.putExtra("type", MainEvents.INFO)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                 cron(context, RestartAppService::class.java, seconds)
             }
         }
