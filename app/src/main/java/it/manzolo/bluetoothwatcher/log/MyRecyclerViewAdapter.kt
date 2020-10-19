@@ -55,14 +55,9 @@ class MyRecyclerViewAdapter(private val mLogs: ArrayList<Bluelog>) : RecyclerVie
 
     //RecyclerView View Holder
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val textViewData: TextView
-        val textViewMessage: TextView
-        val imageViewType: ImageView
+        val textViewData: TextView = itemView.findViewById(R.id.logData)
+        val textViewMessage: TextView = itemView.findViewById(R.id.logMessage)
+        val imageViewType: ImageView = itemView.findViewById(R.id.logstatus)
 
-        init {
-            textViewData = itemView.findViewById(R.id.logData)
-            textViewMessage = itemView.findViewById(R.id.logMessage)
-            imageViewType = itemView.findViewById(R.id.logstatus)
-        }
     }
 }
