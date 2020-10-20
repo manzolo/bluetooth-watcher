@@ -11,9 +11,9 @@ import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.bluetooth.BluetoothClient
+import it.manzolo.bluetoothwatcher.device.DebugData
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
-import it.manzolo.bluetoothwatcher.utils.Date
 
 
 class BluetoothService : Service() {
@@ -33,32 +33,7 @@ class BluetoothService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onBluetoothStartJob")
         if (Build.FINGERPRINT.contains("generic")) {
-            // Dummy reading volt for emulator
-            val dummyDevice = "00:00:00:00:00:00"
-            val dummyVolt = "18.99"
-            val dummyTemperatureC = "30"
-            val dummyTemperatureF = "100"
-            val dummyAmpere = "1"
-            val dummyDate = Date.now()
-            //val dummyDate = "2000-01-01 00:00:00"
-            val intentBt = Intent(BluetoothEvents.DATA_RETRIEVED)
-
-            intentBt.putExtra("device", dummyDevice)
-            intentBt.putExtra("volt", dummyVolt)
-            intentBt.putExtra("data", dummyDate)
-            intentBt.putExtra("tempC", dummyTemperatureC)
-            intentBt.putExtra("tempF", dummyTemperatureF)
-            intentBt.putExtra("amp", dummyAmpere)
-
-            intentBt.putExtra("message", dummyDevice + " " + dummyVolt + "v " + dummyTemperatureC + "°")
-            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intentBt)
-
-            val intentBluetoothCloseConnection = Intent(BluetoothEvents.CLOSECONNECTION)
-            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intentBluetoothCloseConnection)
-            //val session = Session(applicationContext);
-            //session.webserviceToken="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2MDIwMjAzNDQsImV4cCI6MTYwMjAyMzk0NCwicm9sZXMiOlsiUk9MRV9TVVBFUl9BRE1JTiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImFkbWluIn0.D8_eH7IeXJ77W2KSs5QW6QpRjYvuwO08A1H0tG2l3rHCWkQ6EyWpp07tB9WNMpdtlHXaPYGm_zKRFW61PkRQPZn6Q6rN1QENTO1nBGImLWG3144LGHUoOjKaAK9b_Jtd49Heu35akGrXKbXd8gPQv0GqKPZab2uKCXMkVWK6I5tvy4MkfEQEJCdCctJDMJHWQ6bPb-Orb8nGA7smNV1psJFVurgSlMw-Ao5r4zvcc4bVJ55Yb8MqREfo0UPTB1_Fr3MTpYDRozc0obEHoZsNuE6Wk3kKySrP6MaIyDc0eoiNH2tdLvnGi7mYXMviTaZFD7NTMnsEsWg3uCH-0YO9Zhkks9uKJycC9aFj8LM5_820egEQR5scytP403XQm0l9fPoOojGfFjkAF7nmxmV8zt80CZBDqWoGXFsOONMvUSPJIgS_JIl-wY1NCanZCekvN16DceBkHFTcqDNpOHXdxQ61m_MaC3n4qIrg4pbUsnyWm0fx_rsqod6wAA7QBUuacgr3hFrX9C-T6DFvX32roxpgemU3kKngg3Kp22clN4MRVm-G1g_HskXz8hkzoK7W1YM4tFL8PcBO9H_jUm2IRonXywem_tVtZYr7XbMZH-yNQ1JfaFyxtkh1tPhC9Yzuqii_pNy7SfmePmTC3N5Ak3DmbJ7U6ZnaCvRnoV42QO4"
-            //mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set", MainEvents.WARNING))
-            //mLogs.add(0, Bluelog(DateUtils.now(), "Debug data set long message string set long message string set long message string set long message string set long message string set long message string ", MainEvents.WARNING))
+            DebugData().insertDebugData(applicationContext)
         } else {
             startBluetoothTask()
         }
