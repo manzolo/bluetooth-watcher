@@ -12,14 +12,14 @@ import java.util.*
 class DebugData {
     fun insertDebugData(context: Context?) {
 // Dummy reading volt for emulator
-        val dummyDevices = listOf("00:00:00:00:00:00", "00:00:00:00:00:01")
         val dummyTemperatureC = "30"
         val dummyTemperatureF = "100"
         val dummyAmpere = "1"
         val dummyDate = Date.now()//getDummyDate()
 
 
-        for (dummyDevice in dummyDevices) {
+        for (x in 0..6) {
+            val dummyDevice = "00:00:00:00:00:0$x"
             val dummyVolt = getNextRandomDummyVolt()
             val intentBt = Intent(BluetoothEvents.DATA_RETRIEVED)
 
