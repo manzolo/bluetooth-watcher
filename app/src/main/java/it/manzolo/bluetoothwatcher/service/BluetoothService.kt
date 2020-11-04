@@ -13,7 +13,6 @@ import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.bluetooth.BluetoothClient
 import it.manzolo.bluetoothwatcher.device.DebugData
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
-import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 
 
 class BluetoothService : Service() {
@@ -47,18 +46,7 @@ class BluetoothService : Service() {
 
     private fun startBluetoothTask() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
-        val url = preferences.getString("webserviceUrl", "")
         val debug = preferences.getBoolean("debugApp", false)
-        if (url!!.replace("\\s".toRegex(), "").isEmpty()) {
-            if (debug) {
-                Toast.makeText(this, "Web server in setting not set", Toast.LENGTH_LONG).show()
-            }
-            Log.e(TAG, "Web server in setting not set")
-            val intent = Intent(WebserviceEvents.ERROR)
-            // You can also include some extra data.
-            intent.putExtra("message", "Web server in setting not set")
-            LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
-        } else {
             val enabled = preferences.getBoolean("enabled", true)
             val address = preferences.getString("devices", "")
 
@@ -90,7 +78,6 @@ class BluetoothService : Service() {
                         Toast.makeText(this, "Service disabled in settings", Toast.LENGTH_LONG).show()
                     }
                 }
-            }
         }
     }
 }
