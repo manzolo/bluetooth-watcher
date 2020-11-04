@@ -12,7 +12,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.bluetooth.BluetoothClient
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
-import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.utils.Date
 
 
@@ -72,39 +71,29 @@ class BluetoothService : Service() {
 
     private fun startBluetoothTask() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
-        val url = preferences.getString("webserviceUrl", "")
         val debug = preferences.getBoolean("debugApp", false)
-        if (url!!.replace("\\s".toRegex(), "").isEmpty()) {
-            if (debug) {
-                Toast.makeText(this, "Web server in setting not set", Toast.LENGTH_LONG).show()
-            }
-            Log.e(TAG, "Web server in setting not set")
-            val intent = Intent(WebserviceEvents.ERROR)
-            // You can also include some extra data.
-            intent.putExtra("message", "Web server in setting not set")
-            LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
-        } else {
-            val enabled = preferences.getBoolean("enabled", true)
-            val address = preferences.getString("devices", "")
 
-            if (address!!.replace("\\s".toRegex(), "").isEmpty()) {
-                val intent = Intent(BluetoothEvents.ERROR)
-                // You can also include some extra data.
-                intent.putExtra("message", "No devices in settings")
-                LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
-                Log.e(TAG, "No devices in settings")
-                if (debug) {
-                    Toast.makeText(this, "No devices in settings", Toast.LENGTH_LONG).show()
+        val enabled = preferences.getBoolean("enabled", true)
+        val address = preferences.getString("devices", "")
+
+        if (address!!.replace("\\s".toRegex(), "").isEmpty()) {
+            val intent = Intent(BluetoothEvents.ERROR)
+            // You can also include some extra data.
+            intent.putExtra("message", "No devices in settings")
+            LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
+            Log.e(TAG, "No devices in settings")
+            if (debug) {
+                Toast.makeText(this, "No devices in settings", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            if (enabled) {
+                try {
+                    btTask().execute(this.applicationContext)
+                } catch (e: InterruptedException) {
+                    //e.printStackTrace()
+                    Log.e(TAG, e.message.toString())
+                    //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
                 }
-            } else {
-                if (enabled) {
-                    try {
-                        btTask().execute(this.applicationContext)
-                    } catch (e: InterruptedException) {
-                        //e.printStackTrace()
-                        Log.e(TAG, e.message.toString())
-                        //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-                    }
                 } else {
                     val intent = Intent(BluetoothEvents.ERROR)
                     // You can also include some extra data.
@@ -116,7 +105,7 @@ class BluetoothService : Service() {
                     }
                 }
             }
-        }
+
     }
 }
 
