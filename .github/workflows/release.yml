@@ -1,4 +1,5 @@
-name: Automatic Releases
+- name: Automatic Releases
+  uses: marvinpinto/action-automatic-releases@v1.1.0
   on:
     push:
       tags:
