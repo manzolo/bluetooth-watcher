@@ -12,8 +12,6 @@ jobs:
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: false
-          title: "Production Build"
           files: |
             app/release/app-release.apk
+          id: "automatic_releases"
