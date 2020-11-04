@@ -14,5 +14,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           release_name: "latest"
           prerelease: false
+          tag: "${{ github.ref }}"
           file: |
             app/release/app-release.apk
