@@ -15,8 +15,8 @@ jobs:
         id: commit
         run: |
           echo "Build project"
-          lasttag=${git describe --tags --abbrev=0 @^}
-          echo ::set-output name=body::${git log --oneline $lasttag..@}
+          lasttag="$(git describe --tags --abbrev=0 @^)"
+          echo ::set-output name=body::"$(git log --oneline $lasttag..@)"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
