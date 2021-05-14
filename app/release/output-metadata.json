@@ -5,13 +5,13 @@
     "kind": "Directory"
   },
   "applicationId": "it.manzolo.bluetoothwatcher",
-  "variantName": "processReleaseResources",
+  "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "versionCode": 1,
-      "versionName": "1.6.6",
+      "versionName": "1.6.7",
       "outputFile": "app-release.apk"
     }
   ]
