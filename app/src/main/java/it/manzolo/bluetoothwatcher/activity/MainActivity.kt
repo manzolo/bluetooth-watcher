@@ -260,12 +260,13 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_clear_log -> {
+                val size: Int = logList.size
                 logList.clear()
                 val db = DatabaseLog(applicationContext)
                 db.open()
                 db.clear()
                 db.close()
-                logViewAdapter.notifyDataSetChanged()
+                logViewAdapter.notifyItemRangeRemoved(0, size)
                 Toast.makeText(applicationContext, "Done", Toast.LENGTH_SHORT).show()
                 return true
             }
@@ -476,7 +477,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun updateApp(urlUpdate: String, filepath: String) {
+    private fun updateApp(urlUpdate: String, filepath: String) {
         val executor: ExecutorService = Executors.newSingleThreadExecutor()
         //val handler = Handler(Looper.getMainLooper())
         executor.execute {

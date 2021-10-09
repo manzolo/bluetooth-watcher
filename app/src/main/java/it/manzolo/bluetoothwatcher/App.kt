@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
@@ -49,7 +50,11 @@ class App : Application() {
             val seconds = preferences.getString("webserviceServiceEverySeconds", "120")
             val debug = preferences.getBoolean("debugApp", false)
             if (debug) {
-                Toast.makeText(context, "Start websend service every $seconds seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Start webserviceSend service every $seconds seconds",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             if (seconds != null) {
@@ -104,7 +109,7 @@ class App : Application() {
         }
 
         private fun cron(context: Context, serviceClass: Class<*>, seconds: String) {
-            val handler = Handler()
+            val handler = Handler(Looper.getMainLooper())
             val frequency = seconds.toInt() * 1000.toLong() // in ms
             val runnable = object : Runnable {
                 override fun run() {
@@ -130,12 +135,12 @@ class App : Application() {
 
 
             /*val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-            val componentName = ComponentName(context, WebsendService::class.java)
+            val componentName = ComponentName(context, WebserviceSendService::class.java)
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val debug = preferences.getBoolean("debugApp", false)
             val seconds = preferences.getString("seconds", "300")
             if (debug) {
-                Toast.makeText(context, "Start websend service every $seconds seconds", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Start webserviceSend service every $seconds seconds", Toast.LENGTH_SHORT).show()
             }
 
             val jobInfo = JobInfo.Builder(3, componentName)
