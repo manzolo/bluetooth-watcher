@@ -2,6 +2,7 @@ package it.manzolo.bluetoothwatcher.activity
 
 import android.content.*
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -28,11 +29,15 @@ import it.manzolo.bluetoothwatcher.service.RestartAppService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService
 import it.manzolo.bluetoothwatcher.updater.Apk
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
-import it.manzolo.bluetoothwatcher.updater.UpdateApp
 import it.manzolo.bluetoothwatcher.utils.Date
 import it.manzolo.bluetoothwatcher.utils.Session
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
+import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
@@ -156,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                     val session = Session(context)
                     val updateUrl = intent.getStringExtra("message")!!
                     session.updateApkUrl = updateUrl
-                    captureLog("Update available at " + updateUrl, MainEvents.WARNING)
+                    captureLog("Update available at $updateUrl", MainEvents.WARNING)
                 }
                 WebserviceEvents.APP_CHECK_UPDATE -> {
                     captureLog("Check for app update", MainEvents.INFO)
@@ -180,7 +185,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-            logViewAdapter.notifyDataSetChanged()
+            logViewAdapter.notifyItemInserted(0)
 
         }
     }
@@ -241,10 +246,9 @@ class MainActivity : AppCompatActivity() {
                 val file = File(applicationContext.cacheDir, "app.apk")
                 val photoURI = applicationContext.let { it1 -> FileProvider.getUriForFile(it1, applicationContext.packageName + ".provider", file) }
 
-                val updateApp = UpdateApp(applicationContext)
                 val outputDir = photoURI.toString()
                 if (!session.updateApkUrl?.isEmpty()!!) {
-                    updateApp.execute(session.updateApkUrl, outputDir)
+                    this.updateApp(session.updateApkUrl!!, outputDir)
                 } else {
                     Toast.makeText(applicationContext, "No available updates", Toast.LENGTH_SHORT).show()
                 }
@@ -469,6 +473,56 @@ class MainActivity : AppCompatActivity() {
         dbLog.close()
         if (debug) {
             Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun updateApp(urlUpdate: String, filepath: String) {
+        val executor: ExecutorService = Executors.newSingleThreadExecutor()
+        //val handler = Handler(Looper.getMainLooper())
+        executor.execute {
+            try {
+                val url = URL(urlUpdate)
+                Log.d("url", url.toString())
+                Log.d("filepath", filepath)
+                val c = url.openConnection() as HttpURLConnection
+                c.requestMethod = "GET"
+                c.connect()
+                val file = File(applicationContext.cacheDir, "app.apk")
+                if (file.exists()) {
+                    if (!file.delete()) {
+                        val intent = Intent(WebserviceEvents.APP_UPDATE_ERROR)
+                        // You can also include some extra data.
+                        intent.putExtra("message", "Unable to delete " + file.absolutePath)
+                        intent.putExtra("type", MainEvents.ERROR)
+                        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+                        return@execute
+                    }
+                }
+                val fos = FileOutputStream(file)
+                val `is` = c.inputStream
+                val buffer = ByteArray(1024)
+                var len1: Int
+                while (`is`.read(buffer).also { len1 = it } != -1) {
+                    fos.write(buffer, 0, len1)
+                }
+                fos.close()
+                `is`.close()
+                Log.i("ManzoloUpdate", "Download complete")
+                val intent = Intent(WebserviceEvents.APP_UPDATE)
+                // You can also include some extra data.
+                intent.putExtra("message", "Download complete")
+                intent.putExtra("file", file.absolutePath)
+                LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+            } catch (e: Exception) {
+                //e.printStackTrace();
+                Log.e("UpdateAPP", "Update error! " + e.message)
+                val intent = Intent(WebserviceEvents.APP_UPDATE_ERROR)
+                // You can also include some extra data.
+                intent.putExtra("message", e.message)
+                intent.putExtra("type", MainEvents.ERROR)
+                LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+            }
+            return@execute
         }
     }
 }
