@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
@@ -41,7 +40,7 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
                 val intent = Intent(BluetoothEvents.ERROR)
                 // You can also include some extra data.
                 intent.putExtra("message", e.message.toString() + " from " + webserviceUrl)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                    context.sendBroadcast(intent)
                     "Unable to retrieve web page: " + e.message.toString() + " from " + webserviceUrl
                 }
             }
@@ -134,8 +133,11 @@ class AppReceiveSettings(private val context: Context, private val webserviceUrl
                 return conn.responseMessage + ""
             } else {
                 val intentWs = Intent(WebserviceEvents.ERROR)
-                intentWs.putExtra("message", "Server login response: " + loginConn.responseCode + " " + loginConn.responseMessage)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs)
+                intentWs.putExtra(
+                    "message",
+                    "Server login response: " + loginConn.responseCode + " " + loginConn.responseMessage
+                )
+                context.sendBroadcast(intentWs)
             }
             Log.e(TAG, "Unable to update settings")
             return ""

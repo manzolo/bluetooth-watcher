@@ -4,7 +4,6 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
@@ -34,7 +33,7 @@ class SentinelService : Service() {
             val intent = Intent(WebserviceEvents.ERROR)
             // You can also include some extra data.
             intent.putExtra("message", "No webservice url in settings")
-            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+            applicationContext.sendBroadcast(intent)
             return
         }
         val webserviceUsername = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUsername", "username").toString()

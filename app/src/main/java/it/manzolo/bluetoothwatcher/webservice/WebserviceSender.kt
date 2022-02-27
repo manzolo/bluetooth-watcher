@@ -1,10 +1,10 @@
 package it.manzolo.bluetoothwatcher.webservice
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.bluetoothwatcher.database.DatabaseVoltwatcher
 import it.manzolo.bluetoothwatcher.enums.MainEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
@@ -35,7 +35,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                     val intent = Intent(MainEvents.ERROR)
                     // You can also include some extra data.
                     intent.putExtra("message", e.message)
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                    context.sendBroadcast(intent)
                     "Unable to retrieve web page: " + e.message
                 }
             }
@@ -45,6 +45,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                 Log.d(TAG, "Webservice response: $result")
             }
 
+            @SuppressLint("Range")
             @Throws(IOException::class)
             private fun httpWebserviceSendData(context: Context, webserviceUrl: String, webserviceUsername: String, webservicePassword: String): String {
                 val url = URL(webserviceUrl + Http.sendVoltUrl)
@@ -71,7 +72,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                             // build JSON object
                             val jsonObject = buildJsonObject(device, "$data:00", volt, temp, detectorBattery, longitude, latitude)
                             Log.d(TAG, "Build sending data=$jsonObject")
-                            when (sendData(url, token!!, jsonObject)) {
+                            when (sendData(url, token, jsonObject)) {
                                 WebserviceResponse.ERROR -> {
                                 }
                                 WebserviceResponse.OK -> {
@@ -80,7 +81,12 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                                     sendSuccessfully = true
                                 }
                                 WebserviceResponse.TOKEN_EXPIRED -> {
-                                    token = Http.getNewWebserviceToken(context, webserviceUrl, webserviceUsername, webservicePassword)
+                                    token = Http.getNewWebserviceToken(
+                                        context,
+                                        webserviceUrl,
+                                        webserviceUsername,
+                                        webservicePassword
+                                    )
                                     if (sendData(url, token, jsonObject) == WebserviceResponse.OK) {
                                         databaseVoltwatcher.updateSent(device, data)
                                         Log.d(TAG, "Updated record sent")
@@ -94,12 +100,15 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                             Log.d(TAG, "Data sent")
                             val intentWs = Intent(WebserviceEvents.DEBUG)
                             intentWs.putExtra("message", "$cursorCount rows sent")
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs)
+                            context.sendBroadcast(intentWs)
                         }
                     } catch (e: Exception) {
                         val intentWs = Intent(WebserviceEvents.ERROR)
-                        intentWs.putExtra("message", "Unable to send data to " + webserviceUrl + " : " + e.message)
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs)
+                        intentWs.putExtra(
+                            "message",
+                            "Unable to send data to " + webserviceUrl + " : " + e.message
+                        )
+                        context.sendBroadcast(intentWs)
                     } finally {
                         cursor.close()
                         databaseVoltwatcher.close()
@@ -115,7 +124,7 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                     databaseVoltwatcher.close()
                     val intentWs = Intent(MainEvents.DEBUG)
                     intentWs.putExtra("message", "No data found to send")
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs)
+                    context.sendBroadcast(intentWs)
                     "No data found to send"
                 }
             }
@@ -154,20 +163,26 @@ class WebserviceSender(private val context: Context, private val webserviceUrl: 
                     if (jsonResponseObject["errcode"] == 0) {
                         val intentWebserviceSent = Intent(WebserviceEvents.INFO)
                         intentWebserviceSent.putExtra("message", jsonObject.toString())
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(intentWebserviceSent)
+                        context.sendBroadcast(intentWebserviceSent)
                         WebserviceResponse.OK
                     } else {
                         val intentWs = Intent(WebserviceEvents.ERROR)
-                        intentWs.putExtra("message", jsonResponseObject["errcode"].toString() + " " + jsonResponseObject["message"].toString())
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs)
+                        intentWs.putExtra(
+                            "message",
+                            jsonResponseObject["errcode"].toString() + " " + jsonResponseObject["message"].toString()
+                        )
+                        context.sendBroadcast(intentWs)
                         WebserviceResponse.ERROR
                     }
                 } else if (conn.responseCode == 401) {
                     WebserviceResponse.TOKEN_EXPIRED
                 } else {
                     val intentWs = Intent(WebserviceEvents.ERROR)
-                    intentWs.putExtra("message", conn.responseCode.toString() + " " + conn.responseMessage)
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intentWs)
+                    intentWs.putExtra(
+                        "message",
+                        conn.responseCode.toString() + " " + conn.responseMessage
+                    )
+                    context.sendBroadcast(intentWs)
                     WebserviceResponse.ERROR
                 }
             }

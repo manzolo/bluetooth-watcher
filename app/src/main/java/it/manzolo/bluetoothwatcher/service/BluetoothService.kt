@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.bluetooth.BluetoothClient
 import it.manzolo.bluetoothwatcher.device.DebugData
@@ -54,7 +53,7 @@ class BluetoothService : Service() {
                 val intent = Intent(BluetoothEvents.ERROR)
                 // You can also include some extra data.
                 intent.putExtra("message", "No devices in settings")
-                LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
+                this.applicationContext.sendBroadcast(intent)
                 Log.e(TAG, "No devices in settings")
                 if (debug) {
                     Toast.makeText(this, "No devices in settings", Toast.LENGTH_LONG).show()
@@ -72,7 +71,7 @@ class BluetoothService : Service() {
                     val intent = Intent(BluetoothEvents.ERROR)
                     // You can also include some extra data.
                     intent.putExtra("message", "Service disabled in settings")
-                    LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
+                    this.applicationContext.sendBroadcast(intent)
                     Log.w(TAG, "Service disabled in settings")
                     if (debug) {
                         Toast.makeText(this, "Service disabled in settings", Toast.LENGTH_LONG).show()
@@ -114,7 +113,7 @@ private class btTask : AsyncTask<Context, Void, String>() {
             val intent = Intent(BluetoothEvents.ERROR)
             // You can also include some extra data.
             intent.putExtra("message", e.message)
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+            context.sendBroadcast(intent)
             false
         }
     }

@@ -10,7 +10,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -135,7 +134,7 @@ class MainActivity : AppCompatActivity() {
                         val dbIntent = Intent(DatabaseEvents.ERROR)
                         // You can also include some extra data.
                         dbIntent.putExtra("message", e.message)
-                        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(dbIntent)
+                        applicationContext.sendBroadcast(dbIntent)
                     }
                 }
                 WebserviceEvents.DATA_SENT -> {
@@ -205,7 +204,7 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(WebserviceEvents.ERROR)
                     // You can also include some extra data.
                     intent.putExtra("message", "No webservice url in settings")
-                    LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+                    applicationContext.sendBroadcast(intent)
                     return false
                 }
                 val webserviceUsername = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUsername", "username").toString()
@@ -439,27 +438,60 @@ class MainActivity : AppCompatActivity() {
 
     private fun registerLocalBroadcast() {
         //LocalBroadcast
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionOkLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getConnectionErrorLocalIntentFilter())
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getConnectionOkLocalIntentFilter()
+        )
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getConnectionErrorLocalIntentFilter()
+        )
 
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceErrorDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getWebserviceInfoDataSentLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDebugLocalIntentFilter())
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getWebserviceDataSentLocalIntentFilter()
+        )
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getWebserviceErrorDataSentLocalIntentFilter()
+        )
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getWebserviceInfoDataSentLocalIntentFilter()
+        )
+        applicationContext.registerReceiver(localBroadcastReceiver, getDebugLocalIntentFilter())
 
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpgradeLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateAvailableLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getCheckUpdateLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getUpdateErrorLocalIntentFilter())
+        applicationContext.registerReceiver(localBroadcastReceiver, getUpgradeLocalIntentFilter())
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getUpdateAvailableLocalIntentFilter()
+        )
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getCheckUpdateLocalIntentFilter()
+        )
+        applicationContext.registerReceiver(localBroadcastReceiver, getNoUpdateLocalIntentFilter())
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getUpdateErrorLocalIntentFilter()
+        )
 
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
+        applicationContext.registerReceiver(localBroadcastReceiver, getDatabaseErrorIntentFilter())
 
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getLocationChangedIntentFilter())
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getLocationChangedIntentFilter()
+        )
 
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getMainServiceIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getMainServiceInfoIntentFilter())
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(localBroadcastReceiver, getMainServiceErrorIntentFilter())
+        applicationContext.registerReceiver(localBroadcastReceiver, getMainServiceIntentFilter())
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getMainServiceInfoIntentFilter()
+        )
+        applicationContext.registerReceiver(
+            localBroadcastReceiver,
+            getMainServiceErrorIntentFilter()
+        )
 
     }
 
@@ -494,7 +526,7 @@ class MainActivity : AppCompatActivity() {
                         // You can also include some extra data.
                         intent.putExtra("message", "Unable to delete " + file.absolutePath)
                         intent.putExtra("type", MainEvents.ERROR)
-                        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+                        applicationContext.sendBroadcast(intent)
                         return@execute
                     }
                 }
@@ -512,7 +544,7 @@ class MainActivity : AppCompatActivity() {
                 // You can also include some extra data.
                 intent.putExtra("message", "Download complete")
                 intent.putExtra("file", file.absolutePath)
-                LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+                applicationContext.sendBroadcast(intent)
             } catch (e: Exception) {
                 //e.printStackTrace();
                 Log.e("UpdateAPP", "Update error! " + e.message)
@@ -520,7 +552,7 @@ class MainActivity : AppCompatActivity() {
                 // You can also include some extra data.
                 intent.putExtra("message", e.message)
                 intent.putExtra("type", MainEvents.ERROR)
-                LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+                applicationContext.sendBroadcast(intent)
             }
             return@execute
         }
