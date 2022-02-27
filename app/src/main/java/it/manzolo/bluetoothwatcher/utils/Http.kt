@@ -47,7 +47,12 @@ class Http {
         const val connectionTimeout = 15000
 
         @Throws(Exception::class)
-        fun getNewWebserviceToken(context: Context?, url: String, username: String?, password: String?): String {
+        fun getNewWebserviceToken(
+            context: Context,
+            url: String,
+            username: String?,
+            password: String?
+        ): String {
             val sessionPreferences = Session(context)
             val token: String
             val loginConn = loginWebservice(url, username, password)
@@ -86,7 +91,12 @@ class Http {
         }
 
         @Throws(Exception::class)
-        fun getWebserviceToken(context: Context?, url: String, username: String?, password: String?): String? {
+        fun getWebserviceToken(
+            context: Context,
+            url: String,
+            username: String?,
+            password: String?
+        ): String {
             val sessionPreferences = Session(context)
             var lastToken = sessionPreferences.webserviceToken!!
             if (lastToken.isEmpty()) {

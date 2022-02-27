@@ -31,7 +31,6 @@ import it.manzolo.bluetoothwatcher.updater.Apk
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.utils.Date
 import it.manzolo.bluetoothwatcher.utils.Session
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -58,7 +57,7 @@ class MainActivity : AppCompatActivity() {
             Thread.setDefaultUncaughtExceptionHandler(UnCaughtExceptionHandler(this))
 
             setContentView(R.layout.activity_main)
-            setSupportActionBar(toolbar)
+            setSupportActionBar(findViewById(R.id.toolbar))
 
             //Ask user for permission
             val permissions = arrayOf(
@@ -95,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val localBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
+        override fun onReceive(context: Context, intent: Intent?) {
             when (intent?.action) {
                 MainEvents.BROADCAST -> {
                     captureLog(intent.getStringExtra("message")!!, intent.getStringExtra("type")!!)
