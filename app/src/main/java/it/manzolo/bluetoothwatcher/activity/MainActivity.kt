@@ -212,7 +212,7 @@ class MainActivity : AppCompatActivity() {
                 val autoSettingsUpdate = PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("autoSettingsUpdate", true)
                 if (autoSettingsUpdate) {
                     val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
-                    appSettings.receive()
+                    appSettings.execute()
                 }
                 return true
             }
