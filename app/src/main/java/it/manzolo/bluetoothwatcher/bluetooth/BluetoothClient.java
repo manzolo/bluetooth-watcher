@@ -1,5 +1,6 @@
 package it.manzolo.bluetoothwatcher.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -8,8 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +24,11 @@ public final class BluetoothClient {
     public static final String TAG = "BluetoothClient";
     volatile boolean stopWorker;
     private final Context context;
-    private BluetoothAdapter bluetoothAdapter;
     private BluetoothSocketWrapper bluetoothSocketWrapper;
     private BluetoothSocket bluetoothSocket;
     private BluetoothDevice bluetoothDevice;
     private OutputStream bluetoothOutputStream;
     private InputStream bluetoothInputStream;
-    private Thread workerThread;
     private int readBufferPosition;
     private byte[] readBuffer;
     private final String deviceAddress;
@@ -52,7 +49,7 @@ public final class BluetoothClient {
         this.deviceAddress = deviceAddress;
         this.context = context;
         //Register event for bluetooth close connection
-        LocalBroadcastManager.getInstance(context).registerReceiver(closeBluetoothReceiver, new IntentFilter(BluetoothEvents.CLOSECONNECTION));
+        context.registerReceiver(closeBluetoothReceiver, new IntentFilter(BluetoothEvents.CLOSECONNECTION));
     }
 
     public void retrieveData() throws Exception {
@@ -72,14 +69,11 @@ public final class BluetoothClient {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void findBT() throws Exception {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         bluetoothAdapter.cancelDiscovery();
-
-        if (bluetoothAdapter == null) {
-            throw new Exception("No bluetooth adapter available");
-        }
 
         if (!bluetoothAdapter.isEnabled()) {
             throw new Exception("Bluetooth not enabled");
@@ -111,6 +105,7 @@ public final class BluetoothClient {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private boolean open() throws Exception {
         this.findBT();
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
@@ -159,79 +154,80 @@ public final class BluetoothClient {
         Log.d(TAG, "Listen...");
 
         stopWorker = false;
-        workerThread = new Thread(new Runnable() {
-            public void run() {
-                while (!Thread.currentThread().isInterrupted() && !stopWorker) {
-                    try {
+        //Log.e(TAG, "Received:"+length + "");
+        //Log.e(TAG, "Buffer:" + LengthBytesRead + "");
+        //Log.e(TAG, "Byte Reade: " + readBufferPosition + "");
+        Thread workerThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted() && !stopWorker) {
+                try {
 
-                        int bytesAvailable = bluetoothInputStream.available();
-                        if (bytesAvailable > 0) {
-                            boolean recordOk = false;
-                            byte[] packetBytes = new byte[bytesAvailable];
-                            int length;
-                            Integer LengthBytesRead = 0;
-                            while ((length = bluetoothInputStream.read(packetBytes)) != -1) {
-                                LengthBytesRead = LengthBytesRead + length;
-                                //Log.e(TAG, "Received:"+length + "");
-                                //Log.e(TAG, "Buffer:" + LengthBytesRead + "");
-                                for (int i = 0; i < length; i++) {
-                                    byte b = packetBytes[i];
-                                    readBuffer[readBufferPosition++] = b;
-                                }
-                                if (LengthBytesRead.equals(bufferLength)) {
-                                    recordOk = true;
-                                    break;
-                                }
+                    int bytesAvailable = bluetoothInputStream.available();
+                    if (bytesAvailable > 0) {
+                        boolean recordOk = false;
+                        byte[] packetBytes = new byte[bytesAvailable];
+                        int length;
+                        Integer LengthBytesRead = 0;
+                        while ((length = bluetoothInputStream.read(packetBytes)) != -1) {
+                            LengthBytesRead = LengthBytesRead + length;
+                            //Log.e(TAG, "Received:"+length + "");
+                            //Log.e(TAG, "Buffer:" + LengthBytesRead + "");
+                            for (int i = 0; i < length; i++) {
+                                byte b = packetBytes[i];
+                                readBuffer[readBufferPosition++] = b;
                             }
-                            //Log.e(TAG, "Byte Reade: " + readBufferPosition + "");
-
-                            if (!recordOk) {
-                                Log.w(TAG, "Wrong data");
-                                Intent intentBtError = new Intent(BluetoothEvents.ERROR);
-                                intentBtError.putExtra("message", "Wrong data received from device " + device);
-                                LocalBroadcastManager.getInstance(context).sendBroadcast(intentBtError);
-                                Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
-                                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-                                stopWorker = true;
-                                Thread.currentThread().interrupt();
-                                return;
+                            if (LengthBytesRead.equals(bufferLength)) {
+                                recordOk = true;
+                                break;
                             }
-
-
-                            final DeviceInfo deviceInfo = new DeviceInfo(device, readBuffer);
-
-                            Log.d(TAG, "Device: " + deviceInfo.getAddress());
-                            Log.d(TAG, deviceInfo.getVolt() + " Volt");
-                            Log.d(TAG, deviceInfo.getAmp() + " A");
-                            Log.d(TAG, deviceInfo.getmW() + " mW");
-
-                            Log.d(TAG, deviceInfo.getTempC() + "°");
-                            Log.d(TAG, deviceInfo.getTempF() + "°F");
-
-                            String now = Date.now();
-
-                            Intent intentBt = new Intent(BluetoothEvents.DATA_RETRIEVED);
-
-                            intentBt.putExtra("device", deviceInfo.getAddress());
-                            intentBt.putExtra("volt", Objects.requireNonNull(deviceInfo.getVolt()).toString());
-                            intentBt.putExtra("data", now);
-                            intentBt.putExtra("tempC", Objects.requireNonNull(deviceInfo.getTempC()).toString());
-                            intentBt.putExtra("tempF", Objects.requireNonNull(deviceInfo.getTempF()).toString());
-                            intentBt.putExtra("amp", Objects.requireNonNull(deviceInfo.getAmp()).toString());
-
-                            intentBt.putExtra("message", deviceInfo.getAddress() + " " + deviceInfo.getVolt().toString() + "v " + deviceInfo.getTempC().toString() + "°");
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(intentBt);
-
-                            Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
                         }
-                    } catch (IOException ex) {
-                        stopWorker = true;
-                    } catch (Exception e) {
-                        stopWorker = true;
-                        e.printStackTrace();
+                        //Log.e(TAG, "Byte Reade: " + readBufferPosition + "");
+
+                        if (!recordOk) {
+                            Log.w(TAG, "Wrong data");
+                            Intent intentBtError = new Intent(BluetoothEvents.ERROR);
+                            intentBtError.putExtra("message", "Wrong data received from device " + device);
+                            context.sendBroadcast(intentBtError);
+                            Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
+                            context.sendBroadcast(intent);
+                            stopWorker = true;
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+
+
+                        final DeviceInfo deviceInfo = new DeviceInfo(device, readBuffer);
+
+                        Log.d(TAG, "Device: " + deviceInfo.getAddress());
+                        Log.d(TAG, deviceInfo.getVolt() + " Volt");
+                        Log.d(TAG, deviceInfo.getAmp() + " A");
+                        Log.d(TAG, deviceInfo.getmW() + " mW");
+
+                        Log.d(TAG, deviceInfo.getTempC() + "°");
+                        Log.d(TAG, deviceInfo.getTempF() + "°F");
+
+                        String now = Date.now();
+
+                        Intent intentBt = new Intent(BluetoothEvents.DATA_RETRIEVED);
+
+                        intentBt.putExtra("device", deviceInfo.getAddress());
+                        intentBt.putExtra("volt", Objects.requireNonNull(deviceInfo.getVolt()).toString());
+                        intentBt.putExtra("data", now);
+                        intentBt.putExtra("tempC", Objects.requireNonNull(deviceInfo.getTempC()).toString());
+                        intentBt.putExtra("tempF", Objects.requireNonNull(deviceInfo.getTempF()).toString());
+                        intentBt.putExtra("amp", Objects.requireNonNull(deviceInfo.getAmp()).toString());
+
+                        intentBt.putExtra("message", deviceInfo.getAddress() + " " + deviceInfo.getVolt().toString() + "v " + deviceInfo.getTempC().toString() + "°");
+                        context.sendBroadcast(intentBt);
+
+                        Intent intent = new Intent(BluetoothEvents.CLOSECONNECTION);
+                        context.sendBroadcast(intent);
+
                     }
+                } catch (IOException ex) {
+                    stopWorker = true;
+                } catch (Exception e) {
+                    stopWorker = true;
+                    e.printStackTrace();
                 }
             }
         });
@@ -255,7 +251,7 @@ public final class BluetoothClient {
         }
         bluetoothDevice = null;
 
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(closeBluetoothReceiver);
+        context.unregisterReceiver(closeBluetoothReceiver);
 
         Log.d(TAG, "Bluetooth Closed!");
     }

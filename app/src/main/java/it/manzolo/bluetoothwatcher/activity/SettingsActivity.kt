@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AppCompatActivity
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
 import it.manzolo.bluetoothwatcher.App
@@ -59,7 +58,7 @@ class SettingsActivity : AppCompatActivity() {
                 intent.putExtra("message", "Services have been stopped from settings")
                 intent.putExtra("type", MainEvents.INFO)
             }
-            context?.let { LocalBroadcastManager.getInstance(it).sendBroadcast(intent) }
+            context?.let { this.context?.sendBroadcast(intent) }
 
         }
 
@@ -73,14 +72,12 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onResume() {
             super.onResume()
-            preferenceScreen.sharedPreferences
-                    .registerOnSharedPreferenceChangeListener(this)
+            preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
         }
 
         override fun onPause() {
             super.onPause()
-            preferenceScreen.sharedPreferences
-                    .unregisterOnSharedPreferenceChangeListener(this)
+            preferenceScreen.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

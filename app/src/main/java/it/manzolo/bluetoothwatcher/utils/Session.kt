@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 
-class Session(cntx: Context?) {
+class Session(cntx: Context) {
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(cntx)
     var webserviceToken: String?
         get() = prefs.getString("token", "")

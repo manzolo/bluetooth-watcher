@@ -2,7 +2,6 @@ package it.manzolo.bluetoothwatcher.device
 
 import android.content.Context
 import android.content.Intent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.utils.Date
 import java.math.RoundingMode
@@ -30,11 +29,14 @@ class DebugData {
             intentBt.putExtra("tempF", dummyTemperatureF)
             intentBt.putExtra("amp", dummyAmpere)
 
-            intentBt.putExtra("message", dummyDevice + " " + dummyVolt + "v " + dummyTemperatureC + "°")
-            LocalBroadcastManager.getInstance(context!!).sendBroadcast(intentBt)
+            intentBt.putExtra(
+                "message",
+                dummyDevice + " " + dummyVolt + "v " + dummyTemperatureC + "°"
+            )
+            context!!.sendBroadcast(intentBt)
 
             val intentBluetoothCloseConnection = Intent(BluetoothEvents.CLOSECONNECTION)
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intentBluetoothCloseConnection)
+            context.sendBroadcast(intentBluetoothCloseConnection)
         }
     }
 

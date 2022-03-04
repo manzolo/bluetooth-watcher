@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.MainEvents
 import it.manzolo.bluetoothwatcher.service.*
@@ -23,7 +22,7 @@ class App : Application() {
             val intent = Intent(MainEvents.BROADCAST)
             intent.putExtra("message", "Start sentinel service every 60 seconds")
             intent.putExtra("type", MainEvents.INFO)
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+            context.sendBroadcast(intent)
             cron(context, SentinelService::class.java, "60")
         }
 
@@ -39,7 +38,7 @@ class App : Application() {
                 val intent = Intent(MainEvents.BROADCAST)
                 intent.putExtra("message", "Start bluetooth service every $seconds seconds")
                 intent.putExtra("type", MainEvents.INFO)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                context.sendBroadcast(intent)
                 cron(context, BluetoothService::class.java, seconds)
             }
         }
@@ -61,7 +60,7 @@ class App : Application() {
                 val intent = Intent(MainEvents.BROADCAST)
                 intent.putExtra("message", "Start webserviceSend service every $seconds seconds")
                 intent.putExtra("type", MainEvents.INFO)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                context.sendBroadcast(intent)
                 cron(context, WebserviceSendService::class.java, seconds)
             }
         }
@@ -75,7 +74,7 @@ class App : Application() {
                 val intent = Intent(MainEvents.BROADCAST)
                 intent.putExtra("message", "Start location service every $seconds seconds")
                 intent.putExtra("type", MainEvents.INFO)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                context.sendBroadcast(intent)
                 cron(context, LocationService::class.java, seconds)
             }
 
@@ -89,7 +88,7 @@ class App : Application() {
                 val intent = Intent(MainEvents.BROADCAST)
                 intent.putExtra("message", "Start checking for update app service every $seconds seconds")
                 intent.putExtra("type", MainEvents.INFO)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                context.sendBroadcast(intent)
                 cron(context, UpdateService::class.java, seconds)
             }
         }
@@ -103,7 +102,7 @@ class App : Application() {
                 val intent = Intent(MainEvents.BROADCAST)
                 intent.putExtra("message", "Start restart app service every $seconds seconds")
                 intent.putExtra("type", MainEvents.INFO)
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                context.sendBroadcast(intent)
                 cron(context, RestartAppService::class.java, seconds)
             }
         }

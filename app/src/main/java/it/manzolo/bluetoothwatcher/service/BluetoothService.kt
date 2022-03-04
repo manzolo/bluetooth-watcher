@@ -3,16 +3,18 @@ package it.manzolo.bluetoothwatcher.service
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.bluetooth.BluetoothClient
 import it.manzolo.bluetoothwatcher.device.DebugData
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 
 class BluetoothService : Service() {
@@ -54,7 +56,7 @@ class BluetoothService : Service() {
                 val intent = Intent(BluetoothEvents.ERROR)
                 // You can also include some extra data.
                 intent.putExtra("message", "No devices in settings")
-                LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
+                this.applicationContext.sendBroadcast(intent)
                 Log.e(TAG, "No devices in settings")
                 if (debug) {
                     Toast.makeText(this, "No devices in settings", Toast.LENGTH_LONG).show()
@@ -62,7 +64,8 @@ class BluetoothService : Service() {
             } else {
                 if (enabled) {
                     try {
-                        btTask().execute(this.applicationContext)
+                        val btTask = BtTask(applicationContext)
+                        btTask.execute()
                     } catch (e: InterruptedException) {
                         //e.printStackTrace()
                         Log.e(TAG, e.message.toString())
@@ -72,34 +75,49 @@ class BluetoothService : Service() {
                     val intent = Intent(BluetoothEvents.ERROR)
                     // You can also include some extra data.
                     intent.putExtra("message", "Service disabled in settings")
-                    LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(intent)
+                    this.applicationContext.sendBroadcast(intent)
                     Log.w(TAG, "Service disabled in settings")
                     if (debug) {
-                        Toast.makeText(this, "Service disabled in settings", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "Service disabled in settings", Toast.LENGTH_LONG)
+                            .show()
                     }
                 }
-        }
+            }
     }
 }
 
-private class btTask : AsyncTask<Context, Void, String>() {
-    override fun doInBackground(vararg args: Context): String {
-        val context = args[0]
+class BtTask(
+    private val context: Context,
+) : CoroutineScope {
+    private var job: Job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job // to run code in Main(UI) Thread
 
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val address = preferences.getString("devices", "")
-        val bluetoothDevices = address!!.split(",")
-        for (i in 0 until bluetoothDevices.size) {
-            val bluetoothDeviceAddress = bluetoothDevices[i].replace("\\s".toRegex(), "")
-            loopok@ for (idxretry in 1..5) {
-                if (btConnectionRetry(context, bluetoothDeviceAddress)) {
-                    Thread.sleep(1000)
-                    break@loopok
+    fun execute() = launch {
+        //onPreExecute()
+        doInBackground(context) // runs in background thread without blocking the Main Thread
+        //onPostExecute(result)
+    }
+
+    private suspend fun doInBackground(vararg args: Context): String =
+        withContext(Dispatchers.IO) { // to run code in Background Thread
+            val context = args[0]
+
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val address = preferences.getString("devices", "")
+            val bluetoothDevices = address!!.split(",")
+            for (i in 0 until bluetoothDevices.size) {
+                val bluetoothDeviceAddress = bluetoothDevices[i].replace("\\s".toRegex(), "")
+                loopok@ for (idxretry in 1..5) {
+                    if (btConnectionRetry(context, bluetoothDeviceAddress)) {
+                        Handler(Looper.getMainLooper()).postDelayed({}, 1000)
+                        break@loopok
+                    }
                 }
             }
+            return@withContext "OK"
+
         }
-        return "OK"
-    }
 
     fun btConnectionRetry(context: Context, addr: String): Boolean {
         return try {
@@ -114,20 +132,8 @@ private class btTask : AsyncTask<Context, Void, String>() {
             val intent = Intent(BluetoothEvents.ERROR)
             // You can also include some extra data.
             intent.putExtra("message", e.message)
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+            context.sendBroadcast(intent)
             false
         }
-    }
-
-    @Override
-    override fun onPreExecute() {
-        super.onPreExecute()
-
-    }
-
-    @Override
-    override fun onPostExecute(result: String) {
-        super.onPostExecute(result)
-        //Log.d(MainService.TAG, result)
     }
 }
