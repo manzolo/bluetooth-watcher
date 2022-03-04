@@ -181,6 +181,7 @@ class MainActivity : AppCompatActivity() {
                     if (PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("debugApp", false)) {
                         Toast.makeText(applicationContext, intent.getStringExtra("message"), Toast.LENGTH_LONG).show()
                     }
+                    return
                 }
             }
             logViewAdapter.notifyItemInserted(0)

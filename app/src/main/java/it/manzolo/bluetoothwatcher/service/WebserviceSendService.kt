@@ -56,7 +56,7 @@ class WebserviceSendService : Service() {
         try {
             if (Network().isNetworkAvailable(applicationContext)) {
                 val sender = WebserviceSender(applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
-                sender.send()
+                sender.execute()
             } else {
                 val intent = Intent(WebserviceEvents.ERROR)
                 // You can also include some extra data.
