@@ -24,13 +24,11 @@ public final class BluetoothClient {
     public static final String TAG = "BluetoothClient";
     volatile boolean stopWorker;
     private final Context context;
-    private BluetoothAdapter bluetoothAdapter;
     private BluetoothSocketWrapper bluetoothSocketWrapper;
     private BluetoothSocket bluetoothSocket;
     private BluetoothDevice bluetoothDevice;
     private OutputStream bluetoothOutputStream;
     private InputStream bluetoothInputStream;
-    private Thread workerThread;
     private int readBufferPosition;
     private byte[] readBuffer;
     private final String deviceAddress;
@@ -73,13 +71,9 @@ public final class BluetoothClient {
 
     @SuppressLint("MissingPermission")
     private void findBT() throws Exception {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         bluetoothAdapter.cancelDiscovery();
-
-        if (bluetoothAdapter == null) {
-            throw new Exception("No bluetooth adapter available");
-        }
 
         if (!bluetoothAdapter.isEnabled()) {
             throw new Exception("Bluetooth not enabled");
@@ -160,7 +154,10 @@ public final class BluetoothClient {
         Log.d(TAG, "Listen...");
 
         stopWorker = false;
-        workerThread = new Thread(() -> {
+        //Log.e(TAG, "Received:"+length + "");
+        //Log.e(TAG, "Buffer:" + LengthBytesRead + "");
+        //Log.e(TAG, "Byte Reade: " + readBufferPosition + "");
+        Thread workerThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted() && !stopWorker) {
                 try {
 
