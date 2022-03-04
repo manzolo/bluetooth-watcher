@@ -27,9 +27,9 @@ class DatabaseHelper     // Costruttore
     fun backup() {
         try {
 
-            val sd = Environment.getExternalStorageDirectory()
+            val sd = context.getExternalFilesDir("backup")
             val data = Environment.getDataDirectory()
-            if (sd.canWrite()) {
+            if (sd!!.canWrite()) {
                 val currentDBPath = "//data/" + context.packageName + "/databases/" + DATABASE_NAME
                 val currentDB = File(data, currentDBPath)
                 val backupDB = File(sd, DATABASE_NAME)
@@ -39,7 +39,8 @@ class DatabaseHelper     // Costruttore
                     dst.transferFrom(src, 0, src.size())
                     src.close()
                     dst.close()
-                    Toast.makeText(context, "Backup is successful to $sd", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Backup is successful to $sd", Toast.LENGTH_SHORT)
+                        .show()
                 } else {
                     Toast.makeText(context, "$currentDB not exists ", Toast.LENGTH_LONG).show()
                 }
@@ -53,9 +54,9 @@ class DatabaseHelper     // Costruttore
 
     fun restore() {
         try {
-            val sd = Environment.getExternalStorageDirectory()
+            val sd = context.getExternalFilesDir("backup")
             val data = Environment.getDataDirectory()
-            if (sd.canRead()) {
+            if (sd!!.canRead()) {
                 val currentDBPath = "//data/" + context.packageName + "/databases/" + DATABASE_NAME
                 val currentDB = File(data, currentDBPath)
                 val backupDB = File(sd, DATABASE_NAME)
@@ -65,7 +66,8 @@ class DatabaseHelper     // Costruttore
                     dst.transferFrom(src, 0, src.size())
                     src.close()
                     dst.close()
-                    Toast.makeText(context, "Database Restored successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Database Restored successfully", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         } catch (e: Exception) {

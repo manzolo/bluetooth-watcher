@@ -3,7 +3,6 @@ package it.manzolo.bluetoothwatcher.network
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.github.javiersantos.appupdater.AppUpdaterUtils
 import com.github.javiersantos.appupdater.enums.AppUpdaterError
 import com.github.javiersantos.appupdater.enums.UpdateFrom
@@ -31,18 +30,21 @@ class GithubUpdater {
                                     session.isAvailableUpdate = true
 
                                     val intent = Intent(WebserviceEvents.APP_AVAILABLE)
-                                    intent.putExtra("message", update.urlToDownload.toString() + "/download/app-release.apk")
-                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                                    intent.putExtra(
+                                        "message",
+                                        update.urlToDownload.toString() + "/download/app-release.apk"
+                                    )
+                                    context.sendBroadcast(intent)
                                 } else {
                                     val intent = Intent(WebserviceEvents.APP_NO_AVAILABLE_UPDATE)
-                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                                    context.sendBroadcast(intent)
                                 }
                             }
 
                             override fun onFailed(error: AppUpdaterError) {
                                 val intent = Intent(MainEvents.ERROR)
                                 intent.putExtra("message", error)
-                                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                                context.sendBroadcast(intent)
                             }
                         })
                 appUpdaterUtils.start()
@@ -50,7 +52,7 @@ class GithubUpdater {
         } else {
             val intent = Intent(MainEvents.ERROR)
             intent.putExtra("message", "No internet connection")
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+            context.sendBroadcast(intent)
         }
     }
 }

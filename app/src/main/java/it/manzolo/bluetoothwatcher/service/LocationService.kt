@@ -10,7 +10,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
 import androidx.core.app.ActivityCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import it.manzolo.bluetoothwatcher.enums.LocationEvents
 import it.manzolo.bluetoothwatcher.utils.Session
 
@@ -92,7 +91,7 @@ class LocationService : Service() {
             // You can also include some extra data.
             intent.putExtra("longitude", location.longitude.toString())
             intent.putExtra("latitude", location.latitude.toString())
-            LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+            applicationContext.sendBroadcast(intent)
 
         }
 
