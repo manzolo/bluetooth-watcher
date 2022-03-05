@@ -119,7 +119,7 @@ class BtTask(
 
         }
 
-    fun btConnectionRetry(context: Context, addr: String): Boolean {
+    private fun btConnectionRetry(context: Context, addr: String): Boolean {
         return try {
             val bluetoothClient = BluetoothClient(context, addr)
             bluetoothClient.retrieveData()

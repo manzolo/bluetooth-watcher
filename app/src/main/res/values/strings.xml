@@ -10,6 +10,7 @@
     <string name="updateApp">Update App</string>
 
     <string name="triggerBluetoothService">Bluetooth Service</string>
+    <string name="triggerLocationService">Location Service</string>
     <string name="triggerWebserviceSendService">Webservice Send Data</string>
     <string name="triggerRestartService">Restart App</string>
 

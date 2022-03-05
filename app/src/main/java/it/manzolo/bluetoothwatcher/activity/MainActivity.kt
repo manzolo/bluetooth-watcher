@@ -24,6 +24,7 @@ import it.manzolo.bluetoothwatcher.log.BluetoothWatcherLog
 import it.manzolo.bluetoothwatcher.log.MyRecyclerViewAdapter
 import it.manzolo.bluetoothwatcher.network.GithubUpdater
 import it.manzolo.bluetoothwatcher.service.BluetoothService
+import it.manzolo.bluetoothwatcher.service.LocationService
 import it.manzolo.bluetoothwatcher.service.RestartAppService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService.Companion.webServiceParameter
@@ -227,6 +228,11 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_trigger_bluetooth_service -> {
                 val serviceIntent = Intent(this, BluetoothService::class.java)
+                this.startService(serviceIntent)
+                return true
+            }
+            R.id.action_trigger_location_service -> {
+                val serviceIntent = Intent(this, LocationService::class.java)
                 this.startService(serviceIntent)
                 return true
             }
