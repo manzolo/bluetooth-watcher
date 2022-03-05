@@ -8,12 +8,14 @@ import android.widget.Toast
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.utils.Network
+import it.manzolo.bluetoothwatcher.webservice.WebServerParameters
 import it.manzolo.bluetoothwatcher.webservice.WebserviceSender
 
 
 class WebserviceSendService : Service() {
     companion object {
         val TAG: String = WebserviceSendService::class.java.simpleName
+        lateinit var webserviceparameter: WebServerParameters
     }
 
     override fun onCreate() {
@@ -42,20 +44,22 @@ class WebserviceSendService : Service() {
         Log.d(TAG, "WebserviceStart")
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val debug = preferences.getBoolean("debugApp", false)
-        val webserviceUrl = preferences.getString("webserviceUrl", "").toString()
-        val webserviceUsername = preferences.getString("webserviceUsername", "username").toString()
-        val webservicePassword = preferences.getString("webservicePassword", "password").toString()
-        if (webserviceUrl.isEmpty()) {
+
+        if (preferences.getString("webserviceUrl", "").toString().isEmpty()) {
             val intent = Intent(WebserviceEvents.ERROR)
             // You can also include some extra data.
             intent.putExtra("message", "No webservice url in settings")
             applicationContext.sendBroadcast(intent)
             return
-
         }
+        webserviceparameter = WebServerParameters(
+            preferences.getString("webserviceUrl", "").toString(),
+            preferences.getString("webserviceUsername", "username").toString(),
+            preferences.getString("webservicePassword", "password").toString()
+        )
         try {
             if (Network().isNetworkAvailable(applicationContext)) {
-                val sender = WebserviceSender(applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
+                val sender = WebserviceSender(applicationContext, webserviceparameter)
                 sender.execute()
             } else {
                 val intent = Intent(WebserviceEvents.ERROR)

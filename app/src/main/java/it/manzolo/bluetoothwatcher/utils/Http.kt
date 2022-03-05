@@ -2,6 +2,7 @@ package it.manzolo.bluetoothwatcher.utils
 
 import android.content.Context
 import android.util.Log
+import it.manzolo.bluetoothwatcher.webservice.WebServerParameters
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
@@ -49,13 +50,15 @@ class Http {
         @Throws(Exception::class)
         fun getNewWebserviceToken(
             context: Context,
-            url: String,
-            username: String?,
-            password: String?
+            webserviceparameter: WebServerParameters
         ): String {
             val sessionPreferences = Session(context)
             val token: String
-            val loginConn = loginWebservice(url, username, password)
+            val loginConn = loginWebservice(
+                webserviceparameter.getUrl(),
+                webserviceparameter.getUsername(),
+                webserviceparameter.getPassword()
+            )
             val responseCode = loginConn.responseCode
             val responseMessage = loginConn.responseMessage
             if (responseCode in 200..399) {
@@ -65,7 +68,7 @@ class Http {
                 sessionPreferences.webserviceToken = token
             } else {
                 Log.e("TOKEN", "Unable to retrieve token")
-                throw Exception("$responseCode $responseMessage, unable to retrieve token from $url")
+                throw Exception("$responseCode $responseMessage, unable to retrieve token from ${webserviceparameter.getUrl()}")
             }
             return token
         }
@@ -93,15 +96,13 @@ class Http {
         @Throws(Exception::class)
         fun getWebserviceToken(
             context: Context,
-            url: String,
-            username: String?,
-            password: String?
+            webserviceparameter: WebServerParameters
         ): String {
             val sessionPreferences = Session(context)
             var lastToken = sessionPreferences.webserviceToken!!
             if (lastToken.isEmpty()) {
                 Log.d("TOKEN", "Try to get new token")
-                lastToken = getNewWebserviceToken(context, url, username, password)
+                lastToken = getNewWebserviceToken(context, webserviceparameter)
             } else {
                 Log.d("TOKEN", "Used last token")
             }

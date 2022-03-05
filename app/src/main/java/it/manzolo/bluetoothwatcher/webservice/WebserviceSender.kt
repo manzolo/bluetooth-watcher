@@ -17,14 +17,30 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 import kotlin.coroutines.CoroutineContext
+class WebServerParameters(
+    private var webserviceUrl: String,
+    private var webserviceUsername: String,
+    private var webservicePassword: String
+) {
+
+    fun getUrl(): String {
+        return this.webserviceUrl
+    }
+
+    fun getUsername(): String {
+        return this.webserviceUsername
+    }
+
+    fun getPassword(): String {
+        return this.webservicePassword
+    }
+}
 
 class WebserviceSender(
     private val context: Context,
-    private val webserviceUrl: String,
-    private val webserviceUsername: String,
-    private val webservicePassword: String
+    private val webserviceparameter: WebServerParameters,
 
-) : CoroutineScope {
+    ) : CoroutineScope {
     private val TAG = "WebserviceSender"
 
     private var job: Job = Job()
@@ -49,9 +65,7 @@ class WebserviceSender(
             return@withContext try {
                 httpWebserviceSendData(
                     context,
-                    webserviceUrl,
-                    webserviceUsername,
-                    webservicePassword
+                    webserviceparameter
                 )
             } catch (e: IOException) {
                 Log.e(TAG, Objects.requireNonNull(e.message.toString()))
@@ -67,11 +81,9 @@ class WebserviceSender(
     //@Throws(IOException::class)
     fun httpWebserviceSendData(
         context: Context,
-        webserviceUrl: String,
-        webserviceUsername: String,
-        webservicePassword: String
+        webserviceparameter: WebServerParameters
     ): String {
-        val url = URL(webserviceUrl + Http.sendVoltUrl)
+        val url = URL(webserviceparameter.getUrl() + Http.sendVoltUrl)
         var sendSuccessfully = false
         val databaseVoltwatcher = DatabaseVoltwatcher(context)
         databaseVoltwatcher.open()
@@ -80,15 +92,13 @@ class WebserviceSender(
         val cursorCount = cursor.count
         Log.d(TAG, "Found $cursorCount rows to send")
         return if (cursorCount > 0) {
-            Log.d(TAG, "Try connecting to $webserviceUrl")
+            Log.d(TAG, "Try connecting to ${webserviceparameter.getUrl()}")
             try {
                 while (cursor.moveToNext()) {
                     // create HttpURLConnection
                     var token = Http.getWebserviceToken(
                         context,
-                        webserviceUrl,
-                        webserviceUsername,
-                        webservicePassword
+                        webserviceparameter
                     )
                     val device =
                         cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_DEVICE))
@@ -123,9 +133,7 @@ class WebserviceSender(
                         WebserviceResponse.TOKEN_EXPIRED -> {
                             token = Http.getNewWebserviceToken(
                                 context,
-                                webserviceUrl,
-                                webserviceUsername,
-                                webservicePassword
+                                webserviceparameter
                             )
                             if (sendData(url, token, jsonObject) == WebserviceResponse.OK) {
                                 databaseVoltwatcher.updateSent(device, data)
@@ -146,7 +154,7 @@ class WebserviceSender(
                 val intentWs = Intent(WebserviceEvents.ERROR)
                 intentWs.putExtra(
                     "message",
-                    "Unable to send data to " + webserviceUrl + " : " + e.message
+                    "Unable to send data to " + webserviceparameter.getUrl() + " : " + e.message
                 )
                 context.sendBroadcast(intentWs)
             } finally {
