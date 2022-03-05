@@ -18,9 +18,13 @@ import kotlin.coroutines.CoroutineContext
 
 class AppReceiveSettings(
     private val context: Context,
-    private val webserviceparameter: WebServiceParameters
+    private val webServiceParameter: WebServiceParameters
 ) : CoroutineScope {
-    private val TAG = "AppReceiveSettings"
+    companion object {
+        val TAG: String = AppReceiveSettings::class.java.simpleName
+
+    }
+
     private var job: Job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job // to run code in Main(UI) Thread
@@ -45,13 +49,13 @@ class AppReceiveSettings(
                 try {
                     // do async work
                     // 1. create HttpURLConnection
-                    val loginConn: HttpURLConnection = Http.loginWebservice(webserviceparameter)
+                    val loginConn: HttpURLConnection = Http.loginWebservice(webServiceParameter)
                     if (loginConn.responseCode in 200..399) {
                         val tokenObject = JSONObject(Http().streamToString(loginConn.inputStream))
                         val token = tokenObject.getString("token")
                         Log.d("TOKEN", token)
                         val conn =
-                            URL(webserviceparameter.getUrl() + Http.getSettingsUrl).openConnection() as HttpURLConnection
+                            URL(webServiceParameter.getUrl() + Http.getSettingsUrl).openConnection() as HttpURLConnection
                         conn.requestMethod = "GET"
                         conn.useCaches = false
                         conn.allowUserInteraction = false
@@ -155,8 +159,8 @@ class AppReceiveSettings(
                     Log.e(TAG, "Unable to update settings")
                     return@withContext ""
                 } catch (e: JSONException) {
-                    Log.e(TAG, e.message.toString() + " from " + webserviceparameter.getUrl())
-                    "Error: " + e.message.toString() + " from " + webserviceparameter.getUrl()
+                    Log.e(TAG, e.message.toString() + " from " + webServiceParameter.getUrl())
+                    "Error: " + e.message.toString() + " from " + webServiceParameter.getUrl()
                 }
             } catch (e: IOException) {
                 //e.printStackTrace();
@@ -165,10 +169,10 @@ class AppReceiveSettings(
                 // You can also include some extra data.
                 intent.putExtra(
                     "message",
-                    e.message.toString() + " from " + webserviceparameter.getUrl()
+                    e.message.toString() + " from " + webServiceParameter.getUrl()
                 )
                 context.sendBroadcast(intent)
-                "Unable to retrieve web page: " + e.message.toString() + " from " + webserviceparameter.getUrl()
+                "Unable to retrieve web page: " + e.message.toString() + " from " + webServiceParameter.getUrl()
             }
 
         }

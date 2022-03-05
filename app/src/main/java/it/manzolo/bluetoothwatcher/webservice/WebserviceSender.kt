@@ -21,10 +21,13 @@ import kotlin.coroutines.CoroutineContext
 
 class WebserviceSender(
     private val context: Context,
-    private val webserviceparameter: WebServiceParameters,
+    private val webServiceParameter: WebServiceParameters,
 
     ) : CoroutineScope {
-    private val TAG = "WebserviceSender"
+    companion object {
+        val TAG: String = WebserviceSender::class.java.simpleName
+
+    }
 
     private var job: Job = Job()
     override val coroutineContext: CoroutineContext
@@ -48,7 +51,7 @@ class WebserviceSender(
             return@withContext try {
                 httpWebserviceSendData(
                     context,
-                    webserviceparameter
+                    webServiceParameter
                 )
             } catch (e: IOException) {
                 Log.e(TAG, Objects.requireNonNull(e.message.toString()))
