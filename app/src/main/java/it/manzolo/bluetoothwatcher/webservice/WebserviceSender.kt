@@ -64,9 +64,9 @@ class WebserviceSender(
     //@Throws(IOException::class)
     fun httpWebserviceSendData(
         context: Context,
-        webserviceparameter: WebServiceParameters
+        webServiceParameter: WebServiceParameters
     ): String {
-        val url = URL(webserviceparameter.getUrl() + Http.sendVoltUrl)
+        val url = URL(webServiceParameter.getUrl() + Http.sendVoltUrl)
         var sendSuccessfully = false
         val databaseVoltwatcher = DatabaseVoltwatcher(context)
         databaseVoltwatcher.open()
@@ -75,13 +75,13 @@ class WebserviceSender(
         val cursorCount = cursor.count
         Log.d(TAG, "Found $cursorCount rows to send")
         return if (cursorCount > 0) {
-            Log.d(TAG, "Try connecting to ${webserviceparameter.getUrl()}")
+            Log.d(TAG, "Try connecting to ${webServiceParameter.getUrl()}")
             try {
                 while (cursor.moveToNext()) {
                     // create HttpURLConnection
                     var token = Http.getWebserviceToken(
                         context,
-                        webserviceparameter
+                        webServiceParameter
                     )
                     val device =
                         cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_DEVICE))
@@ -116,7 +116,7 @@ class WebserviceSender(
                         WebserviceResponse.TOKEN_EXPIRED -> {
                             token = Http.getNewWebserviceToken(
                                 context,
-                                webserviceparameter
+                                webServiceParameter
                             )
                             if (sendData(url, token, jsonObject) == WebserviceResponse.OK) {
                                 databaseVoltwatcher.updateSent(device, data)
@@ -137,7 +137,7 @@ class WebserviceSender(
                 val intentWs = Intent(WebserviceEvents.ERROR)
                 intentWs.putExtra(
                     "message",
-                    "Unable to send data to " + webserviceparameter.getUrl() + " : " + e.message
+                    "Unable to send data to " + webServiceParameter.getUrl() + " : " + e.message
                 )
                 context.sendBroadcast(intentWs)
             } finally {
@@ -166,7 +166,7 @@ class WebserviceSender(
         data: String,
         volt: String,
         temp: String,
-        detectorbattery: String,
+        detectorBattery: String,
         longitude: String,
         latitude: String
     ): JSONObject {
@@ -175,7 +175,7 @@ class WebserviceSender(
         jsonObject.put("data", data)
         jsonObject.put("volt", volt)
         jsonObject.put("temp", temp)
-        jsonObject.put("batteryperc", detectorbattery)
+        jsonObject.put("batteryperc", detectorBattery)
         jsonObject.put("longitude", longitude)
         jsonObject.put("latitude", latitude)
         return jsonObject

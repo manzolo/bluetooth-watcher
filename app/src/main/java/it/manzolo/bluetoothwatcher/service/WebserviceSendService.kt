@@ -15,7 +15,7 @@ import it.manzolo.bluetoothwatcher.webservice.WebserviceSender
 class WebserviceSendService : Service() {
     companion object {
         val TAG: String = WebserviceSendService::class.java.simpleName
-        lateinit var webserviceparameter: WebServiceParameters
+        lateinit var webServiceParameter: WebServiceParameters
     }
 
     override fun onCreate() {
@@ -52,14 +52,14 @@ class WebserviceSendService : Service() {
             applicationContext.sendBroadcast(intent)
             return
         }
-        webserviceparameter = WebServiceParameters(
+        webServiceParameter = WebServiceParameters(
             preferences.getString("webserviceUrl", "").toString(),
             preferences.getString("webserviceUsername", "username").toString(),
             preferences.getString("webservicePassword", "password").toString()
         )
         try {
             if (Network().isNetworkAvailable(applicationContext)) {
-                val sender = WebserviceSender(applicationContext, webserviceparameter)
+                val sender = WebserviceSender(applicationContext, webServiceParameter)
                 sender.execute()
             } else {
                 val intent = Intent(WebserviceEvents.ERROR)

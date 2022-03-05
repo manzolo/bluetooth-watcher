@@ -37,7 +37,7 @@ class SentinelService : Service() {
             applicationContext.sendBroadcast(intent)
             return
         }
-        val webserviceparameter = WebServiceParameters(
+        val webServiceParameter = WebServiceParameters(
             pref.getString("webserviceUrl", "").toString(),
             pref.getString("webserviceUsername", "username").toString(),
             pref.getString("webservicePassword", "password").toString()
@@ -45,7 +45,7 @@ class SentinelService : Service() {
         val autoSettingsUpdate = PreferenceManager.getDefaultSharedPreferences(applicationContext)
             .getBoolean("autoSettingsUpdate", true)
         if (autoSettingsUpdate) {
-            val appSettings = AppReceiveSettings(this.applicationContext, webserviceparameter)
+            val appSettings = AppReceiveSettings(this.applicationContext, webServiceParameter)
             appSettings.execute()
         }
     }

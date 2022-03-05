@@ -26,7 +26,7 @@ import it.manzolo.bluetoothwatcher.network.GithubUpdater
 import it.manzolo.bluetoothwatcher.service.BluetoothService
 import it.manzolo.bluetoothwatcher.service.RestartAppService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService
-import it.manzolo.bluetoothwatcher.service.WebserviceSendService.Companion.webserviceparameter
+import it.manzolo.bluetoothwatcher.service.WebserviceSendService.Companion.webServiceParameter
 import it.manzolo.bluetoothwatcher.updater.Apk
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.utils.Date
@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
                     applicationContext.sendBroadcast(intent)
                     return false
                 }
-                webserviceparameter = WebServiceParameters(
+                webServiceParameter = WebServiceParameters(
                     pref.getString("webserviceUrl", "").toString(),
                     pref.getString("webserviceUsername", "username").toString(),
                     pref.getString("webservicePassword", "password").toString()
@@ -220,7 +220,7 @@ class MainActivity : AppCompatActivity() {
                         .getBoolean("autoSettingsUpdate", true)
                 if (autoSettingsUpdate) {
                     val appSettings =
-                        AppReceiveSettings(this.applicationContext, webserviceparameter)
+                        AppReceiveSettings(this.applicationContext, webServiceParameter)
                     appSettings.execute()
                 }
                 return true
