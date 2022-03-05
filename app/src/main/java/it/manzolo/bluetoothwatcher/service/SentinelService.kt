@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
+import it.manzolo.bluetoothwatcher.webservice.WebServiceParameters
 
 
 class SentinelService : Service() {
@@ -28,19 +29,23 @@ class SentinelService : Service() {
 
     private fun starSentinelTask() {
         Log.d(TAG, "onSentinelStartCommand")
-        val webserviceUrl = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUrl", "").toString()
-        if (webserviceUrl.isEmpty()) {
+        val pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        if (pref.getString("webserviceUrl", "").toString().isEmpty()) {
             val intent = Intent(WebserviceEvents.ERROR)
             // You can also include some extra data.
             intent.putExtra("message", "No webservice url in settings")
             applicationContext.sendBroadcast(intent)
             return
         }
-        val webserviceUsername = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUsername", "username").toString()
-        val webservicePassword = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webservicePassword", "password").toString()
-        val autoSettingsUpdate = PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("autoSettingsUpdate", true)
+        val webserviceparameter = WebServiceParameters(
+            pref.getString("webserviceUrl", "").toString(),
+            pref.getString("webserviceUsername", "username").toString(),
+            pref.getString("webservicePassword", "password").toString()
+        )
+        val autoSettingsUpdate = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+            .getBoolean("autoSettingsUpdate", true)
         if (autoSettingsUpdate) {
-            val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
+            val appSettings = AppReceiveSettings(this.applicationContext, webserviceparameter)
             appSettings.execute()
         }
     }

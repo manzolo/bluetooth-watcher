@@ -8,14 +8,14 @@ import android.widget.Toast
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.utils.Network
-import it.manzolo.bluetoothwatcher.webservice.WebServerParameters
+import it.manzolo.bluetoothwatcher.webservice.WebServiceParameters
 import it.manzolo.bluetoothwatcher.webservice.WebserviceSender
 
 
 class WebserviceSendService : Service() {
     companion object {
         val TAG: String = WebserviceSendService::class.java.simpleName
-        lateinit var webserviceparameter: WebServerParameters
+        lateinit var webserviceparameter: WebServiceParameters
     }
 
     override fun onCreate() {
@@ -52,7 +52,7 @@ class WebserviceSendService : Service() {
             applicationContext.sendBroadcast(intent)
             return
         }
-        webserviceparameter = WebServerParameters(
+        webserviceparameter = WebServiceParameters(
             preferences.getString("webserviceUrl", "").toString(),
             preferences.getString("webserviceUsername", "username").toString(),
             preferences.getString("webservicePassword", "password").toString()

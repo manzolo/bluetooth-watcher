@@ -17,28 +17,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 import kotlin.coroutines.CoroutineContext
-class WebServerParameters(
-    private var webserviceUrl: String,
-    private var webserviceUsername: String,
-    private var webservicePassword: String
-) {
 
-    fun getUrl(): String {
-        return this.webserviceUrl
-    }
-
-    fun getUsername(): String {
-        return this.webserviceUsername
-    }
-
-    fun getPassword(): String {
-        return this.webservicePassword
-    }
-}
 
 class WebserviceSender(
     private val context: Context,
-    private val webserviceparameter: WebServerParameters,
+    private val webserviceparameter: WebServiceParameters,
 
     ) : CoroutineScope {
     private val TAG = "WebserviceSender"
@@ -81,7 +64,7 @@ class WebserviceSender(
     //@Throws(IOException::class)
     fun httpWebserviceSendData(
         context: Context,
-        webserviceparameter: WebServerParameters
+        webserviceparameter: WebServiceParameters
     ): String {
         val url = URL(webserviceparameter.getUrl() + Http.sendVoltUrl)
         var sendSuccessfully = false

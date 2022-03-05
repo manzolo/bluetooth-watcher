@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.BluetoothEvents
 import it.manzolo.bluetoothwatcher.enums.WebserviceEvents
 import it.manzolo.bluetoothwatcher.utils.Http
+import it.manzolo.bluetoothwatcher.webservice.WebServiceParameters
 import kotlinx.coroutines.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -17,9 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 class AppReceiveSettings(
     private val context: Context,
-    private val webserviceUrl: String,
-    private val webserviceUsername: String,
-    private val webservicePassword: String
+    private val webserviceparameter: WebServiceParameters
 ) : CoroutineScope {
     private val TAG = "AppReceiveSettings"
     private var job: Job = Job()
@@ -39,21 +38,20 @@ class AppReceiveSettings(
         //onPostExecute(result)
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun doInBackground(): String =
         withContext(Dispatchers.IO) { // to run code in Background Thread
             try {
                 try {
                     // do async work
-                    val url = URL(webserviceUrl + Http.getSettingsUrl)
-
                     // 1. create HttpURLConnection
-                    val loginConn =
-                        Http.loginWebservice(webserviceUrl, webserviceUsername, webservicePassword)
+                    val loginConn: HttpURLConnection = Http.loginWebservice(webserviceparameter)
                     if (loginConn.responseCode in 200..399) {
                         val tokenObject = JSONObject(Http().streamToString(loginConn.inputStream))
                         val token = tokenObject.getString("token")
                         Log.d("TOKEN", token)
-                        val conn = url.openConnection() as HttpURLConnection
+                        val conn =
+                            URL(webserviceparameter.getUrl() + Http.getSettingsUrl).openConnection() as HttpURLConnection
                         conn.requestMethod = "GET"
                         conn.useCaches = false
                         conn.allowUserInteraction = false
@@ -157,17 +155,20 @@ class AppReceiveSettings(
                     Log.e(TAG, "Unable to update settings")
                     return@withContext ""
                 } catch (e: JSONException) {
-                    Log.e(TAG, e.message.toString() + " from " + webserviceUrl)
-                    "Error: " + e.message.toString() + " from " + webserviceUrl
+                    Log.e(TAG, e.message.toString() + " from " + webserviceparameter.getUrl())
+                    "Error: " + e.message.toString() + " from " + webserviceparameter.getUrl()
                 }
             } catch (e: IOException) {
                 //e.printStackTrace();
                 Log.e(TAG, e.message.toString())
                 val intent = Intent(BluetoothEvents.ERROR)
                 // You can also include some extra data.
-                intent.putExtra("message", e.message.toString() + " from " + webserviceUrl)
+                intent.putExtra(
+                    "message",
+                    e.message.toString() + " from " + webserviceparameter.getUrl()
+                )
                 context.sendBroadcast(intent)
-                "Unable to retrieve web page: " + e.message.toString() + " from " + webserviceUrl
+                "Unable to retrieve web page: " + e.message.toString() + " from " + webserviceparameter.getUrl()
             }
 
         }
