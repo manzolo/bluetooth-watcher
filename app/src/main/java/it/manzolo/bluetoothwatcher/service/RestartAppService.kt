@@ -28,7 +28,7 @@ class RestartAppService : Service() {
         return START_NOT_STICKY
     }
 
-    fun starRebootTask() {
+    private fun starRebootTask() {
         Log.d(TAG, "onRebootStartCommand")
         val preferences = PreferenceManager.getDefaultSharedPreferences(this.applicationContext)
         val autoAppRestart = preferences.getBoolean("autoAppRestart", false)

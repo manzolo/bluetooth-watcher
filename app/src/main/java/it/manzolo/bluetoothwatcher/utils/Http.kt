@@ -2,6 +2,7 @@ package it.manzolo.bluetoothwatcher.utils
 
 import android.content.Context
 import android.util.Log
+import it.manzolo.bluetoothwatcher.webservice.WebServiceParameters
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
@@ -49,13 +50,13 @@ class Http {
         @Throws(Exception::class)
         fun getNewWebserviceToken(
             context: Context,
-            url: String,
-            username: String?,
-            password: String?
+            webserviceparameter: WebServiceParameters
         ): String {
             val sessionPreferences = Session(context)
             val token: String
-            val loginConn = loginWebservice(url, username, password)
+            val loginConn = loginWebservice(
+                webserviceparameter
+            )
             val responseCode = loginConn.responseCode
             val responseMessage = loginConn.responseMessage
             if (responseCode in 200..399) {
@@ -65,14 +66,14 @@ class Http {
                 sessionPreferences.webserviceToken = token
             } else {
                 Log.e("TOKEN", "Unable to retrieve token")
-                throw Exception("$responseCode $responseMessage, unable to retrieve token from $url")
+                throw Exception("$responseCode $responseMessage, unable to retrieve token from ${webserviceparameter.getUrl()}")
             }
             return token
         }
 
         @Throws(IOException::class, JSONException::class)
-        fun loginWebservice(url: String, username: String?, password: String?): HttpURLConnection {
-            val loginUrl = URL(url + loginUrl)
+        fun loginWebservice(webserviceparameter: WebServiceParameters): HttpURLConnection {
+            val loginUrl = URL(webserviceparameter.getUrl() + loginUrl)
             val loginConn = loginUrl.openConnection() as HttpURLConnection
             loginConn.useCaches = false
             loginConn.allowUserInteraction = false
@@ -81,8 +82,8 @@ class Http {
             loginConn.requestMethod = "POST"
             loginConn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
             val jsonObject = JSONObject()
-            jsonObject.put("username", username)
-            jsonObject.put("password", password)
+            jsonObject.put("username", webserviceparameter.getUsername())
+            jsonObject.put("password", webserviceparameter.getPassword())
             // 3. add JSON content to POST request body
             Http().setPostRequestContent(loginConn, jsonObject)
             // 4. make POST request to the given URL
@@ -93,15 +94,13 @@ class Http {
         @Throws(Exception::class)
         fun getWebserviceToken(
             context: Context,
-            url: String,
-            username: String?,
-            password: String?
+            webserviceparameter: WebServiceParameters
         ): String {
             val sessionPreferences = Session(context)
             var lastToken = sessionPreferences.webserviceToken!!
             if (lastToken.isEmpty()) {
                 Log.d("TOKEN", "Try to get new token")
-                lastToken = getNewWebserviceToken(context, url, username, password)
+                lastToken = getNewWebserviceToken(context, webserviceparameter)
             } else {
                 Log.d("TOKEN", "Used last token")
             }

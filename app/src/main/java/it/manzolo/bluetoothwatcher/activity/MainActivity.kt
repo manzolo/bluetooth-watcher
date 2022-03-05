@@ -24,12 +24,15 @@ import it.manzolo.bluetoothwatcher.log.BluetoothWatcherLog
 import it.manzolo.bluetoothwatcher.log.MyRecyclerViewAdapter
 import it.manzolo.bluetoothwatcher.network.GithubUpdater
 import it.manzolo.bluetoothwatcher.service.BluetoothService
+import it.manzolo.bluetoothwatcher.service.LocationService
 import it.manzolo.bluetoothwatcher.service.RestartAppService
 import it.manzolo.bluetoothwatcher.service.WebserviceSendService
+import it.manzolo.bluetoothwatcher.service.WebserviceSendService.Companion.webServiceParameter
 import it.manzolo.bluetoothwatcher.updater.Apk
 import it.manzolo.bluetoothwatcher.updater.AppReceiveSettings
 import it.manzolo.bluetoothwatcher.utils.Date
 import it.manzolo.bluetoothwatcher.utils.Session
+import it.manzolo.bluetoothwatcher.webservice.WebServiceParameters
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -200,25 +203,36 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_trigger_app_update_settings_service -> {
-                val webserviceUrl = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUrl", "").toString()
-                if (webserviceUrl.isEmpty()) {
+                val pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                if (pref.getString("webserviceUrl", "").toString().isEmpty()) {
                     val intent = Intent(WebserviceEvents.ERROR)
                     // You can also include some extra data.
                     intent.putExtra("message", "No webservice url in settings")
                     applicationContext.sendBroadcast(intent)
                     return false
                 }
-                val webserviceUsername = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webserviceUsername", "username").toString()
-                val webservicePassword = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString("webservicePassword", "password").toString()
-                val autoSettingsUpdate = PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("autoSettingsUpdate", true)
+                webServiceParameter = WebServiceParameters(
+                    pref.getString("webserviceUrl", "").toString(),
+                    pref.getString("webserviceUsername", "username").toString(),
+                    pref.getString("webservicePassword", "password").toString()
+                )
+                val autoSettingsUpdate =
+                    PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                        .getBoolean("autoSettingsUpdate", true)
                 if (autoSettingsUpdate) {
-                    val appSettings = AppReceiveSettings(this.applicationContext, webserviceUrl, webserviceUsername, webservicePassword)
+                    val appSettings =
+                        AppReceiveSettings(this.applicationContext, webServiceParameter)
                     appSettings.execute()
                 }
                 return true
             }
             R.id.action_trigger_bluetooth_service -> {
                 val serviceIntent = Intent(this, BluetoothService::class.java)
+                this.startService(serviceIntent)
+                return true
+            }
+            R.id.action_trigger_location_service -> {
+                val serviceIntent = Intent(this, LocationService::class.java)
                 this.startService(serviceIntent)
                 return true
             }

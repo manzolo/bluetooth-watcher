@@ -28,8 +28,13 @@
                     android:title="@string/triggerWebserviceSendService"
                     app:showAsAction="never" />
                 <item
-                    android:id="@+id/action_trigger_restart_service"
+                    android:id="@+id/action_trigger_location_service"
                     android:orderInCategory="230"
+                    android:title="@string/triggerLocationService"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/action_trigger_restart_service"
+                    android:orderInCategory="240"
                     android:title="@string/triggerRestartService"
                     app:showAsAction="never" />
             </group>

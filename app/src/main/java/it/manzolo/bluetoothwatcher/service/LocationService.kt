@@ -14,8 +14,8 @@ import it.manzolo.bluetoothwatcher.enums.LocationEvents
 import it.manzolo.bluetoothwatcher.utils.Session
 
 class LocationService : Service() {
-    var mLocationListeners = arrayOf(
-            LocationListener(LocationManager.GPS_PROVIDER)
+    private var mLocationListeners = arrayOf(
+        LocationListener(LocationManager.GPS_PROVIDER)
     )
     private var mLocationManager: LocationManager? = null
 
@@ -29,7 +29,7 @@ class LocationService : Service() {
         return START_NOT_STICKY
     }
 
-    fun startLocationTask() {
+    private fun startLocationTask() {
         //Log.d(TAG, "onStartCommand")
     }
 
@@ -75,7 +75,7 @@ class LocationService : Service() {
     }
 
     inner class LocationListener(provider: String) : android.location.LocationListener {
-        var mLastLocation: Location
+        var mLastLocation: Location = Location(provider)
         override fun onLocationChanged(location: Location) {
             //Log.d(TAG, "onLocationChanged: $location")
             mLastLocation.set(location)
@@ -109,7 +109,6 @@ class LocationService : Service() {
 
         init {
             //Log.d(TAG, "LocationListener $provider")
-            mLastLocation = Location(provider)
         }
     }
 

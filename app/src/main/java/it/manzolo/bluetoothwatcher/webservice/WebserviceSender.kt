@@ -18,14 +18,16 @@ import java.net.URL
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
+
 class WebserviceSender(
     private val context: Context,
-    private val webserviceUrl: String,
-    private val webserviceUsername: String,
-    private val webservicePassword: String
+    private val webServiceParameter: WebServiceParameters,
 
-) : CoroutineScope {
-    private val TAG = "WebserviceSender"
+    ) : CoroutineScope {
+    companion object {
+        val TAG: String = WebserviceSender::class.java.simpleName
+
+    }
 
     private var job: Job = Job()
     override val coroutineContext: CoroutineContext
@@ -49,9 +51,7 @@ class WebserviceSender(
             return@withContext try {
                 httpWebserviceSendData(
                     context,
-                    webserviceUrl,
-                    webserviceUsername,
-                    webservicePassword
+                    webServiceParameter
                 )
             } catch (e: IOException) {
                 Log.e(TAG, Objects.requireNonNull(e.message.toString()))
@@ -67,11 +67,9 @@ class WebserviceSender(
     //@Throws(IOException::class)
     fun httpWebserviceSendData(
         context: Context,
-        webserviceUrl: String,
-        webserviceUsername: String,
-        webservicePassword: String
+        webServiceParameter: WebServiceParameters
     ): String {
-        val url = URL(webserviceUrl + Http.sendVoltUrl)
+        val url = URL(webServiceParameter.getUrl() + Http.sendVoltUrl)
         var sendSuccessfully = false
         val databaseVoltwatcher = DatabaseVoltwatcher(context)
         databaseVoltwatcher.open()
@@ -80,15 +78,13 @@ class WebserviceSender(
         val cursorCount = cursor.count
         Log.d(TAG, "Found $cursorCount rows to send")
         return if (cursorCount > 0) {
-            Log.d(TAG, "Try connecting to $webserviceUrl")
+            Log.d(TAG, "Try connecting to ${webServiceParameter.getUrl()}")
             try {
                 while (cursor.moveToNext()) {
                     // create HttpURLConnection
                     var token = Http.getWebserviceToken(
                         context,
-                        webserviceUrl,
-                        webserviceUsername,
-                        webservicePassword
+                        webServiceParameter
                     )
                     val device =
                         cursor.getString(cursor.getColumnIndex(DatabaseVoltwatcher.KEY_DEVICE))
@@ -123,9 +119,7 @@ class WebserviceSender(
                         WebserviceResponse.TOKEN_EXPIRED -> {
                             token = Http.getNewWebserviceToken(
                                 context,
-                                webserviceUrl,
-                                webserviceUsername,
-                                webservicePassword
+                                webServiceParameter
                             )
                             if (sendData(url, token, jsonObject) == WebserviceResponse.OK) {
                                 databaseVoltwatcher.updateSent(device, data)
@@ -146,7 +140,7 @@ class WebserviceSender(
                 val intentWs = Intent(WebserviceEvents.ERROR)
                 intentWs.putExtra(
                     "message",
-                    "Unable to send data to " + webserviceUrl + " : " + e.message
+                    "Unable to send data to " + webServiceParameter.getUrl() + " : " + e.message
                 )
                 context.sendBroadcast(intentWs)
             } finally {
@@ -175,7 +169,7 @@ class WebserviceSender(
         data: String,
         volt: String,
         temp: String,
-        detectorbattery: String,
+        detectorBattery: String,
         longitude: String,
         latitude: String
     ): JSONObject {
@@ -184,7 +178,7 @@ class WebserviceSender(
         jsonObject.put("data", data)
         jsonObject.put("volt", volt)
         jsonObject.put("temp", temp)
-        jsonObject.put("batteryperc", detectorbattery)
+        jsonObject.put("batteryperc", detectorBattery)
         jsonObject.put("longitude", longitude)
         jsonObject.put("latitude", latitude)
         return jsonObject
