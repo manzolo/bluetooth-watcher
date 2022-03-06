@@ -1,124 +1,102 @@
-package it.manzolo.bluetoothwatcher.bluetooth;
+package it.manzolo.bluetoothwatcher.bluetooth
 
-import android.bluetooth.BluetoothSocket;
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothSocket
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
+internal interface BluetoothSocketWrapper {
+    @get:Throws(IOException::class)
+    val inputStream: InputStream
 
-interface BluetoothSocketWrapper {
+    @get:Throws(IOException::class)
+    val outputStream: OutputStream
+    val remoteDeviceName: String?
 
-    InputStream getInputStream() throws IOException;
+    @Throws(IOException::class)
+    fun connect()
+    val remoteDeviceAddress: String?
 
-    OutputStream getOutputStream() throws IOException;
-
-    String getRemoteDeviceName();
-
-    void connect() throws IOException;
-
-    String getRemoteDeviceAddress();
-
-    void close() throws IOException;
-
-    BluetoothSocket getUnderlyingSocket();
-
+    @Throws(IOException::class)
+    fun close()
+    val underlyingSocket: BluetoothSocket
 }
 
-public class FallbackBluetoothSocket extends NativeBluetoothSocket {
+class FallbackBluetoothSocket(fallbackBluetoothSocket: BluetoothSocket) :
+    NativeBluetoothSocket(fallbackBluetoothSocket) {
+    private var fallbackSocket: BluetoothSocket? = null
 
-    private final BluetoothSocket fallbackSocket;
+    @get:Throws(IOException::class)
+    override val inputStream: InputStream
+        get() = fallbackSocket!!.inputStream
 
-    public FallbackBluetoothSocket(BluetoothSocket fallbackBluetoothSocket) throws FallbackException {
-        super(fallbackBluetoothSocket);
-        try {
-            Class<?> fallbackBluetoothSocketClass = fallbackBluetoothSocket.getRemoteDevice().getClass();
-            Class<?>[] fallbackBluetoothSocketParamTypes = new Class<?>[]{Integer.TYPE};
-            Method m = fallbackBluetoothSocketClass.getMethod("createRfcommSocket", fallbackBluetoothSocketParamTypes);
-            Object[] params = new Object[]{1};
-            fallbackSocket = (BluetoothSocket) m.invoke(fallbackBluetoothSocket.getRemoteDevice(), params);
-        } catch (Exception e) {
-            throw new FallbackException(e);
+    @get:Throws(IOException::class)
+    override val outputStream: OutputStream
+        get() = fallbackSocket!!.outputStream
+
+    @SuppressLint("MissingPermission")
+    @Throws(IOException::class)
+    override fun connect() {
+        fallbackSocket!!.connect()
+    }
+
+    @Throws(IOException::class)
+    override fun close() {
+        fallbackSocket!!.close()
+    }
+
+    init {
+        fallbackSocket = try {
+            val fallbackBluetoothSocketClass: Class<*> =
+                fallbackBluetoothSocket.remoteDevice.javaClass
+            val fallbackBluetoothSocketParamTypes = arrayOf<Class<*>>(Integer.TYPE)
+            val m = fallbackBluetoothSocketClass.getMethod(
+                "createRfcommSocket",
+                *fallbackBluetoothSocketParamTypes
+            )
+            val params = arrayOf<Any>(1)
+            m.invoke(fallbackBluetoothSocket.remoteDevice, *params) as BluetoothSocket
+        } catch (e: Exception) {
+            throw FallbackException(e)
         }
     }
+}
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return fallbackSocket.getInputStream();
+open class NativeBluetoothSocket(override val underlyingSocket: BluetoothSocket) :
+    BluetoothSocketWrapper {
+
+    @get:Throws(IOException::class)
+    override val inputStream: InputStream
+        get() = underlyingSocket.inputStream
+
+    @get:Throws(IOException::class)
+    override val outputStream: OutputStream
+        get() = underlyingSocket.outputStream
+    override val remoteDeviceName: String?
+        @SuppressLint("MissingPermission")
+        get() = underlyingSocket.remoteDevice.name
+
+    @SuppressLint("MissingPermission")
+    @Throws(IOException::class)
+    override fun connect() {
+        underlyingSocket.connect()
     }
 
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return fallbackSocket.getOutputStream();
-    }
+    override val remoteDeviceAddress: String?
+        get() = underlyingSocket.remoteDevice.address
 
-
-    @Override
-    public void connect() throws IOException {
-        fallbackSocket.connect();
-    }
-
-
-    @Override
-    public void close() throws IOException {
-        fallbackSocket.close();
+    @Throws(IOException::class)
+    override fun close() {
+        underlyingSocket.close()
     }
 }
 
-class NativeBluetoothSocket implements BluetoothSocketWrapper {
-
-    private final BluetoothSocket socket;
-
-    public NativeBluetoothSocket(BluetoothSocket tmp) {
-        this.socket = tmp;
+internal class FallbackException(e: Exception?) : Exception(e) {
+    companion object {
+        /**
+         *
+         */
+        private const val serialVersionUID = 1L
     }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return socket.getInputStream();
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return socket.getOutputStream();
-    }
-
-    @Override
-    public String getRemoteDeviceName() {
-        return socket.getRemoteDevice().getName();
-    }
-
-    @Override
-    public void connect() throws IOException {
-        socket.connect();
-    }
-
-    @Override
-    public String getRemoteDeviceAddress() {
-        return socket.getRemoteDevice().getAddress();
-    }
-
-    @Override
-    public void close() throws IOException {
-        socket.close();
-    }
-
-    @Override
-    public BluetoothSocket getUnderlyingSocket() {
-        return socket;
-    }
-
-}
-
-class FallbackException extends Exception {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
-
-    public FallbackException(Exception e) {
-        super(e);
-    }
-
 }

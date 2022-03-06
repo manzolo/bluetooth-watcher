@@ -128,6 +128,7 @@ public final class BluetoothClient {
                 bluetoothInputStream = bluetoothSocketWrapper.getInputStream();
             } catch (Exception fallback_e) {
                 //fallback_e.printStackTrace();
+                Log.e(TAG, fallback_e.getMessage());
                 throw new Exception("Unable to connect to " + this.deviceAddress);
             }
         }
@@ -141,6 +142,7 @@ public final class BluetoothClient {
             this.bluetoothOutputStream.write(dataDump);
             this.listen();
         } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
             e.printStackTrace();
         }
     }
