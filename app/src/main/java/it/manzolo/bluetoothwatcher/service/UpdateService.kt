@@ -42,8 +42,8 @@ class UpdateService : Service() {
             val intent = Intent(WebserviceEvents.APP_CHECK_UPDATE)
             applicationContext.sendBroadcast(intent)
 
-            val githubup = GithubUpdater()
-            githubup.checkUpdate(applicationContext)
+            val githubUpdateService = GithubUpdater()
+            githubUpdateService.checkUpdate(applicationContext)
         }
     }
 }

@@ -42,8 +42,7 @@ class SentinelService : Service() {
             pref.getString("webserviceUsername", "username").toString(),
             pref.getString("webservicePassword", "password").toString()
         )
-        val autoSettingsUpdate = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-            .getBoolean("autoSettingsUpdate", true)
+        val autoSettingsUpdate = pref.getBoolean("autoSettingsUpdate", true)
         if (autoSettingsUpdate) {
             val appSettings = AppReceiveSettings(this.applicationContext, webServiceParameter)
             appSettings.execute()
