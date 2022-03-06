@@ -14,6 +14,12 @@ import it.manzolo.bluetoothwatcher.enums.LocationEvents
 import it.manzolo.bluetoothwatcher.utils.Session
 
 class LocationService : Service() {
+    companion object {
+        val TAG: String = LocationService::class.java.simpleName
+        private const val LOCATION_INTERVAL = 1000
+        private const val LOCATION_DISTANCE = 10f
+    }
+
     private var mLocationListeners = arrayOf(
         LocationListener(LocationManager.GPS_PROVIDER)
     )
@@ -110,11 +116,5 @@ class LocationService : Service() {
         init {
             //Log.d(TAG, "LocationListener $provider")
         }
-    }
-
-    companion object {
-        val TAG: String = LocationService::class.java.simpleName
-        private const val LOCATION_INTERVAL = 1000
-        private const val LOCATION_DISTANCE = 10f
     }
 }

@@ -106,12 +106,12 @@ class BtTask(
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val address = preferences.getString("devices", "")
             val bluetoothDevices = address!!.split(",")
-            for (i in 0 until bluetoothDevices.size) {
-                val bluetoothDeviceAddress = bluetoothDevices[i].replace("\\s".toRegex(), "")
-                loopok@ for (idxretry in 1..5) {
-                    if (btConnectionRetry(context, bluetoothDeviceAddress)) {
+            for (element in bluetoothDevices) {
+                val bluetoothDeviceAddress = element.replace("\\s".toRegex(), "")
+                loopOk@ for (attempt in 1..5) {
+                    if (tryBluetoothConnection(context, bluetoothDeviceAddress)) {
                         Handler(Looper.getMainLooper()).postDelayed({}, 1000)
-                        break@loopok
+                        break@loopOk
                     }
                 }
             }
@@ -119,11 +119,11 @@ class BtTask(
 
         }
 
-    private fun btConnectionRetry(context: Context, addr: String): Boolean {
+    private fun tryBluetoothConnection(context: Context, address: String): Boolean {
         return try {
-            val bluetoothClient = BluetoothClient(context, addr)
+            val bluetoothClient = BluetoothClient(context, address)
             bluetoothClient.retrieveData()
-            Thread.sleep(2500)
+            Thread.sleep(500)
             //bluetoothClient.close()
             true
         } catch (e: Exception) {
