@@ -71,10 +71,10 @@ class WebserviceSender(
     ): String {
         val url = URL(webServiceParameter.getUrl() + Http.sendVoltUrl)
         var sendSuccessfully = false
-        val databaseVoltwatcher = DatabaseVoltwatcher(context)
-        databaseVoltwatcher.open()
-        databaseVoltwatcher.deleteOldSent()
-        val cursor = databaseVoltwatcher.fetchRowsNotSent()
+        val database = DatabaseVoltwatcher(context)
+        database.open()
+        database.deleteOldSent()
+        val cursor = database.fetchRowsNotSent()
         val cursorCount = cursor.count
         Log.d(TAG, "Found $cursorCount rows to send")
         return if (cursorCount > 0) {
@@ -112,7 +112,7 @@ class WebserviceSender(
                         WebserviceResponse.ERROR -> {
                         }
                         WebserviceResponse.OK -> {
-                            databaseVoltwatcher.updateSent(device, data)
+                            database.updateSent(device, data)
                             Log.d(TAG, "Updated record sent")
                             sendSuccessfully = true
                         }
@@ -122,7 +122,7 @@ class WebserviceSender(
                                 webServiceParameter
                             )
                             if (sendData(url, token, jsonObject) == WebserviceResponse.OK) {
-                                databaseVoltwatcher.updateSent(device, data)
+                                database.updateSent(device, data)
                                 Log.d(TAG, "Updated record sent")
                                 sendSuccessfully = true
                             }
@@ -145,7 +145,7 @@ class WebserviceSender(
                 context.sendBroadcast(intentWs)
             } finally {
                 cursor.close()
-                databaseVoltwatcher.close()
+                database.close()
             }
 
             if (sendSuccessfully) {
@@ -155,7 +155,7 @@ class WebserviceSender(
             }
         } else {
             cursor.close()
-            databaseVoltwatcher.close()
+            database.close()
             val intentWs = Intent(MainEvents.DEBUG)
             intentWs.putExtra("message", "No data found to send")
             context.sendBroadcast(intentWs)
