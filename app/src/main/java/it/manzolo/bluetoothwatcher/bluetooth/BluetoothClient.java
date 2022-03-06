@@ -55,14 +55,14 @@ public final class BluetoothClient {
     public void retrieveData() throws Exception {
         try {
             if (this.open()) {
-                Thread.sleep(500);
+                Thread.sleep(100);
                 this.setBacklight();
-                Thread.sleep(500);
+                Thread.sleep(100);
                 this.setScreenTimeout();
-                Thread.sleep(500);
+                Thread.sleep(100);
                 this.dataDump();
             }
-            Thread.sleep(500);
+            Thread.sleep(100);
         } catch (Exception e) {
             this.close();
             throw e;
@@ -110,16 +110,16 @@ public final class BluetoothClient {
         this.findBT();
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         try {
-            Log.d(TAG, "Connecting to " + bluetoothDevice.getAddress() + " UUID:" + uuid);
+            Log.d(TAG, "createRfcommSocketToServiceRecord to UUID:" + uuid);
             bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+            Log.d(TAG, "Connecting to " + bluetoothDevice.getAddress() + " UUID:" + uuid);
             bluetoothSocket.connect();
             Log.d(TAG, "Connected to " + uuid);
             bluetoothOutputStream = bluetoothSocket.getOutputStream();
             bluetoothInputStream = bluetoothSocket.getInputStream();
 
         } catch (IOException normal_e) {
-            //normal_e.printStackTrace();
-            //throw new Exception("Unable to connect to " + this.deviceAddress);
+            Log.e(TAG, normal_e.getMessage());
             try {
                 bluetoothSocketWrapper = new FallbackBluetoothSocket(bluetoothSocketWrapper.getUnderlyingSocket());
                 Thread.sleep(500);
