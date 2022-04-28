@@ -63,10 +63,11 @@ class MainActivity : AppCompatActivity() {
 
             //Ask user for permission
             val permissions = arrayOf(
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.BLUETOOTH_SCAN,
             )
             ActivityCompat.requestPermissions(this, permissions, 0)
 
@@ -187,8 +188,8 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
             }
+            recyclerView!!.layoutManager?.scrollToPosition(0)
             logViewAdapter.notifyItemInserted(0)
-
         }
     }
 
