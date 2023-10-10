@@ -8,7 +8,12 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import it.manzolo.bluetoothwatcher.enums.MainEvents
-import it.manzolo.bluetoothwatcher.service.*
+import it.manzolo.bluetoothwatcher.service.BluetoothService
+import it.manzolo.bluetoothwatcher.service.LocationService
+import it.manzolo.bluetoothwatcher.service.RestartAppService
+import it.manzolo.bluetoothwatcher.service.SentinelService
+import it.manzolo.bluetoothwatcher.service.UpdateService
+import it.manzolo.bluetoothwatcher.service.WebserviceSendService
 import it.manzolo.bluetoothwatcher.utils.HandlerList
 
 class App : Application() {
@@ -18,6 +23,48 @@ class App : Application() {
         }
 
         private val handlers: ArrayList<HandlerList> = ArrayList()
+        private fun cron(context: Context, serviceClass: Class<*>, seconds: String) {
+            val handler = Handler(Looper.getMainLooper())
+            val frequency = seconds.toInt() * 1000.toLong() // in ms
+            val runnable = object : Runnable {
+                override fun run() {
+                    val intent = Intent(context, serviceClass)
+                    context.startService(intent)
+                    handler.postDelayed(this, frequency) //now is every 2 minutes
+                }
+            }
+            handler.postDelayed(runnable, frequency) //Every 120000 ms (2 minutes)
+            handlers.add(0, HandlerList(serviceClass, handler, runnable, frequency))
+
+
+            /*val serviceIntent = Intent(context, serviceClass)
+            val pendingIntent = PendingIntent.getService(context, 0, serviceIntent, 0)
+            val time: Calendar = Calendar.getInstance()
+            time.timeInMillis = System.currentTimeMillis()
+            time.add(Calendar.SECOND, seconds.toInt()) // first time
+            val frequency = seconds.toInt() * 1000.toLong() // in ms
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(pendingIntent)
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, time.timeInMillis, frequency, pendingIntent)*/
+
+
+            /*val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+            val componentName = ComponentName(context, WebserviceSendService::class.java)
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val debug = preferences.getBoolean("debugApp", false)
+            val seconds = preferences.getString("seconds", "300")
+            if (debug) {
+                Toast.makeText(context, "Start webserviceSend service every $seconds seconds", Toast.LENGTH_SHORT).show()
+            }
+
+            val jobInfo = JobInfo.Builder(3, componentName)
+                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong() / 2))
+                    .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            jobScheduler.schedule(jobInfo.build())*/
+        }
+
         fun scheduleSentinelService(context: Context) {
             val intent = Intent(MainEvents.BROADCAST)
             intent.putExtra("message", "Start sentinel service every 60 seconds")
@@ -105,48 +152,6 @@ class App : Application() {
                 context.sendBroadcast(intent)
                 cron(context, RestartAppService::class.java, seconds)
             }
-        }
-
-        private fun cron(context: Context, serviceClass: Class<*>, seconds: String) {
-            val handler = Handler(Looper.getMainLooper())
-            val frequency = seconds.toInt() * 1000.toLong() // in ms
-            val runnable = object : Runnable {
-                override fun run() {
-                    val intent = Intent(context, serviceClass)
-                    context.startService(intent)
-                    handler.postDelayed(this, frequency) //now is every 2 minutes
-                }
-            }
-            handler.postDelayed(runnable, frequency) //Every 120000 ms (2 minutes)
-            handlers.add(0, HandlerList(serviceClass, handler, runnable, frequency))
-
-
-            /*val serviceIntent = Intent(context, serviceClass)
-            val pendingIntent = PendingIntent.getService(context, 0, serviceIntent, 0)
-            val time: Calendar = Calendar.getInstance()
-            time.timeInMillis = System.currentTimeMillis()
-            time.add(Calendar.SECOND, seconds.toInt()) // first time
-            val frequency = seconds.toInt() * 1000.toLong() // in ms
-
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.cancel(pendingIntent)
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, time.timeInMillis, frequency, pendingIntent)*/
-
-
-            /*val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-            val componentName = ComponentName(context, WebserviceSendService::class.java)
-            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val debug = preferences.getBoolean("debugApp", false)
-            val seconds = preferences.getString("seconds", "300")
-            if (debug) {
-                Toast.makeText(context, "Start webserviceSend service every $seconds seconds", Toast.LENGTH_SHORT).show()
-            }
-
-            val jobInfo = JobInfo.Builder(3, componentName)
-                    .setMinimumLatency(TimeUnit.SECONDS.toMillis(seconds!!.toLong() / 2))
-                    .setOverrideDeadline(TimeUnit.SECONDS.toMillis(seconds.toLong()))
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            jobScheduler.schedule(jobInfo.build())*/
         }
 
         fun findHandler(

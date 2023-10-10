@@ -10,7 +10,11 @@ import androidx.preference.PreferenceFragmentCompat
 import it.manzolo.bluetoothwatcher.App
 import it.manzolo.bluetoothwatcher.R
 import it.manzolo.bluetoothwatcher.enums.MainEvents
-import it.manzolo.bluetoothwatcher.service.*
+import it.manzolo.bluetoothwatcher.service.BluetoothService
+import it.manzolo.bluetoothwatcher.service.LocationService
+import it.manzolo.bluetoothwatcher.service.RestartAppService
+import it.manzolo.bluetoothwatcher.service.UpdateService
+import it.manzolo.bluetoothwatcher.service.WebserviceSendService
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -62,14 +66,6 @@ class SettingsActivity : AppCompatActivity() {
 
         }
 
-        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-            val enabled = getString(R.string.enabledSetting)
-            when (key) {
-                enabled -> serviceEnabled(sharedPreferences.getBoolean(enabled, false))
-                //else -> Log.d("Settings", "unknown key $key")
-            }
-        }
-
         override fun onResume() {
             super.onResume()
             preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
@@ -110,18 +106,33 @@ class SettingsActivity : AppCompatActivity() {
             locationEverySecondsPreference?.setOnBindEditTextListener { editText ->
                 editText.inputType = InputType.TYPE_CLASS_NUMBER
             }
-            val updateEverySecondsPreference: EditTextPreference? = findPreference("updateServiceEverySeconds")
+            val updateEverySecondsPreference: EditTextPreference? =
+                findPreference("updateServiceEverySeconds")
 
             updateEverySecondsPreference?.setOnBindEditTextListener { editText ->
                 editText.inputType = InputType.TYPE_CLASS_NUMBER
             }
 
-            val restartAppEverySecondsPreference: EditTextPreference? = findPreference("restartAppServiceEverySeconds")
+            val restartAppEverySecondsPreference: EditTextPreference? =
+                findPreference("restartAppServiceEverySeconds")
 
             restartAppEverySecondsPreference?.setOnBindEditTextListener { editText ->
                 editText.inputType = InputType.TYPE_CLASS_NUMBER
             }
 
+        }
+
+        override fun onSharedPreferenceChanged(
+            sharedPreferences: SharedPreferences?,
+            key: String?
+        ) {
+            val enabled = getString(R.string.enabledSetting)
+            when (key) {
+                enabled -> if (sharedPreferences != null) {
+                    serviceEnabled(sharedPreferences.getBoolean(enabled, false))
+                }
+                //else -> Log.d("Settings", "unknown key $key")
+            }
         }
     }
 
